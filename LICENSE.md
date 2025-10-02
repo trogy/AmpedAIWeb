@@ -15,7 +15,7 @@ to do everything you might do with the software that would
 otherwise infringe the licensor's copyright in it for any
 permitted purpose.  However, you may only make changes or
 new works based on the software according to [Changes and New
-Works License][#changes-and-new-works-license](https://polyformproject.org/licenses/internal-use/1.0.0/#changes-and-new-works-license), and you may
+Works License](https://polyformproject.org/licenses/internal-use/1.0.0/#changes-and-new-works-license), and you may
 not distribute the software.
 
 ## Changes and New Works License
