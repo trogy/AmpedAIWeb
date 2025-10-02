@@ -1,0 +1,1190 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta http-equiv="Content-Language" content="en" />
+	<meta name="robots" content="index, follow" />
+	<meta name="referrer" content="no-referrer-when-downgrade" />
+
+	<title>Amped AI — 100% AI-Generated Radio</title>
+	<meta name="description" content="Amped AI is a fully AI-generated radio station. Music, hosts, and shows — all powered by artificial intelligence." />
+	<meta name="keywords" content="AI radio, AI music, artificial intelligence, Amped AI, online radio, 24/7 AI stream" />
+	<meta name="author" content="Amped AI / TGNZ Networks" />
+	
+	<!-- Performance: resolve DNS + warm TLS to AzuraCast host -->
+	<link rel="dns-prefetch" href="https://amped-ai1.azuracast.tgnz.net">
+	<link rel="preconnect" href="https://amped-ai1.azuracast.tgnz.net" crossorigin>
+	
+	<!-- Canonical -->
+	<link rel="canonical" href="https://amped-ai.tgnz.net/" />
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://amped-ai.tgnz.net/" />
+	<meta property="og:site_name" content="Amped AI" />
+	<meta property="og:title" content="Amped AI — 100% AI-Generated Radio" />
+	<meta property="og:description" content="Listen to the world’s first fully AI-generated radio station. Music, voices, and shows created by AI — live 24/7." />
+	<meta property="og:image" content="https://amped-ai.tgnz.net/GroupPhoto.jpg" />
+	<meta property="og:locale" content="en_NZ">
+	<meta property="og:image:alt" content="Amped AI on-air hosts">
+
+	<!-- Twitter Card -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:url" content="https://amped-ai.tgnz.net/" />
+	<meta name="twitter:title" content="Amped AI — 100% AI-Generated Radio" />
+	<meta name="twitter:description" content="Streaming 24/7: fully AI-generated music, hosts, and shows." />
+	<meta name="twitter:image" content="https://amped-ai.tgnz.net/GroupPhoto.jpg" />
+
+	<!-- Theme color for mobile browsers -->
+	<meta name="theme-color" content="#ff4db8" />
+	<meta name="color-scheme" content="dark light">
+
+	<style>
+	  :root {
+		--brand-h: 330;
+		--brand-s: 100%;
+		--brand-l: 60%;
+		--brand: hsl(var(--brand-h) var(--brand-s) var(--brand-l));
+		--brand-700: hsl(var(--brand-h) var(--brand-s) 45%);
+		--brand-300: hsl(var(--brand-h) 95% 72%);
+		--bg: #0a0b0f;
+		--surface: #101218;
+		--surface-2: #141823;
+		--text: #f5f7fb;
+		--muted: #97a1b3;
+		--border: #283042;
+		--shadow: 0 10px 30px rgba(0, 0, 0, .35);
+		--r-lg: 16px;
+		--r-md: 12px;
+		--r-sm: 10px;
+		--max: 1100px;
+	  }
+
+	  [data-theme="light"] {
+		--bg: #fbf7fb;
+		--surface: #fff;
+		--surface-2: #f5f0f6;
+		--text: #0d1117;
+		--muted: #505b6d;
+		--border: #e2cfe2;
+		--shadow: 0 10px 30px rgba(10, 20, 40, .08);
+	  }
+
+	  * {
+		box-sizing: border-box;
+	  }
+
+	  html,
+	  body {
+		height: 100%;
+	  }
+
+	  body {
+		margin: 0;
+		font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+		  "Apple Color Emoji", "Segoe UI Emoji";
+		color: var(--text);
+		background:
+		  radial-gradient(1200px 600px at 20% -10%, hsl(var(--brand-h) 85% 20% / .45), transparent 60%),
+		  radial-gradient(1000px 500px at 100% -20%, hsl(var(--brand-h) 85% 18% / .35), transparent 60%),
+		  var(--bg);
+		line-height: 1.55;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	  }
+
+	  a {
+		color: var(--brand-300);
+		text-decoration: none;
+	  }
+
+	  a:hover {
+		text-decoration: underline;
+	  }
+
+	  .container {
+		width: 100%;
+		max-width: var(--max);
+		margin-inline: auto;
+		padding-inline: 20px;
+	  }
+
+	  .btn {
+		display: inline-flex;
+		align-items: center;
+		gap: .6rem;
+		border-radius: 999px;
+		padding: .7rem 1.05rem;
+		font-weight: 600;
+		text-decoration: none;
+		border: 1px solid transparent;
+		transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+	  }
+
+	  .btn:focus {
+		outline: 2px solid var(--brand-300);
+		outline-offset: 2px;
+	  }
+
+	  .btn:hover {
+		transform: translateY(-1px);
+	  }
+
+	  .btn-primary {
+		background: linear-gradient(135deg, var(--brand), var(--brand-700));
+		color: #fff;
+		box-shadow:
+		  0 0 18px hsl(var(--brand-h) 100% 60% / .55),
+		  0 12px 24px hsl(var(--brand-h) 90% 50% / .25);
+	  }
+
+	  .btn-ghost {
+		background: transparent;
+		color: var(--text);
+		border-color: var(--border);
+	  }
+
+	  .btn-ghost:hover {
+		background: var(--surface-2);
+	  }
+
+	  .chip {
+		display: inline-flex;
+		align-items: center;
+		gap: .45rem;
+		padding: .3rem .6rem;
+		border: 1px solid var(--border);
+		border-radius: 999px;
+		color: var(--muted);
+		font-size: .81rem;
+	  }
+
+	  .neon {
+		text-shadow:
+		  0 0 10px hsl(var(--brand-h) 100% 60% / .6),
+		  0 0 24px hsl(var(--brand-h) 100% 60% / .35);
+	  }
+
+	  .header {
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		backdrop-filter: saturate(1.2) blur(8px);
+		background: color-mix(in oklab, var(--bg) 70%, transparent);
+		border-bottom: 1px solid var(--border);
+	  }
+
+	  .header .row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: .7rem 0;
+	  }
+
+	  .logo {
+		display: inline-flex;
+		align-items: center;
+		gap: .6rem;
+		font-weight: 800;
+		letter-spacing: .2px;
+	  }
+
+	  .logo-img {
+		width: 160px;
+		height: auto;
+		filter: drop-shadow(0 0 18px hsl(var(--brand-h) 100% 60% / .55));
+	  }
+
+	  nav ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		gap: 1rem;
+	  }
+
+	  nav a {
+		color: var(--muted);
+		padding: .55rem .75rem;
+		border-radius: 999px;
+	  }
+
+	  nav a:hover,
+	  nav a[aria-current="page"] {
+		background: var(--surface-2);
+		color: var(--text);
+		text-decoration: none;
+	  }
+
+	  .header-actions {
+		display: flex;
+		align-items: center;
+		gap: .6rem;
+	  }
+
+	  .icon-btn {
+		display: inline-grid;
+		place-items: center;
+		width: 38px;
+		height: 38px;
+		border-radius: 999px;
+		border: 1px solid var(--border);
+		background: var(--surface-2);
+	  }
+
+	  .icon-btn svg {
+		width: 18px;
+		height: 18px;
+	  }
+
+	  .menu-toggle {
+		display: none;
+	  }
+
+	  .hero {
+		padding: 48px 0 26px;
+	  }
+
+	  .hero .wrap {
+		display: grid;
+		grid-template-columns: 1.2fr .8fr;
+		gap: 28px;
+		align-items: center;
+	  }
+
+	  .eyebrow {
+		display: inline-flex;
+		align-items: center;
+		gap: .5rem;
+		font-weight: 600;
+		color: var(--brand-300);
+		letter-spacing: .3px;
+	  }
+
+	  .hero h1 {
+		font-size: clamp(2rem, 1.2rem + 3vw, 3.2rem);
+		margin: .4rem 0 .75rem;
+		line-height: 1.1;
+	  }
+
+	  .hero h1 span {
+		color: var(--brand-300);
+	  }
+
+	  .hero p {
+		color: var(--muted);
+		max-width: 48ch;
+	  }
+
+	  .hero .cta {
+		display: flex;
+		gap: .6rem;
+		margin-top: 1rem;
+		flex-wrap: wrap;
+	  }
+
+	  .promo-card {
+		background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 85%, transparent), var(--surface));
+		border: 1px solid var(--border);
+		border-radius: var(--r-lg);
+		padding: 18px;
+		box-shadow: var(--shadow);
+	  }
+
+	  .promo-card h3 {
+		margin: .4rem 0;
+	  }
+
+	  .now {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		gap: 14px;
+		align-items: center;
+	  }
+
+	  .art {
+		width: 68px;
+		height: 68px;
+		border-radius: 10px;
+		overflow: hidden;
+		background: linear-gradient(135deg, var(--brand-300), var(--brand));
+		display: grid;
+		place-items: center;
+	  }
+
+	  .art img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: none;
+	  }
+
+	  .art span {
+		font-weight: 800;
+		letter-spacing: .5px;
+		color: #000;
+	  }
+
+	  .track h3 {
+		margin: 0;
+		font-size: 1.05rem;
+	  }
+
+	  .track p {
+		margin: .2rem 0 0;
+		color: var(--muted);
+		font-size: .9rem;
+	  }
+
+	  .live-dot {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background: #ff4d9a;
+		box-shadow: 0 0 0 6px rgba(255, 77, 154, .12);
+		display: inline-block;
+	  }
+
+	  .progress {
+		height: 6px;
+		background: var(--surface-2);
+		border-radius: 999px;
+		overflow: hidden;
+		margin-top: .6rem;
+	  }
+
+	  .bar {
+		height: 100%;
+		width: 0%;
+		background: linear-gradient(90deg, var(--brand-300), var(--brand));
+		box-shadow: 0 0 12px hsl(var(--brand-h) 100% 60% / .5) inset;
+	  }
+
+	  section {
+		padding: 34px 0;
+	  }
+
+	  section h2 {
+		font-size: clamp(1.4rem, 1.1rem + 1.5vw, 2rem);
+		margin: 0 0 .6rem;
+	  }
+
+	  .sub {
+		color: var(--muted);
+		margin: 0 0 1rem;
+	  }
+
+	  .grid {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		gap: 16px;
+	  }
+
+	  .col-4 {
+		grid-column: span 4;
+	  }
+
+	  .col-6 {
+		grid-column: span 6;
+	  }
+
+	  .col-8 {
+		grid-column: span 8;
+	  }
+
+	  .tabs {
+		display: flex;
+		gap: 8px;
+		border-bottom: 1px solid var(--border);
+		margin-bottom: 12px;
+	  }
+
+	  .tab {
+		padding: .5rem .8rem;
+		border: 1px solid var(--border);
+		border-bottom: none;
+		background: var(--surface);
+		border-radius: var(--r-sm) var(--r-sm) 0 0;
+		color: var(--muted);
+		cursor: pointer;
+	  }
+
+	  .tab[aria-selected="true"] {
+		color: var(--text);
+		background: var(--surface-2);
+	  }
+
+	  table {
+		width: 100%;
+		border-collapse: collapse;
+		border: 1px solid var(--border);
+		border-radius: var(--r-md);
+		overflow: hidden;
+		background: var(--surface);
+	  }
+
+	  th,
+	  td {
+		text-align: left;
+		padding: 12px 14px;
+		border-bottom: 1px solid var(--border);
+	  }
+
+	  tr:hover td {
+		background: var(--surface-2);
+	  }
+
+	  th {
+		color: var(--muted);
+		font-weight: 600;
+	  }
+
+	  footer {
+		border-top: 1px solid var(--border);
+		padding: 28px 0 40px;
+		color: var(--muted);
+	  }
+
+	  .footer-grid {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 16px;
+		align-items: center;
+	  }
+
+	  .socials {
+		display: flex;
+		gap: 10px;
+	  }
+
+	  @media (max-width: 900px) {
+		.hero .wrap {
+		  grid-template-columns: 1fr;
+		}
+
+		.grid {
+		  grid-template-columns: repeat(6, 1fr);
+		}
+
+		.col-4,
+		.col-6,
+		.col-8 {
+		  grid-column: span 6;
+		}
+
+		.logo-img {
+		  width: 130px;
+		}
+	  }
+
+	  @media (max-width: 760px) {
+		nav {
+		  display: none;
+		  position: absolute;
+		  top: 64px;
+		  left: 0;
+		  right: 0;
+		  background: var(--surface);
+		  border-bottom: 1px solid var(--border);
+		  padding: 10px 0;
+		}
+
+		nav.open {
+		  display: block;
+		}
+
+		nav ul {
+		  flex-direction: column;
+		}
+
+		.menu-toggle {
+		  display: inline-grid;
+		}
+	  }
+
+	  .skip {
+		position: absolute;
+		left: -9999px;
+		top: auto;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+	  }
+
+	  .skip:focus {
+		left: 10px;
+		top: 10px;
+		width: auto;
+		height: auto;
+		padding: .6rem .8rem;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--r-sm);
+		z-index: 50;
+	  }
+
+	  /* Card stays solid on all themes */
+	  .card {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--r-lg);
+		box-shadow: var(--shadow);
+		overflow: clip;
+		display: flex;
+		flex-direction: column;
+	  }
+
+	  /* Square thumbnail area */
+	  .card .media {
+		aspect-ratio: 1 / 1;
+		background: var(--surface-2);
+		display: grid;
+		place-items: center;
+		overflow: hidden;
+	  }
+
+	  /* Text area */
+	  .card .body {
+		background: var(--surface);
+		padding: 14px;
+		display: grid;
+		gap: 8px;
+	  }
+
+	  /* Image + placeholder */
+	  .card .media img {
+		width: 100%;
+		height: 100%;
+		display: block;
+		object-fit: cover;
+		transition: transform .25s ease;
+	  }
+
+	  .card .media .placeholder {
+		width: 100%;
+		height: 100%;
+		display: grid;
+		place-items: center;
+		font-weight: 800;
+		font-size: 1.2rem;
+		letter-spacing: .3px;
+		color: #000;
+		background: linear-gradient(135deg, var(--brand-300), var(--brand));
+	  }
+
+	  /* Hover polish */
+	  .card:hover .media img {
+		transform: scale(1.03);
+	  }
+	  
+	  @media (prefers-reduced-motion: reduce) {
+		.card .media img { transition: none; }
+	  }
+	</style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header" role="banner">
+    <div class="container row">
+      <div class="row" style="gap:12px; align-items:center;">
+        <button class="icon-btn menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 6h18v2H3V6Zm0 5h18v2H3v-2Zm0 5h18v2H3v-2Z"/></svg>
+        </button>
+        <a class="logo" href="#" aria-label="Amped AI home">
+          <img class="logo-img" src="logo.png" alt="Amped AI" />
+        </a>
+      </div>
+      <nav id="site-nav" aria-label="Primary">
+        <ul>
+          <li><a href="#shows">Shows</a></li>
+          <li><a href="#schedule">Schedule</a></li>
+          <li><a href="#listen">Listen</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button id="themeBtn" class="icon-btn" aria-label="Toggle theme" title="Toggle light/dark">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 3a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm7 9a7 7 0 1 1-7-7 5 5 0 0 0 0 10 7 7 0 0 1 7-3Z"/></svg>
+        </button>
+        <a class="btn btn-primary neon" href="#listen">Listen Live</a>
+      </div>
+    </div>
+  </header>
+
+<section class="hero" id="listen">
+  <div class="container">
+    <div class="wrap">
+      <div>
+        <div class="eyebrow">
+          <span class="chip"><span class="live-dot" aria-hidden></span> Live 24/7</span>
+          <span class="neon">100% AI Radio</span>
+        </div>
+
+        <h1><span>Amped AI</span> — Always on. Always different.</h1>
+
+        <p>
+          A new kind of station: AI-generated music, shows, and voices.
+          Streaming non-stop with real programming, real hosts, and zero humans behind the mic.
+        </p>
+
+        <div class="cta">
+          <button id="playBtn" class="btn btn-primary" aria-pressed="false">
+            <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden>
+              <path d="m8 5 12 7-12 7V5Z"/>
+            </svg>
+            <span>Play Stream</span>
+          </button>
+          <a class="btn btn-ghost" href="#schedule">View Schedule</a>
+          <a class="btn btn-ghost" href="#recent">Recently Played</a>
+        </div>
+      </div>
+
+      <aside class="promo-card" aria-label="Now playing">
+        <div class="now">
+          <div class="art">
+            <img id="artImg" alt="Album art" src="">
+            <span id="artFallback">AMP</span>
+          </div>
+		<div class="track" aria-live="polite" aria-atomic="true">
+		  <h3 id="trackTitle">Track Title</h3>
+		  <p id="trackMeta">Artist • with <strong id="trackHost">Host</strong></p>
+            <div class="progress" aria-label="Progress">
+              <div class="bar" id="progressBar" style="width:0%"></div>
+            </div>
+          </div>
+          <div>
+            <span class="chip" title="Live">
+              <span class="live-dot" aria-hidden></span>
+              <span id="liveLabel">Live</span>
+            </span>
+          </div>
+        </div>
+        <audio id="player" preload="none" crossorigin="anonymous"></audio>
+      </aside>
+    </div>
+  </div>
+</section>
+
+    <section id="shows">
+      <div class="container">
+        <h2 class="neon">Featured Shows</h2>
+        <div class="grid" id="showsGrid" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="schedule">
+      <div class="container">
+        <h2 class="neon">Schedule</h2>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" aria-controls="weekdayPanel" aria-selected="true" id="weekdayTab">Weekdays</button>
+          <button class="tab" role="tab" aria-controls="weekendPanel" aria-selected="false" id="weekendTab">Weekend</button>
+        </div>
+        <div id="weekdayPanel" role="tabpanel" aria-labelledby="weekdayTab"></div>
+        <div id="weekendPanel" role="tabpanel" aria-labelledby="weekendTab" hidden></div>
+      </div>
+    </section>
+
+    <section id="recent">
+      <div class="container">
+        <h2 class="neon">Recently Played</h2>
+        <div class="card"><div class="body">
+          <ul id="recentList" style="list-style:none;padding:0;margin:0;display:grid;gap:10px"></ul>
+        </div></div>
+      </div>
+    </section>
+
+	<section id="about">
+	  <div class="container">
+		<h2 class="neon">About Amped AI</h2>
+		<div class="grid" style="align-items:center">
+		  
+		  <!-- Group photo -->
+		  <div class="col-6">
+			<div class="card">
+			  <div class="media" style="aspect-ratio:3/2; overflow:hidden; background:var(--surface-2);">
+				<img src="GroupPhoto.jpg" alt="Amped AI on-air hosts" width="1200" height="800" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
+			  </div>
+			</div>
+		  </div>
+
+		  <!-- Station Info -->
+		  <div class="col-6">
+			<div class="card">
+			  <div class="body">
+				<p>
+				  Amped AI is a fully automated radio station running around the clock.  
+				  Shows are written by large language models, voiced using advanced text-to-speech,  
+				  and scheduled with AzuraCast. Every track played is AI-generated music, making the  
+				  station a complete end-to-end experiment in machine-driven broadcasting.
+				</p>
+				<p>
+				  The goal is simple: see how close AI can get to creating the energy and flow of  
+				  traditional radio, while opening the door to new kinds of programming that wouldn’t  
+				  be possible with a fixed human schedule.
+				</p>
+				<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+				  <span class="chip">Live 24/7</span>
+				  <span class="chip">Powered by AzuraCast</span>
+				  <span class="chip">AI Hosts</span>
+				  <span class="chip">100% AI Music</span>
+				</div>
+			  </div>
+			</div>
+		  </div>
+
+		</div>
+	  </div>
+	</section>
+
+
+<section id="ethics" style="margin-top:4rem;">
+  <div class="container">
+    <div class="card">
+      <div class="body" style="text-align:center;">
+        <h3 class="neon">Ethics & Transparency</h3>
+        <p style="max-width:720px; margin:0 auto;">
+          Amped AI is an experiment — a side project, not a full-time job for anyone involved.  
+          If people enjoy it, great; if not, that’s fine too. The goal isn’t to replace radio DJs or take work away.  
+          Every show you hear is fully generated using a mix of large language models and ElevenLabs text-to-speech, 
+          with light human curation to keep things sensible and safe.
+        </p>
+      	<br>
+	</div>
+    </div>
+  </div>
+</section>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>© <span id="year"></span> Amped AI a TGNZ Networks Project • Parts of this website are AI Generated • V0.3hf1 </div>
+      <div class="socials" aria-label="Social links">
+        <a class="icon-btn" href="#" aria-label="X / Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h3l6.5 8.2L18.5 3H21l-7.4 9.5L21 21h-3l-6.8-8.6L6 21H3l8-10.3L3 3Z"/></svg></a>
+        <a class="icon-btn" href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.3-.4-4.9c-.2-.9-.9-1.6-1.8-1.8C18.9 4.8 12 4.8 12 4.8s-6.9 0-8.8.5c-.9.2-1.6.9-1.8 1.8C1 8.7 1 12 1 12s0 3.3.4 4.9c.2.9.9 1.6 1.8 1.8 1.9.5 8.8.5 8.8.5s6.9 0 8.8-.5c.9-.2 1.6-.9 1.8-1.8.4-1.6.4-4.9.4-4.9Zm-13 3.3V8.7l5.8 3.3-5.8 3.3Z"/></svg></a>
+        <a class="icon-btn" href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm11 2a1 1 0 1 1 0 2 1 1 0 0 1 0-2ZM12 7a5 5 0 1 1-.001 10.001A5 5 0 0 1 12 7Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg></a>
+      </div>
+    </div>
+  </footer>
+
+<script>
+/* =========================================================================
+   Amped AI — Frontend Script
+   ======================================================================= */
+
+/* ----------------------------- CONFIG ---------------------------------- */
+const CONFIG = {
+  streamURL: "https://amped-ai1.azuracast.tgnz.net/listen/amped_ai/radio.mp3",
+  apiBase:   "https://amped-ai1.azuracast.tgnz.net/api",
+  station:   "amped_ai",
+  stationId: 1,
+  timeZone:  "Pacific/Auckland",
+  liveLabel: "Live"
+};
+
+// Visible shows on the homepage grid
+const SHOWS = [
+  { title: "Amped Mornings with Miki",      time: "Weekdays 5–9 AM",   image: "AMWM.png", imageText: "MIKI", desc: "Wake-ups, headlines, and feel-good anthems." },
+  { title: "The Amped Drive Home with Jax", time: "Weekdays 3–7 PM",   image: "ADHJ.png", imageText: "JAX",  desc: "Commutes with momentum — throwbacks + new drops." },
+  { title: "Midnight Flow with Sam Carter", time: "Nightly 11 PM–2 AM", image: "MFSC.png", imageText: "SAM", desc: "Late-night downtempo and calm talk." }
+];
+
+/* ------------------------------ HELPERS -------------------------------- */
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+const setText = (el, txt) => { if (el) el.textContent = txt; };
+const show   = el => { if (el) el.style.display = "";   };
+const hide   = el => { if (el) el.style.display = "none"; };
+
+/** Format helpers with target TZ */
+const fmt = {
+  dayShort(d, tz) { return new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' }).format(new Date(d)); },
+  hm(d, tz)       { return new Intl.DateTimeFormat(undefined, { timeZone: tz, hour: '2-digit', minute: '2-digit' }).format(new Date(d)); },
+  time(t)         { return isNaN(+t) ? "" : new Date(t * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); },
+};
+
+/* ------------------------------ HEADER/UI ------------------------------ */
+function initHeaderUI() {
+  const nav = $('#site-nav');
+  const menuBtn = $('.menu-toggle');
+
+  menuBtn?.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-controls', 'site-nav');
+  });
+
+  const themeBtn  = $('#themeBtn');
+  const themeIcon = $('#themeIcon');
+
+  const setTheme = (mode) => {
+    document.documentElement.setAttribute('data-theme', mode);
+    localStorage.setItem('amped-theme', mode);
+    themeBtn?.setAttribute('aria-pressed', mode === 'dark' ? 'true' : 'false');
+    if (themeIcon) {
+      themeIcon.innerHTML = mode === 'dark'
+        ? '<path d="M12 3a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm7 9a7 7 0 1 1-7-7 5 5 0 0 0 0 10 7 7 0 0 1 7-3Z"/>'
+        : '<path d="M17.6 15.6A7 7 0 0 1 8.4 6.4 7 7 0 1 0 17.6 15.6Z"/>';
+    }
+  };
+
+  themeBtn?.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    setTheme(cur === 'dark' ? 'light' : 'dark');
+  });
+
+  const initialTheme = localStorage.getItem('amped-theme')
+    || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  setTheme(initialTheme);
+
+  setText($('#year'), new Date().getFullYear());
+
+  // Smooth in-page scrolling + close nav on navigate
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) {
+      e.preventDefault();
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      nav?.classList.remove('open');
+      menuBtn?.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
+/* ------------------------------ SHOW GRID ------------------------------ */
+function renderShows() {
+  const grid = document.getElementById('showsGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  for (const show of SHOWS) {
+    const card = document.createElement('article');
+    card.className = 'card col-4';
+
+    const hasImg = Boolean(show.image);
+    const media = hasImg
+      ? `<img src="${show.image}" alt="${show.title} artwork" loading="lazy" />`
+      : `<div class="placeholder">${(show.imageText || show.title.slice(0, 3)).toUpperCase()}</div>`;
+
+    card.innerHTML = `
+      <div class="media">${media}</div>
+      <div class="body">
+        <h3>${show.title}</h3>
+        <div class="meta">${show.time}</div>
+        <p>${show.desc || ''}</p>
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+}
+
+/* ------------------------------ SCHEDULE ------------------------------- */
+function renderScheduleShell() {
+  const weekdayPanel = document.getElementById('weekdayPanel');
+  const weekendPanel = document.getElementById('weekendPanel');
+  const weekdayTab   = $('#weekdayTab');
+  const weekendTab   = $('#weekendTab');
+
+  if (weekdayPanel) {
+    weekdayPanel.innerHTML = `
+      <table>
+        <thead><tr><th>Day</th><th style="width:180px">Time</th><th>Program</th></tr></thead>
+        <tbody>
+          <tr><td>Mon–Fri</td><td>05:00–09:00</td><td>Amped Mornings with Miki</td></tr>
+          <tr><td>Mon–Fri</td><td>09:00–16:45</td><td>Amped AI with Jax & Miki</td></tr>
+          <tr><td>Mon–Fri</td><td>16:45–22:00</td><td>The Amped Drive Home with Jax</td></tr>
+          <tr><td>Mon–Fri</td><td>22:00–05:00</td><td>Midnight Flow with Sam Carter</td></tr>
+        </tbody>
+      </table>`;
+  }
+  if (weekendPanel) weekendPanel.innerHTML = `<div class="meta">Weekend view loads from API.</div>`;
+
+  function setTab(isWeekend) {
+    weekdayTab?.setAttribute('aria-selected', String(!isWeekend));
+    weekendTab?.setAttribute('aria-selected', String(isWeekend));
+    if (weekdayPanel) weekdayPanel.hidden = isWeekend;
+    if (weekendPanel) weekendPanel.hidden = !isWeekend;
+  }
+  weekdayTab?.addEventListener('click', () => setTab(false));
+  weekendTab?.addEventListener('click', () => setTab(true));
+  setTab(false);
+}
+
+async function tryPopulateScheduleFromScheduleAPI() {
+  const tz = CONFIG.timeZone || 'Pacific/Auckland';
+  const daysOrder = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // Build a 7-day window starting today in target TZ
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' })
+    .formatToParts(new Date()).reduce((o,p)=>(o[p.type]=p.value,o),{});
+  const startLocal = new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00`);
+  const endLocal   = new Date(startLocal.getTime() + 7*24*60*60*1000);
+
+  const offsetPart = (d) => {
+    const p = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'shortOffset' }).formatToParts(d);
+    const v = p.find(x => x.type === 'timeZoneName')?.value || 'GMT+00';
+    const m = v.match(/GMT([+\-])(\d{1,2})(?::?(\d{2}))?/);
+    return m ? `${m[1]}${m[2].padStart(2,'0')}:${(m[3]||'00').padStart(2,'0')}` : '+00:00';
+  };
+  const fmtISO = (d) => {
+    const p = new Intl.DateTimeFormat('en-GB', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false })
+      .formatToParts(d).reduce((o,p)=>(o[p.type]=p.value,o),{});
+    return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:00${offsetPart(d)}`;
+  };
+
+  const url = `${CONFIG.apiBase}/station/${CONFIG.stationId}/schedule`
+    + `?start=${encodeURIComponent(fmtISO(startLocal))}`
+    + `&end=${encodeURIComponent(fmtISO(endLocal))}`
+    + `&timeZone=${encodeURIComponent(tz)}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return;
+
+    const items = await res.json();
+    if (!Array.isArray(items) || !items.length) return;
+
+    const buckets = new Map(); // key: "title__HH:MM–HH:MM" -> { title, time, days:Set }
+    for (const ev of items) {
+      const title  = ev.title || ev.name || 'Show';
+      const startT = fmt.hm(ev.start, tz);
+      const endT   = fmt.hm(ev.end,   tz);
+      const key    = `${title}__${startT}–${endT}`;
+
+      if (!buckets.has(key)) buckets.set(key, { title, time: `${startT}–${endT}`, days: new Set() });
+      buckets.get(key).days.add(fmt.dayShort(ev.start, tz));
+    }
+
+    const compressDays = (set) => {
+      const arr = daysOrder.filter(d => set.has(d));
+      if (!arr.length) return '';
+      const idx = arr.map(d => daysOrder.indexOf(d)).sort((a,b)=>a-b);
+      const ranges = [];
+      let s = idx[0], prev = idx[0];
+      for (let i = 1; i < idx.length; i++) {
+        if (idx[i] === prev + 1) { prev = idx[i]; continue; }
+        ranges.push([s, prev]); s = prev = idx[i];
+      }
+      ranges.push([s, prev]);
+      const toLabel = ([a,b]) => a === b ? daysOrder[a] : `${daysOrder[a]}–${daysOrder[b]}`;
+      return ranges.map(toLabel).join(', ');
+    };
+
+    const rowsWeekday = [];
+    const rowsWeekend = [];
+    for (const b of buckets.values()) {
+      const label = compressDays(b.days);
+      const row = `<tr><td>${label}</td><td style="width:180px">${b.time}</td><td>${b.title}</td></tr>`;
+      const hasWeekend = b.days.has('Sat') || b.days.has('Sun');
+      const hasWeekday = ['Mon','Tue','Wed','Thu','Fri'].some(d => b.days.has(d));
+      if (hasWeekday) rowsWeekday.push(row);
+      if (hasWeekend) rowsWeekend.push(row);
+    }
+
+    const mkTable = (rows) => `
+      <table>
+        <thead><tr><th>Day</th><th style="width:180px">Time</th><th>Program</th></tr></thead>
+        <tbody>${rows.sort().join('')}</tbody>
+      </table>`;
+
+    if (rowsWeekday.length) $('#weekdayPanel').innerHTML = mkTable(rowsWeekday);
+    if (rowsWeekend.length) $('#weekendPanel').innerHTML  = mkTable(rowsWeekend);
+  } catch (e) {
+    console.warn('schedule fetch failed', e);
+  }
+}
+
+/* ------------------------------ PLAYER --------------------------------- */
+function initPlayer() {
+  const player   = $('#player');
+  const playBtn  = $('#playBtn');
+  const playIcon = $('#playIcon');
+
+  if (!player || !playBtn || !playIcon) return;
+
+  const ICON_PLAY  = '<path d="m8 5 12 7-12 7V5Z"/>';
+  const ICON_PAUSE = '<path d="M7 5h5v14H7V5Zm7 0h5v14h-5V5Z"/>';
+
+  player.preload = 'none';
+
+  const setLiveSrc = () => {
+    player.src = `${CONFIG.streamURL}?ts=${Date.now()}`; // cache-bust to avoid old buffer
+    player.load();
+  };
+  const toPlayUI  = () => { playBtn.setAttribute('aria-pressed','false'); playBtn.querySelector('span').textContent = 'Play Stream';  playIcon.innerHTML = ICON_PLAY; };
+  const toPauseUI = () => { playBtn.setAttribute('aria-pressed','true');  playBtn.querySelector('span').textContent = 'Pause Stream'; playIcon.innerHTML = ICON_PAUSE; };
+
+  playBtn.addEventListener('click', async () => {
+    if (!CONFIG.streamURL) { alert('Add your stream URL in CONFIG.streamURL first.'); return; }
+    if (player.paused || !player.src) {
+      setLiveSrc();
+      try { await player.play(); toPauseUI(); }
+      catch (e) { console.warn(e); toPlayUI(); }
+    } else {
+      player.pause();
+      player.removeAttribute('src');
+      player.load();
+      toPlayUI();
+    }
+  });
+
+  // Debounced auto-recover to prevent repeat/stutter loops
+  let waitingTimer = null;
+  let recovering = false;
+  let lastRecoverAt = 0;
+  const RECOVER_COOLDOWN = 30000; // ms
+
+  const scheduleRecover = (reason, delay = 1500) => {
+    if (player.paused) return; // only recover if user expects playback
+    const now = Date.now();
+    if (recovering || (now - lastRecoverAt) < RECOVER_COOLDOWN) return;
+    recovering = true;
+    setTimeout(() => {
+      lastRecoverAt = Date.now();
+      const wasPlaying = !player.paused;
+      player.src = `${CONFIG.streamURL}?ts=${Date.now()}`;
+      player.load();
+      if (wasPlaying) player.play().catch(()=>{});
+      recovering = false;
+    }, delay);
+  };
+
+  player.addEventListener('stalled', () => scheduleRecover('stalled', 1200));
+  player.addEventListener('error',   () => scheduleRecover('error', 1200));
+
+  // If we sit in "waiting" for a few seconds, try a gentle recover
+  player.addEventListener('waiting', () => {
+    clearTimeout(waitingTimer);
+    waitingTimer = setTimeout(() => scheduleRecover('waiting', 1500), 4000);
+  });
+  player.addEventListener('playing', () => { clearTimeout(waitingTimer); });
+  player.addEventListener('timeupdate', () => { clearTimeout(waitingTimer); });
+}
+
+/* ----------------------- NOW PLAYING / RECENTS ------------------------- */
+function initNowPlaying() {
+  const titleEl     = $('#trackTitle');
+  const metaEl      = $('#trackMeta');
+  const barEl       = $('#progressBar');
+  const artImg      = $('#artImg');
+  const artFallback = $('#artFallback');
+  const recentList  = $('#recentList');
+  const liveLabelEl = $('#liveLabel');
+
+  if (!titleEl || !metaEl || !barEl) return;
+
+  // Smooth progress (respect reduced motion)
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) barEl.style.transition = 'width 0.9s linear';
+
+  let elapsed = 0, duration = 1;
+
+  const updateProgress = () => {
+    const pct = Math.min(100, Math.round((elapsed / Math.max(1, duration)) * 100));
+    barEl.style.width = pct + '%';
+  };
+
+  async function fetchNowPlaying() {
+    try {
+      let data;
+      const r1 = await fetch(`${CONFIG.apiBase}/nowplaying/${CONFIG.station}`);
+      if (r1.ok) {
+        data = await r1.json();
+      } else {
+        const r2 = await fetch(`${CONFIG.apiBase}/nowplaying`);
+        const list = await r2.json();
+        data = Array.isArray(list) ? list.find(s => (s.station?.shortcode || '') === CONFIG.station) : null;
+      }
+      if (!data) throw new Error('No station data');
+
+      const np     = data.now_playing || {};
+      const song   = np.song || {};
+      const isLive = (data.live && data.live.is_live) || false;
+      const host   = isLive ? (data.live.streamer_name || 'Live') : (data.playing_next?.artist || 'AutoDJ');
+
+      setText(titleEl, song.title || 'Unknown Title');
+
+      // Build meta safely (no HTML injection)
+      metaEl.replaceChildren();
+      const artistSpan = document.createElement('span');
+      artistSpan.textContent = song.artist || 'Unknown Artist';
+      const sep = document.createTextNode(' • ');
+      const withText = document.createTextNode(isLive ? 'live with ' : 'with ');
+      const hostStrong = document.createElement('strong');
+      hostStrong.textContent = host;
+      metaEl.append(artistSpan, sep, withText, hostStrong);
+
+      setText(liveLabelEl, isLive ? CONFIG.liveLabel : 'Auto');
+
+      // Artwork
+      const artUrl = song.art || song.artwork || '';
+      if (artUrl) { artImg.src = artUrl; show(artImg); hide(artFallback); }
+      else { artImg.removeAttribute('src'); hide(artImg); show(artFallback); }
+
+      // Recently played — prepend a NBSP before the time so it never sticks to text
+      if (Array.isArray(data.song_history) && recentList) {
+        recentList.innerHTML = data.song_history.slice(0, 8).map(h => {
+          const ti = h.song?.title  || 'Unknown';
+          const ar = h.song?.artist || '—';
+          const time = fmt.time(h.played_at);
+          const timeText = time ? `&nbsp;${time}` : '';
+          return `<li class="recent-item"><span><strong>${ti}</strong> — ${ar}</span><span class="meta">${timeText}</span></li>`;
+        }).join('') || '<li class="meta">No history yet.</li>';
+      }
+
+      elapsed  = Number(np.elapsed ?? 0);
+      duration = Number(np.duration ?? 1) || 1;
+      updateProgress();
+    } catch (err) {
+      // gentle fallback
+      const dummy = [
+        { title: 'Signal Test', artist: 'Amped AI', host: 'AutoDJ', seconds: 180 },
+        { title: 'Neon City',   artist: 'Amped AI', host: 'AutoDJ', seconds: 200 }
+      ][Math.floor(Math.random() * 2)];
+
+      setText(titleEl, dummy.title);
+      metaEl.replaceChildren(
+        document.createTextNode(dummy.artist),
+        document.createTextNode(' • with '),
+        Object.assign(document.createElement('strong'), { textContent: dummy.host })
+      );
+      elapsed = 0; duration = dummy.seconds;
+      updateProgress();
+    }
+  }
+
+  // Timers
+  setInterval(() => {
+    if (duration > 0) {
+      elapsed = Math.min(duration, elapsed + 1);
+      updateProgress();
+    }
+  }, 1000);
+
+  setInterval(fetchNowPlaying, 15000);
+  fetchNowPlaying();
+}
+
+/* ------------------------------ INIT ----------------------------------- */
+function init() {
+  initHeaderUI();
+  renderShows();
+  renderScheduleShell();
+  tryPopulateScheduleFromScheduleAPI();
+  initPlayer();
+  initNowPlaying();
+}
+
+document.readyState !== 'loading'
+  ? init()
+  : document.addEventListener('DOMContentLoaded', init);
+</script>
+
+
+</body>
+</html>
