@@ -794,7 +794,7 @@ const SHOWS = [
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const setText = (el, txt) => { if (el) el.textContent = txt; };
-const show   = el => { if (el) el.style.display = "";   };
+const show   = (el, display = "") => { if (el) el.style.display = display; };
 const hide   = el => { if (el) el.style.display = "none"; };
 
 /** Format helpers with target TZ */
@@ -1123,7 +1123,7 @@ function initNowPlaying() {
 
       // Artwork
       const artUrl = song.art || song.artwork || '';
-      if (artUrl) { artImg.src = artUrl; show(artImg); hide(artFallback); }
+      if (artUrl) { artImg.src = artUrl; show(artImg, 'block'); hide(artFallback); }
       else { artImg.removeAttribute('src'); hide(artImg); show(artFallback); }
 
       // Recently played — prepend a NBSP before the time so it never sticks to text
