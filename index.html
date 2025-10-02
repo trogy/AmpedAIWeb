@@ -1030,19 +1030,88 @@ function initPlayer() {
   const toPlayUI  = () => { playBtn.setAttribute('aria-pressed','false'); playBtn.querySelector('span').textContent = 'Play Stream';  playIcon.innerHTML = ICON_PLAY; };
   const toPauseUI = () => { playBtn.setAttribute('aria-pressed','true');  playBtn.querySelector('span').textContent = 'Pause Stream'; playIcon.innerHTML = ICON_PAUSE; };
 
-  playBtn.addEventListener('click', async () => {
-    if (!CONFIG.streamURL) { alert('Add your stream URL in CONFIG.streamURL first.'); return; }
-    if (player.paused || !player.src) {
-      setLiveSrc();
-      try { await player.play(); toPauseUI(); }
-      catch (e) { console.warn(e); toPlayUI(); }
-    } else {
-      player.pause();
-      player.removeAttribute('src');
-      player.load();
+  const mediaSession = ('mediaSession' in navigator) ? navigator.mediaSession : null;
+  const setMediaSessionPlaybackState = (state) => {
+    if (!mediaSession) return;
+    try { mediaSession.playbackState = state; }
+    catch (err) { /* ignore */ }
+  };
+
+  const startPlayback = async ({ showAlert = true } = {}) => {
+    if (!CONFIG.streamURL) {
+      if (showAlert) alert('Add your stream URL in CONFIG.streamURL first.');
+      setMediaSessionPlaybackState('none');
+      return;
+    }
+
+    setLiveSrc();
+    try {
+      await player.play();
+      toPauseUI();
+      setMediaSessionPlaybackState('playing');
+    } catch (e) {
+      console.warn(e);
       toPlayUI();
+      setMediaSessionPlaybackState('paused');
+    }
+  };
+
+  const stopPlayback = () => {
+    player.pause();
+    player.removeAttribute('src');
+    player.load();
+    toPlayUI();
+    setMediaSessionPlaybackState('paused');
+  };
+
+  playBtn.addEventListener('click', async () => {
+    if (player.paused || !player.src) {
+      await startPlayback();
+    } else {
+      stopPlayback();
     }
   });
+
+  if (mediaSession) {
+    const safeActionHandler = (action, handler) => {
+      try { mediaSession.setActionHandler(action, handler); }
+      catch (err) { /* ignore unsupported */ }
+    };
+
+    const updateMediaSessionMetadata = ({ title, artist, host, artwork }) => {
+      const metaInit = {
+        title: title || 'Unknown Title',
+        artist: artist || '',
+        album: host ? `with ${host}` : '',
+        artwork: artwork ? [{ src: artwork, sizes: '512x512' }] : []
+      };
+      try { mediaSession.metadata = new MediaMetadata(metaInit); }
+      catch (err) { /* ignore */ }
+    };
+
+    window.__updateMediaSessionMetadata = updateMediaSessionMetadata;
+
+    safeActionHandler('play', () => {
+      if (player.paused || !player.src) {
+        void startPlayback({ showAlert: false });
+      } else {
+        setMediaSessionPlaybackState('playing');
+      }
+    });
+    safeActionHandler('pause', () => {
+      if (!player.paused || player.readyState > 0) {
+        stopPlayback();
+      } else {
+        setMediaSessionPlaybackState('paused');
+      }
+    });
+    safeActionHandler('stop', () => { stopPlayback(); });
+    safeActionHandler('seekto', () => { /* Live stream: no seeking supported */ });
+
+    setMediaSessionPlaybackState(player.paused ? 'paused' : 'playing');
+  } else {
+    window.__updateMediaSessionMetadata = null;
+  }
 
   // Debounced auto-recover to prevent repeat/stutter loops
   let waitingTimer = null;
@@ -1095,6 +1164,12 @@ function initNowPlaying() {
 
   let elapsed = 0, duration = 1;
 
+  const pushMediaSessionMetadata = (info) => {
+    if (typeof window.__updateMediaSessionMetadata === 'function') {
+      window.__updateMediaSessionMetadata(info);
+    }
+  };
+
   const updateProgress = () => {
     const pct = Math.min(100, Math.round((elapsed / Math.max(1, duration)) * 100));
     barEl.style.width = pct + '%';
@@ -1137,6 +1212,13 @@ function initNowPlaying() {
       if (artUrl) { artImg.src = artUrl; show(artImg, 'block'); hide(artFallback); }
       else { artImg.removeAttribute('src'); hide(artImg); show(artFallback); }
 
+      pushMediaSessionMetadata({
+        title: song.title || 'Unknown Title',
+        artist: song.artist || 'Unknown Artist',
+        host,
+        artwork: artUrl
+      });
+
       // Recently played — prepend a NBSP before the time so it never sticks to text
       if (Array.isArray(data.song_history) && recentList) {
         recentList.innerHTML = data.song_history.slice(0, 8).map(h => {
@@ -1164,6 +1246,12 @@ function initNowPlaying() {
         document.createTextNode(' • with '),
         Object.assign(document.createElement('strong'), { textContent: dummy.host })
       );
+      pushMediaSessionMetadata({
+        title: dummy.title,
+        artist: dummy.artist,
+        host: dummy.host,
+        artwork: ''
+      });
       elapsed = 0; duration = dummy.seconds;
       updateProgress();
     }
