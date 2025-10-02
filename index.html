@@ -607,7 +607,7 @@
       </nav>
       <div class="header-actions">
         <button id="themeBtn" class="icon-btn" aria-label="Toggle theme" title="Toggle light/dark">
-          <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 3a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm7 9a7 7 0 1 1-7-7 5 5 0 0 0 0 10 7 7 0 0 1 7-3Z"/></svg>
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path fill-rule="evenodd" clip-rule="evenodd" d="M12 3a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm7 9a7 7 0 1 1-7-7 5 5 0 0 0 0 10 7 7 0 0 1 7-3Z"/></svg>
         </button>
         <a class="btn btn-primary neon" href="#listen">Listen Live</a>
       </div>
@@ -824,7 +824,7 @@ function initHeaderUI() {
     themeBtn?.setAttribute('aria-pressed', mode === 'dark' ? 'true' : 'false');
     if (themeIcon) {
       themeIcon.innerHTML = mode === 'dark'
-        ? '<path d="M12 3a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm7 9a7 7 0 1 1-7-7 5 5 0 0 0 0 10 7 7 0 0 1 7-3Z"/>'
+        ? '<path fill-rule="evenodd" clip-rule="evenodd" d="M12 3a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm7 9a7 7 0 1 1-7-7 5 5 0 0 0 0 10 7 7 0 0 1 7-3Z"/>'
         : '<path d="M17.6 15.6A7 7 0 0 1 8.4 6.4 7 7 0 1 0 17.6 15.6Z"/>';
     }
   };
