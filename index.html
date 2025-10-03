@@ -71,6 +71,12 @@
                 --layer-glass: color-mix(in oklab, var(--surface) 82%, transparent);
                 --layer-hover-bg: color-mix(in oklab, var(--surface-2) 88%, transparent);
                 --layer-chip-bg: color-mix(in oklab, var(--surface) 75%, transparent);
+                --upnext-current-bg: color-mix(in oklab, var(--brand) 22%, var(--layer-glass) 78%);
+                --upnext-current-border: color-mix(in oklab, var(--brand) 45%, var(--layer-border) 55%);
+                --upnext-current-glow: hsl(var(--brand-h) 96% 68% / .45);
+                --upnext-future-bg: color-mix(in oklab, var(--layer-glass) 92%, transparent);
+                --upnext-future-border: color-mix(in oklab, var(--layer-border) 70%, transparent);
+                --upnext-future-text: color-mix(in oklab, var(--muted) 78%, var(--text) 22%);
           }
 
           @keyframes heroFadeUp {
@@ -107,6 +113,12 @@
                 --layer-glass: color-mix(in oklab, var(--surface) 94%, rgba(255, 255, 255, .25));
                 --layer-hover-bg: color-mix(in oklab, var(--surface-2) 95%, rgba(255, 255, 255, .3));
                 --layer-chip-bg: color-mix(in oklab, var(--surface) 92%, rgba(255, 255, 255, .25));
+                --upnext-current-bg: color-mix(in oklab, var(--brand-300) 28%, rgba(255, 255, 255, .85));
+                --upnext-current-border: color-mix(in oklab, var(--brand-300) 45%, rgba(255, 255, 255, .2));
+                --upnext-current-glow: hsl(var(--brand-h) 95% 60% / .4);
+                --upnext-future-bg: color-mix(in oklab, var(--surface-2) 92%, rgba(255, 255, 255, .65));
+                --upnext-future-border: color-mix(in oklab, var(--border) 65%, transparent);
+                --upnext-future-text: color-mix(in oklab, var(--muted) 82%, var(--text) 18%);
           }
 
 	  * {
@@ -197,16 +209,28 @@
 		background: var(--surface-2);
 	  }
 
-	  .chip {
-		display: inline-flex;
-		align-items: center;
-		gap: .45rem;
-		padding: .3rem .6rem;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		color: var(--muted);
-		font-size: .81rem;
-	  }
+          .chip {
+                display: inline-flex;
+                align-items: center;
+                gap: .45rem;
+                padding: .3rem .6rem;
+                border: 1px solid var(--border);
+                border-radius: 999px;
+                color: var(--muted);
+                font-size: .81rem;
+          }
+
+          .chip[data-variant="now"] {
+                background: linear-gradient(135deg, var(--brand-300), var(--brand));
+                color: #0a030f;
+                border-color: color-mix(in oklab, #fff 55%, transparent);
+                text-transform: uppercase;
+                letter-spacing: .12em;
+                font-weight: 700;
+                box-shadow:
+                  0 0 0 1px color-mix(in oklab, #fff 60%, transparent),
+                  0 0 18px var(--upnext-current-glow);
+          }
 
 	  .neon {
 		text-shadow:
@@ -514,6 +538,25 @@
                 display: flex;
                 flex-direction: column;
                 gap: .75rem;
+                border-radius: var(--r-md);
+                padding: 1.1rem 1.3rem;
+                border: 1px solid transparent;
+                background: transparent;
+                transition: background .2s ease, border-color .2s ease, box-shadow .3s ease;
+          }
+
+          #carModeUpNext .car-mode-section[data-state="current"] {
+                background: var(--upnext-current-bg);
+                border-color: var(--upnext-current-border);
+                box-shadow:
+                  0 14px 34px color-mix(in srgb, #000 28%, transparent),
+                  0 0 18px var(--upnext-current-glow);
+          }
+
+          #carModeUpNext .car-mode-section[data-state="upcoming"],
+          #carModeUpNext .car-mode-section[data-state="idle"] {
+                background: var(--upnext-future-bg);
+                border-color: var(--upnext-future-border);
           }
 
           #carModeUpNext .car-mode-chip {
@@ -521,9 +564,20 @@
                 font-weight: 600;
           }
 
+          #carModeUpNext .car-mode-section[data-state="upcoming"] .car-mode-chip,
+          #carModeUpNext .car-mode-section[data-state="idle"] .car-mode-chip {
+                color: var(--upnext-future-text);
+                border-color: var(--upnext-future-border);
+          }
+
           #carModeUpNext .car-mode-time {
                 font-size: 1.1rem;
                 color: var(--muted);
+          }
+
+          #carModeUpNext .car-mode-section[data-state="upcoming"] .car-mode-time,
+          #carModeUpNext .car-mode-section[data-state="idle"] .car-mode-time {
+                color: var(--upnext-future-text);
           }
 
           #carModeUpNext .car-mode-countdown {
@@ -655,9 +709,10 @@
                 gap: clamp(18px, 4vw, 24px);
                 padding: clamp(22px, 5vw, 30px);
                 border-radius: calc(var(--r-lg) - 2px);
-                background: var(--layer-glass);
-                border: 1px solid color-mix(in oklab, var(--layer-border) 85%, transparent);
-                box-shadow: 0 20px 48px color-mix(in srgb, #000 35%, transparent);
+                background: var(--upnext-current-bg);
+                border: 1px solid var(--upnext-current-border);
+                box-shadow: 0 20px 48px color-mix(in srgb, #000 35%, transparent),
+                  0 0 28px var(--upnext-current-glow);
                 backdrop-filter: blur(18px) saturate(1.3);
                 overflow: hidden;
                 isolation: isolate;
@@ -667,10 +722,29 @@
                 content: "";
                 position: absolute;
                 inset: -55% -35% 15% -35%;
-                background: radial-gradient(120% 120% at 20% 18%, hsl(var(--brand-h) 96% 66% / .55), transparent 65%);
+                background: radial-gradient(120% 120% at 20% 18%, var(--upnext-current-glow), transparent 65%);
                 filter: blur(32px);
                 opacity: .9;
                 z-index: 0;
+          }
+
+          .current-show[data-state="idle"] {
+                background: var(--upnext-future-bg);
+                border-color: var(--upnext-future-border);
+                box-shadow: 0 12px 32px color-mix(in srgb, #000 26%, transparent);
+          }
+
+          .current-show[data-state="idle"]::before {
+                opacity: .35;
+          }
+
+          .current-show[data-state="idle"] .current-show-title,
+          .current-show[data-state="idle"] .current-show-time {
+                color: var(--upnext-future-text);
+          }
+
+          .current-show[data-state="idle"] .chip[data-variant="now"] {
+                opacity: .8;
           }
 
           .current-show > * {
@@ -686,11 +760,7 @@
                 letter-spacing: .14em;
                 text-transform: uppercase;
                 font-weight: 700;
-                background: linear-gradient(135deg, var(--brand-300), var(--brand));
-                color: #0a030f;
-                box-shadow:
-                  0 0 0 1px color-mix(in oklab, #fff 65%, transparent),
-                  0 0 22px hsl(var(--brand-h) 95% 65% / .45);
+                color: currentColor;
           }
 
           .current-show-text {
@@ -743,8 +813,8 @@
                 gap: 16px;
                 padding: 16px 18px;
                 border-radius: var(--r-md);
-                background: color-mix(in oklab, var(--layer-glass) 90%, transparent);
-                border: 1px solid color-mix(in oklab, var(--layer-border) 60%, transparent);
+                background: var(--upnext-future-bg);
+                border: 1px solid var(--upnext-future-border);
                 box-shadow: 0 10px 28px color-mix(in srgb, #000 22%, transparent);
                 backdrop-filter: blur(12px) saturate(1.15);
                 transition: transform .2s ease, box-shadow .25s ease, border-color .2s ease, background .2s ease;
@@ -754,7 +824,7 @@
           .up-next-item:hover,
           .up-next-item:focus-within {
                 transform: translateY(-2px);
-                border-color: color-mix(in oklab, var(--layer-border) 40%, var(--brand) 20%);
+                border-color: color-mix(in oklab, var(--upnext-future-border) 55%, var(--brand) 25%);
                 background: color-mix(in oklab, var(--layer-hover-bg) 85%, transparent);
                 box-shadow:
                   0 16px 34px color-mix(in srgb, #000 28%, transparent),
@@ -764,6 +834,27 @@
           .up-next-item:focus-within {
                 outline: 2px solid color-mix(in oklab, var(--brand) 55%, transparent);
                 outline-offset: 4px;
+          }
+
+          .up-next-item[data-state="current"] {
+                background: var(--upnext-current-bg);
+                border-color: var(--upnext-current-border);
+                box-shadow:
+                  0 16px 40px color-mix(in srgb, #000 30%, transparent),
+                  0 0 24px var(--upnext-current-glow);
+          }
+
+          .up-next-item[data-state="current"] .up-next-title,
+          .up-next-item[data-state="current"] .up-next-meta {
+                color: var(--text);
+          }
+
+          .up-next-item[data-state="upcoming"] .up-next-title {
+                color: var(--upnext-future-text);
+          }
+
+          .up-next-item[data-state="upcoming"] .up-next-meta {
+                color: color-mix(in oklab, var(--upnext-future-text) 85%, var(--muted) 15%);
           }
 
           .recent-item {
@@ -792,12 +883,49 @@
                 width: 34px;
                 height: 34px;
                 border-radius: 999px;
-                background: linear-gradient(140deg, var(--brand-300), var(--brand));
-                color: #0b040f;
+                background: color-mix(in oklab, var(--upnext-future-bg) 85%, transparent);
+                color: var(--upnext-future-text);
                 font-weight: 700;
                 font-variant-numeric: tabular-nums;
-                box-shadow: 0 0 0 1px color-mix(in oklab, #fff 60%, transparent);
+                box-shadow: 0 0 0 1px color-mix(in oklab, var(--upnext-future-border) 70%, transparent);
                 flex-shrink: 0;
+          }
+
+          .up-next-item[data-state="current"]::before {
+                background: linear-gradient(140deg, var(--brand-300), var(--brand));
+                color: #0b040f;
+                box-shadow: 0 0 0 1px color-mix(in oklab, #fff 60%, transparent);
+          }
+
+          .up-next-state {
+                font-size: .72rem;
+                font-weight: 700;
+                letter-spacing: .12em;
+                text-transform: uppercase;
+          }
+
+          .up-next-state[data-variant="upcoming"] {
+                background: transparent;
+                border-color: var(--upnext-future-border);
+                color: var(--upnext-future-text);
+          }
+
+          .up-next-item[data-state="upcoming"] .up-next-state[data-variant="upcoming"] {
+                color: var(--upnext-future-text);
+          }
+
+          .up-next-state[data-variant="now"] {
+                color: #0a030f;
+          }
+
+          .up-next-chip[data-variant="time"] {
+                font-weight: 600;
+                color: var(--text);
+          }
+
+          .up-next-item[data-state="upcoming"] .up-next-chip[data-variant="time"] {
+                color: var(--upnext-future-text);
+                border-color: var(--upnext-future-border);
           }
 
           .up-next-text {
@@ -1368,12 +1496,12 @@
             <audio id="player" preload="none" crossorigin="anonymous"></audio>
           </aside>
           <div id="carModeUpNext" class="car-mode-up-next" aria-live="polite" hidden aria-hidden="true">
-            <div class="car-mode-section">
-              <span class="chip car-mode-chip">On Air</span>
+            <div class="car-mode-section" data-section="current" data-state="current" aria-current="true">
+              <span class="chip car-mode-chip" data-variant="now">Now</span>
               <h2 id="carModeCurrentTitle">Loading current show…</h2>
               <p id="carModeCurrentTime" class="car-mode-time">—</p>
             </div>
-            <div class="car-mode-section">
+            <div class="car-mode-section" data-section="upcoming" data-state="upcoming">
               <span class="chip car-mode-chip">Up Next</span>
               <h3 id="carModeNextTitle">Loading next show…</h3>
               <p id="carModeNextTime" class="car-mode-time">—</p>
@@ -1382,8 +1510,8 @@
           </div>
           <div class="card up-next-card" id="upNextCard" aria-live="polite">
             <div class="body">
-              <div class="current-show" id="currentShow" aria-live="polite">
-                <span class="chip up-next-chip current-show-badge">On Air</span>
+              <div class="current-show" id="currentShow" aria-live="polite" data-state="current" aria-current="true">
+                <span class="chip up-next-chip current-show-badge" data-variant="now">Now</span>
                 <div class="current-show-text">
                   <h3 class="current-show-title" id="currentShowTitle">Loading current show…</h3>
                   <span class="current-show-time" id="currentShowTime">—</span>
@@ -1903,12 +2031,23 @@ const renderUpNextList = (items, tz) => {
   }
 
   list.innerHTML = '';
-  for (const item of items) {
+  items.forEach((item, index) => {
     const li = document.createElement('li');
     li.className = 'up-next-item';
+    const isCurrent = index === 0;
+    li.dataset.state = isCurrent ? 'current' : 'upcoming';
+    if (isCurrent) {
+      li.setAttribute('aria-current', 'true');
+    }
+
+    const stateBadge = document.createElement('span');
+    stateBadge.className = 'chip up-next-chip up-next-state';
+    stateBadge.dataset.variant = isCurrent ? 'now' : 'upcoming';
+    stateBadge.textContent = isCurrent ? 'Now' : 'Up Next';
 
     const badge = document.createElement('span');
     badge.className = 'chip up-next-chip';
+    badge.dataset.variant = 'time';
     badge.textContent = `${fmt.dayShort(item.start, tz)} ${fmt.hm(item.start, tz)}`;
 
     const textWrap = document.createElement('div');
@@ -1923,9 +2062,9 @@ const renderUpNextList = (items, tz) => {
     meta.textContent = `${fmt.hm(item.start, tz)} – ${fmt.hm(item.end, tz)}`;
 
     textWrap.append(title, meta);
-    li.append(badge, textWrap);
+    li.append(stateBadge, badge, textWrap);
     list.appendChild(li);
-  }
+  });
   return true;
 };
 
@@ -2022,11 +2161,16 @@ const getCurrentShellSlot = (tz) => {
 const updateCurrentShowUI = (event, tz) => {
   const titleEl = $('#currentShowTitle');
   const timeEl = $('#currentShowTime');
+  const container = $('#currentShow');
   if (!titleEl || !timeEl) return false;
 
   if (!event) {
     setText(titleEl, 'Schedule unavailable');
     setText(timeEl, '—');
+    if (container) {
+      container.dataset.state = 'idle';
+      container.removeAttribute('aria-current');
+    }
     return false;
   }
 
@@ -2036,6 +2180,11 @@ const updateCurrentShowUI = (event, tz) => {
     setText(timeEl, `${fmt.hm(event.start, tz)} – ${fmt.hm(event.end, tz)}`);
   } else {
     setText(timeEl, '—');
+  }
+
+  if (container) {
+    container.dataset.state = 'current';
+    container.setAttribute('aria-current', 'true');
   }
 
   return true;
@@ -2068,6 +2217,8 @@ const renderCarModeUpNext = (current, next, tz) => {
   const nextTitleEl = $('#carModeNextTitle');
   const nextTimeEl = $('#carModeNextTime');
   const countdownEl = $('#carModeNextCountdown');
+  const currentSection = container?.querySelector('[data-section="current"]');
+  const nextSection = container?.querySelector('[data-section="upcoming"]');
   if (!container) return;
 
   const formatRange = (event) => {
@@ -2087,6 +2238,20 @@ const renderCarModeUpNext = (current, next, tz) => {
   }
   if (nextTimeEl) {
     setText(nextTimeEl, next ? `${fmt.dayShort(next.start, tz)} ${formatRange(next)}` : '—');
+  }
+
+  if (currentSection) {
+    currentSection.dataset.state = current ? 'current' : 'idle';
+    if (current) {
+      currentSection.setAttribute('aria-current', 'true');
+    } else {
+      currentSection.removeAttribute('aria-current');
+    }
+  }
+
+  if (nextSection) {
+    nextSection.dataset.state = next ? 'upcoming' : 'idle';
+    nextSection.removeAttribute('aria-current');
   }
 
   if (!countdownEl) return;
