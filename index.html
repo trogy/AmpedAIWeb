@@ -236,14 +236,26 @@
 		background: var(--surface-2);
 	  }
 
-	  .icon-btn svg {
-		width: 18px;
-		height: 18px;
-	  }
+          .icon-btn svg {
+                width: 18px;
+                height: 18px;
+          }
 
-	  .menu-toggle {
-		display: none;
-	  }
+          .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border: 0;
+          }
+
+          .menu-toggle {
+                display: none;
+          }
 
 	  .hero {
 		padding: 48px 0 26px;
@@ -280,12 +292,60 @@
 		max-width: 48ch;
 	  }
 
-	  .hero .cta {
-		display: flex;
-		gap: .6rem;
-		margin-top: 1rem;
-		flex-wrap: wrap;
-	  }
+          .hero .cta {
+                display: flex;
+                gap: .6rem;
+                margin-top: 1rem;
+                flex-wrap: wrap;
+          }
+
+          .player-controls {
+                display: inline-flex;
+                align-items: center;
+                gap: .6rem;
+                flex-wrap: wrap;
+          }
+
+          .player-volume {
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                padding: .5rem .75rem;
+                border: 1px solid var(--border);
+                border-radius: var(--r-md);
+                background: var(--surface-2);
+                flex-wrap: wrap;
+          }
+
+          .player-volume label {
+                font-size: .82rem;
+                font-weight: 600;
+                color: var(--muted);
+          }
+
+          .player-volume-controls {
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                flex: 1;
+          }
+
+          .player-volume input[type="range"] {
+                flex: 1;
+                min-width: 120px;
+                accent-color: var(--brand);
+                background: transparent;
+          }
+
+          .player-volume input[type="range"][disabled] {
+                opacity: .6;
+                cursor: not-allowed;
+          }
+
+          .player-volume .icon-btn {
+                width: 36px;
+                height: 36px;
+          }
 
           .promo-card {
                 background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 85%, transparent), var(--surface));
@@ -581,27 +641,50 @@
           @media (max-width: 760px) {
                 nav {
                   display: none;
-		  position: absolute;
-		  top: 64px;
-		  left: 0;
-		  right: 0;
-		  background: var(--surface);
-		  border-bottom: 1px solid var(--border);
-		  padding: 10px 0;
-		}
+                  position: absolute;
+                  top: 64px;
+                  left: 0;
+                  right: 0;
+                  background: var(--surface);
+                  border-bottom: 1px solid var(--border);
+                  padding: 10px 0;
+                }
 
-		nav.open {
-		  display: block;
-		}
+                nav.open {
+                  display: block;
+                }
 
-		nav ul {
-		  flex-direction: column;
-		}
+                nav ul {
+                  flex-direction: column;
+                }
 
-		.menu-toggle {
-		  display: inline-grid;
-		}
-	  }
+                .menu-toggle {
+                  display: inline-grid;
+                }
+          }
+
+          @media (max-width: 600px) {
+                .player-controls {
+                  width: 100%;
+                }
+
+                .player-volume {
+                  flex: 1 1 100%;
+                  flex-wrap: wrap;
+                }
+
+                .player-volume label {
+                  width: 100%;
+                }
+
+                .player-volume-controls {
+                  width: 100%;
+                }
+
+                .player-volume input[type="range"] {
+                  width: 100%;
+                }
+          }
 
 	  .skip {
 		position: absolute;
@@ -729,12 +812,27 @@
         </p>
 
         <div class="cta">
-          <button id="playBtn" class="btn btn-primary" aria-pressed="false">
-            <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden>
-              <path d="m8 5 12 7-12 7V5Z"/>
-            </svg>
-            <span>Play Stream</span>
-          </button>
+          <div class="player-controls" role="group" aria-label="Player controls">
+            <button id="playBtn" class="btn btn-primary" aria-pressed="false">
+              <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden>
+                <path d="m8 5 12 7-12 7V5Z"/>
+              </svg>
+              <span>Play Stream</span>
+            </button>
+            <div class="player-volume" role="group" aria-label="Volume controls">
+              <label for="volumeControl">Volume</label>
+              <div class="player-volume-controls">
+                <input id="volumeControl" name="volume" type="range" min="0" max="100" step="1" value="100" aria-valuemin="0" aria-valuemax="100" />
+                <button type="button" id="muteBtn" class="icon-btn" aria-pressed="false" aria-label="Mute audio" title="Mute audio">
+                  <svg id="muteIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                    <path d="M4 9v6h4l5 5V4L8 9H4Z"/>
+                    <path d="M16 12a4 4 0 0 0-2.3-3.6l.8-1.8A6 6 0 0 1 18 12a6 6 0 0 1-3.5 5.4l-.8-1.8A4 4 0 0 0 16 12Z"/>
+                  </svg>
+                  <span id="muteText" class="sr-only">Mute audio</span>
+                </button>
+              </div>
+            </div>
+          </div>
           <a class="btn btn-ghost" href="#schedule">View Schedule</a>
           <a class="btn btn-ghost" href="#recent">Recently Played</a>
         </div>
@@ -1278,13 +1376,93 @@ function initPlayer() {
   const player   = $('#player');
   const playBtn  = $('#playBtn');
   const playIcon = $('#playIcon');
+  const volumeSlider = $('#volumeControl');
+  const muteBtn      = $('#muteBtn');
+  const muteIcon     = $('#muteIcon');
+  const muteText     = $('#muteText');
 
   if (!player || !playBtn || !playIcon) return;
 
   const ICON_PLAY  = '<path d="m8 5 12 7-12 7V5Z"/>';
   const ICON_PAUSE = '<path d="M7 5h5v14H7V5Zm7 0h5v14h-5V5Z"/>';
+  const ICON_VOLUME = '<path d="M4 9v6h4l5 5V4L8 9H4Z"/><path d="M16 12a4 4 0 0 0-2.3-3.6l.8-1.8A6 6 0 0 1 18 12a6 6 0 0 1-3.5 5.4l-.8-1.8A4 4 0 0 0 16 12Z"/>';
+  const ICON_MUTED  = '<path d="M4 9v6h4l5 5V4L8 9H4Z"/><path d="m19 9-1.4-1.4-2.1 2.1-2.1-2.1-1.4 1.4 2.1 2.1-2.1 2.1 1.4 1.4 2.1-2.1 2.1 2.1 1.4-1.4-2.1-2.1L19 9Z"/>';
+
+  const VOLUME_STORAGE_KEY = 'amped-volume';
+  const MUTE_STORAGE_KEY   = 'amped-muted';
+  const DEFAULT_VOLUME     = 1;
+  const clamp = (val, min, max) => Math.min(max, Math.max(min, val));
 
   player.preload = 'none';
+
+  let storedVolume = Number(localStorage.getItem(VOLUME_STORAGE_KEY));
+  if (!Number.isFinite(storedVolume)) storedVolume = DEFAULT_VOLUME;
+  storedVolume = clamp(storedVolume, 0, 1);
+  player.volume = storedVolume;
+
+  let lastNonZeroVolume = storedVolume > 0 ? storedVolume : DEFAULT_VOLUME;
+
+  player.muted = localStorage.getItem(MUTE_STORAGE_KEY) === 'true';
+
+  const applyVolumeUI = () => {
+    const volPercent = Math.round(player.volume * 100);
+    if (volumeSlider) {
+      volumeSlider.value = String(volPercent);
+      volumeSlider.setAttribute('aria-valuenow', String(volPercent));
+      const valueText = player.muted ? `Muted, ${volPercent}% volume` : `${volPercent}% volume`;
+      volumeSlider.setAttribute('aria-valuetext', valueText);
+      if (player.muted) {
+        volumeSlider.disabled = true;
+        volumeSlider.setAttribute('aria-disabled', 'true');
+      } else {
+        volumeSlider.disabled = false;
+        volumeSlider.removeAttribute('aria-disabled');
+      }
+    }
+
+    const label = player.muted ? 'Unmute audio' : 'Mute audio';
+    muteBtn?.setAttribute('aria-pressed', player.muted ? 'true' : 'false');
+    muteBtn?.setAttribute('aria-label', label);
+    muteBtn?.setAttribute('title', label);
+    if (muteText) muteText.textContent = label;
+    if (muteIcon) muteIcon.innerHTML = player.muted ? ICON_MUTED : ICON_VOLUME;
+  };
+
+  applyVolumeUI();
+
+  volumeSlider?.addEventListener('input', () => {
+    const value = clamp(Number(volumeSlider.value) / 100, 0, 1);
+    player.volume = value;
+  });
+
+  muteBtn?.addEventListener('click', () => {
+    const shouldMute = !player.muted;
+    if (shouldMute) {
+      if (player.volume > 0) {
+        lastNonZeroVolume = player.volume;
+      }
+      player.muted = true;
+    } else {
+      const restoreVolume = lastNonZeroVolume > 0 ? lastNonZeroVolume : DEFAULT_VOLUME;
+      if (player.volume === 0) {
+        player.volume = restoreVolume;
+      }
+      player.muted = false;
+    }
+  });
+
+  player.addEventListener('volumechange', () => {
+    if (player.volume > 0) {
+      lastNonZeroVolume = player.volume;
+    }
+    try {
+      localStorage.setItem(VOLUME_STORAGE_KEY, player.volume.toString());
+      localStorage.setItem(MUTE_STORAGE_KEY, player.muted ? 'true' : 'false');
+    } catch (err) {
+      /* ignore */
+    }
+    applyVolumeUI();
+  });
 
   const setLiveSrc = () => {
     player.src = `${CONFIG.streamURL}?ts=${Date.now()}`; // cache-bust to avoid old buffer
