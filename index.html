@@ -1370,13 +1370,13 @@
           <div id="carModeUpNext" class="car-mode-up-next" aria-live="polite" hidden aria-hidden="true">
             <div class="car-mode-section">
               <span class="chip car-mode-chip">On Air</span>
-              <h2 id="carModeCurrentTitle">Loading current show…</h2>
-              <p id="carModeCurrentTime" class="car-mode-time">—</p>
+              <h2 id="carModeCurrentTitle" data-fallback="show-loading"></h2>
+              <p id="carModeCurrentTime" class="car-mode-time" data-fallback="show-time"></p>
             </div>
             <div class="car-mode-section">
               <span class="chip car-mode-chip">Up Next</span>
-              <h3 id="carModeNextTitle">Loading next show…</h3>
-              <p id="carModeNextTime" class="car-mode-time">—</p>
+              <h3 id="carModeNextTitle" data-fallback="show-loading"></h3>
+              <p id="carModeNextTime" class="car-mode-time" data-fallback="show-time"></p>
               <p id="carModeNextCountdown" class="car-mode-countdown" hidden>Starts soon</p>
             </div>
           </div>
@@ -1385,8 +1385,8 @@
               <div class="current-show" id="currentShow" aria-live="polite">
                 <span class="chip up-next-chip current-show-badge">On Air</span>
                 <div class="current-show-text">
-                  <h3 class="current-show-title" id="currentShowTitle">Loading current show…</h3>
-                  <span class="current-show-time" id="currentShowTime">—</span>
+                  <h3 class="current-show-title" id="currentShowTitle" data-fallback="show-loading"></h3>
+                  <span class="current-show-time" id="currentShowTime" data-fallback="show-time"></span>
                 </div>
               </div>
               <div class="up-next-head">
@@ -1520,6 +1520,24 @@ const CONFIG = {
   timeZone:  "Pacific/Auckland",
   liveLabel: "Live"
 };
+
+const SHOW_LOADING_FALLBACK = 'Live: Amped AI (fetching details…)';
+const SHOW_TIME_LOADING_FALLBACK = 'Fetching schedule…';
+
+const primeShowFallbackHeadings = () => {
+  try {
+    document.querySelectorAll('[data-fallback="show-loading"]').forEach((el) => {
+      el.textContent = SHOW_LOADING_FALLBACK;
+    });
+    document.querySelectorAll('[data-fallback="show-time"]').forEach((el) => {
+      el.textContent = SHOW_TIME_LOADING_FALLBACK;
+    });
+  } catch (err) {
+    console.warn('Unable to prime show fallback headings', err);
+  }
+};
+
+primeShowFallbackHeadings();
 
 // Visible shows on the homepage grid
 const SHOWS = [
@@ -2025,17 +2043,17 @@ const updateCurrentShowUI = (event, tz) => {
   if (!titleEl || !timeEl) return false;
 
   if (!event) {
-    setText(titleEl, 'Schedule unavailable');
-    setText(timeEl, '—');
+    setText(titleEl, SHOW_LOADING_FALLBACK);
+    setText(timeEl, SHOW_TIME_LOADING_FALLBACK);
     return false;
   }
 
-  setText(titleEl, event.title || 'On Air');
+  setText(titleEl, event.title || SHOW_LOADING_FALLBACK);
 
   if (event.start && event.end) {
     setText(timeEl, `${fmt.hm(event.start, tz)} – ${fmt.hm(event.end, tz)}`);
   } else {
-    setText(timeEl, '—');
+    setText(timeEl, SHOW_TIME_LOADING_FALLBACK);
   }
 
   return true;
@@ -2071,22 +2089,27 @@ const renderCarModeUpNext = (current, next, tz) => {
   if (!container) return;
 
   const formatRange = (event) => {
-    if (!event?.start || !event?.end) return '—';
+    if (!event?.start || !event?.end) return SHOW_TIME_LOADING_FALLBACK;
     return `${fmt.hm(event.start, tz)} – ${fmt.hm(event.end, tz)}`;
   };
 
   if (currentTitleEl) {
-    setText(currentTitleEl, current?.title || 'Schedule unavailable');
+    setText(currentTitleEl, current?.title || SHOW_LOADING_FALLBACK);
   }
   if (currentTimeEl) {
-    setText(currentTimeEl, formatRange(current));
+    const range = current?.start && current?.end ? formatRange(current) : SHOW_TIME_LOADING_FALLBACK;
+    setText(currentTimeEl, range);
   }
 
   if (nextTitleEl) {
-    setText(nextTitleEl, next?.title || 'No upcoming show');
+    setText(nextTitleEl, next?.title || SHOW_LOADING_FALLBACK);
   }
   if (nextTimeEl) {
-    setText(nextTimeEl, next ? `${fmt.dayShort(next.start, tz)} ${formatRange(next)}` : '—');
+    if (next?.start && next?.end) {
+      setText(nextTimeEl, `${fmt.dayShort(next.start, tz)} ${formatRange(next)}`);
+    } else {
+      setText(nextTimeEl, SHOW_TIME_LOADING_FALLBACK);
+    }
   }
 
   if (!countdownEl) return;
@@ -2732,6 +2755,9 @@ function initNowPlaying() {
   const recentList  = $('#recentList');
   const liveLabelEl = $('#liveLabel');
 
+  const NOW_PLAYING_CACHE_KEY = 'amped-now-playing';
+  const NOW_PLAYING_CACHE_TTL = 60 * 1000;
+
   if (!titleEl || !metaEl || !barEl) return;
 
   // Smooth progress (respect reduced motion)
@@ -2749,6 +2775,174 @@ function initNowPlaying() {
   const updateProgress = () => {
     const pct = Math.min(100, Math.round((elapsed / Math.max(1, duration)) * 100));
     barEl.style.width = pct + '%';
+  };
+
+  const toHistoryEntries = (history) => {
+    if (!Array.isArray(history)) return [];
+    return history.slice(0, 8).map((item) => {
+      const title = item?.title ?? item?.song?.title ?? 'Unknown';
+      const artist = item?.artist ?? item?.song?.artist ?? '—';
+      const playedAt = item?.played_at ?? item?.playedAt ?? item?.timestamp ?? null;
+      return {
+        title,
+        artist,
+        played_at: playedAt
+      };
+    });
+  };
+
+  const renderRecentHistory = (history) => {
+    if (!recentList) return;
+    const entries = toHistoryEntries(history);
+    if (!entries.length) {
+      recentList.innerHTML = '<li class="meta">No history yet.</li>';
+      return;
+    }
+    recentList.innerHTML = entries.map((item) => {
+      const time = fmt.time(item.played_at);
+      const timeText = time ? `&nbsp;${time}` : '';
+      return `<li class="recent-item"><span><strong>${item.title}</strong> — ${item.artist}</span><span class="meta">${timeText}</span></li>`;
+    }).join('');
+  };
+
+  const persistNowPlayingCache = (state = {}) => {
+    const entries = toHistoryEntries(state.history);
+    const payload = {
+      title: state.title || 'Unknown Title',
+      artist: state.artist || 'Unknown Artist',
+      host: state.host || '',
+      hostSlug: state.hostSlug || resolveHostThemeSlug(state.host || ''),
+      scheduleSlug: state.scheduleSlug || lastScheduleSlug || DEFAULT_HOST_SLUG,
+      artUrl: state.artUrl || '',
+      isLive: Boolean(state.isLive),
+      history: entries,
+      elapsed: Number.isFinite(state.elapsed) ? state.elapsed : 0,
+      duration: Number.isFinite(state.duration) ? state.duration : 1,
+      updatedAt: Number.isFinite(state.updatedAt) ? state.updatedAt : Date.now()
+    };
+    try {
+      localStorage.setItem(NOW_PLAYING_CACHE_KEY, JSON.stringify(payload));
+    } catch (err) {
+      console.warn('Unable to persist now playing cache', err);
+    }
+  };
+
+  const readNowPlayingCache = () => {
+    let raw = null;
+    try {
+      raw = localStorage.getItem(NOW_PLAYING_CACHE_KEY);
+    } catch (err) {
+      console.warn('Unable to read now playing cache', err);
+      return null;
+    }
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return null;
+      if (!Number.isFinite(parsed.updatedAt)) return null;
+      if ((Date.now() - parsed.updatedAt) > NOW_PLAYING_CACHE_TTL) return null;
+      return parsed;
+    } catch (err) {
+      console.warn('Unable to parse now playing cache', err);
+      return null;
+    }
+  };
+
+  const renderNowPlayingState = (state = {}, { persist = false, fromCache = false } = {}) => {
+    const hostName = state.host || '';
+    const hostSlug = state.hostSlug || resolveHostThemeSlug(hostName);
+    const scheduleSlug = state.scheduleSlug || lastScheduleSlug || DEFAULT_HOST_SLUG;
+    lastScheduleSlug = scheduleSlug || DEFAULT_HOST_SLUG;
+
+    const artUrl = state.artUrl || state.artwork || '';
+    const isLive = Boolean(state.isLive);
+    const isAutomation = (hostSlug || DEFAULT_HOST_SLUG) === DEFAULT_HOST_SLUG;
+    const hostLabel = hostName || HOST_THEMES[hostSlug]?.label || HOST_THEMES[DEFAULT_HOST_SLUG]?.label || 'AutoDJ';
+
+    if (!isAutomation) {
+      if (fromCache) {
+        applyHostSkin(hostSlug, { asSlug: true, force: true });
+      } else {
+        applyHostSkinDebounced(hostLabel);
+      }
+    } else {
+      applyHostSkin(lastScheduleSlug, { asSlug: true, force: fromCache });
+    }
+
+    setText(titleEl, state.title || 'Unknown Title');
+
+    metaEl.replaceChildren();
+    const artistSpan = document.createElement('span');
+    artistSpan.textContent = state.artist || 'Unknown Artist';
+    metaEl.append(artistSpan);
+    if (!isAutomation) {
+      const sep = document.createTextNode(' • ');
+      const withText = document.createTextNode(isLive ? 'live with ' : 'with ');
+      const hostStrong = document.createElement('strong');
+      hostStrong.textContent = hostLabel;
+      metaEl.append(sep, withText, hostStrong);
+    }
+
+    const liveChip = liveLabelEl?.closest('.chip');
+    const showLiveChip = isLive && !isAutomation;
+    if (liveChip) liveChip.hidden = !showLiveChip;
+    setText(liveLabelEl, showLiveChip ? CONFIG.liveLabel : '');
+
+    if (artUrl) {
+      artImg.src = artUrl;
+      show(artImg, 'block');
+      hide(artFallback);
+    } else {
+      artImg.removeAttribute('src');
+      hide(artImg);
+      show(artFallback);
+    }
+
+    pushMediaSessionMetadata({
+      title: state.title || 'Unknown Title',
+      artist: state.artist || 'Unknown Artist',
+      host: hostLabel,
+      artwork: artUrl
+    });
+
+    const entries = toHistoryEntries(state.history);
+    renderRecentHistory(entries);
+
+    elapsed = Number.isFinite(state.elapsed) ? state.elapsed : 0;
+    duration = Number.isFinite(state.duration) && state.duration > 0 ? state.duration : 1;
+    updateProgress();
+
+    if (persist) {
+      persistNowPlayingCache({
+        ...state,
+        host: hostLabel,
+        hostSlug,
+        scheduleSlug: lastScheduleSlug,
+        artUrl,
+        isLive,
+        history: entries,
+        elapsed,
+        duration,
+        updatedAt: state.updatedAt
+      });
+    }
+  };
+
+  const hydrateNowPlayingFromCache = () => {
+    const cached = readNowPlayingCache();
+    if (!cached) return false;
+    const hydrated = { ...cached };
+    if (Number.isFinite(cached.updatedAt) && Number.isFinite(cached.elapsed)) {
+      const ageSec = Math.floor((Date.now() - cached.updatedAt) / 1000);
+      if (ageSec > 0) {
+        const baseDuration = Number.isFinite(cached.duration) && cached.duration > 0 ? cached.duration : 1;
+        const baseElapsed = Number.isFinite(cached.elapsed) ? cached.elapsed : 0;
+        hydrated.duration = baseDuration;
+        hydrated.elapsed = Math.min(baseDuration, baseElapsed + ageSec);
+      }
+    }
+    renderNowPlayingState(hydrated, { persist: false, fromCache: true });
+    return true;
   };
 
   async function fetchNowPlaying() {
@@ -2769,97 +2963,41 @@ function initNowPlaying() {
       const isLive = (data.live && data.live.is_live) || false;
       const host   = isLive ? (data.live.streamer_name || 'Live') : (data.playing_next?.artist || 'AutoDJ');
       const hostSlug = resolveHostThemeSlug(host);
-      const isAutomation = hostSlug === DEFAULT_HOST_SLUG;
-      const liveChip = liveLabelEl?.closest('.chip');
-
-      if (!isAutomation) {
-        applyHostSkinDebounced(host || 'AutoDJ');
-      } else {
-        applyHostSkin(lastScheduleSlug, { asSlug: true });
-      }
-
-      setText(titleEl, song.title || 'Unknown Title');
-
-      // Build meta safely (no HTML injection)
-      metaEl.replaceChildren();
-      const artistSpan = document.createElement('span');
-      artistSpan.textContent = song.artist || 'Unknown Artist';
-      metaEl.append(artistSpan);
-      if (!isAutomation) {
-        const sep = document.createTextNode(' • ');
-        const withText = document.createTextNode(isLive ? 'live with ' : 'with ');
-        const hostStrong = document.createElement('strong');
-        hostStrong.textContent = host;
-        metaEl.append(sep, withText, hostStrong);
-      }
-
-      const showLiveChip = isLive && !isAutomation;
-      if (liveChip) liveChip.hidden = !showLiveChip;
-      setText(liveLabelEl, showLiveChip ? CONFIG.liveLabel : '');
-
-      // Artwork
       const artUrl = song.art || song.artwork || '';
-      if (artUrl) { artImg.src = artUrl; show(artImg, 'block'); hide(artFallback); }
-      else { artImg.removeAttribute('src'); hide(artImg); show(artFallback); }
-
-      pushMediaSessionMetadata({
+      const history = toHistoryEntries(data.song_history);
+      renderNowPlayingState({
         title: song.title || 'Unknown Title',
         artist: song.artist || 'Unknown Artist',
         host,
-        artwork: artUrl
-      });
-
-      // Recently played — prepend a NBSP before the time so it never sticks to text
-      if (Array.isArray(data.song_history) && recentList) {
-        recentList.innerHTML = data.song_history.slice(0, 8).map(h => {
-          const ti = h.song?.title  || 'Unknown';
-          const ar = h.song?.artist || '—';
-          const time = fmt.time(h.played_at);
-          const timeText = time ? `&nbsp;${time}` : '';
-          return `<li class="recent-item"><span><strong>${ti}</strong> — ${ar}</span><span class="meta">${timeText}</span></li>`;
-        }).join('') || '<li class="meta">No history yet.</li>';
-      }
-
-      elapsed  = Number(np.elapsed ?? 0);
-      duration = Number(np.duration ?? 1) || 1;
-      updateProgress();
+        hostSlug,
+        artUrl,
+        isLive,
+        history,
+        elapsed: Number(np.elapsed ?? 0),
+        duration: Number(np.duration ?? 1) || 1,
+        scheduleSlug: lastScheduleSlug,
+        updatedAt: Date.now()
+      }, { persist: true });
     } catch (err) {
       // gentle fallback
       const dummy = [
         { title: 'Signal Test', artist: 'Amped AI', host: 'AutoDJ', seconds: 180 },
         { title: 'Neon City',   artist: 'Amped AI', host: 'AutoDJ', seconds: 200 }
       ][Math.floor(Math.random() * 2)];
-
       const hostSlug = resolveHostThemeSlug(dummy.host);
-      const isAutomation = hostSlug === DEFAULT_HOST_SLUG;
-      const liveChip = liveLabelEl?.closest('.chip');
-      const isLive = false;
-
-      setText(titleEl, dummy.title);
-      metaEl.replaceChildren();
-      metaEl.append(document.createTextNode(dummy.artist));
-      if (!isAutomation) {
-        metaEl.append(
-          document.createTextNode(' • with '),
-          Object.assign(document.createElement('strong'), { textContent: dummy.host })
-        );
-      }
-      const showLiveChip = isLive && !isAutomation;
-      if (liveChip) liveChip.hidden = !showLiveChip;
-      setText(liveLabelEl, showLiveChip ? CONFIG.liveLabel : '');
-      pushMediaSessionMetadata({
+      renderNowPlayingState({
         title: dummy.title,
         artist: dummy.artist,
         host: dummy.host,
-        artwork: ''
-      });
-      if (!isAutomation) {
-        applyHostSkinDebounced(dummy.host);
-      } else {
-        applyHostSkin(lastScheduleSlug, { asSlug: true });
-      }
-      elapsed = 0; duration = dummy.seconds;
-      updateProgress();
+        hostSlug,
+        artUrl: '',
+        isLive: false,
+        history: [],
+        elapsed: 0,
+        duration: dummy.seconds,
+        scheduleSlug: lastScheduleSlug,
+        updatedAt: Date.now()
+      }, { persist: true });
     }
   }
 
@@ -2871,6 +3009,7 @@ function initNowPlaying() {
     }
   }, 1000);
 
+  hydrateNowPlayingFromCache();
   setInterval(fetchNowPlaying, 15000);
   fetchNowPlaying();
 }
