@@ -455,6 +455,24 @@
                 background: var(--surface-2);
           }
 
+          .recent-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: .75rem;
+                padding: .65rem .9rem;
+                border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+                border-radius: var(--r-sm);
+                background: var(--surface-2);
+          }
+
+          .recent-item .meta {
+                margin-left: auto;
+                color: var(--muted);
+                text-align: right;
+                white-space: nowrap;
+          }
+
           .up-next-item::before {
                 content: counter(upnext);
                 display: inline-flex;
