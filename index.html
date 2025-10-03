@@ -534,14 +534,45 @@
 		font-size: .9rem;
 	  }
 
-	  .live-dot {
-		width: 10px;
-		height: 10px;
-		border-radius: 50%;
-		background: #ff4d9a;
-		box-shadow: 0 0 0 6px rgba(255, 77, 154, .12);
-		display: inline-block;
-	  }
+          @keyframes livePulse {
+                0% {
+                      transform: scale(1);
+                      opacity: 1;
+                      box-shadow: 0 0 0 0 rgba(255, 77, 154, .28), 0 0 12px rgba(255, 77, 154, .5);
+                }
+
+                55% {
+                      transform: scale(1.45);
+                      opacity: .35;
+                      box-shadow: 0 0 0 8px rgba(255, 77, 154, 0), 0 0 18px rgba(255, 77, 154, .28);
+                }
+
+                100% {
+                      transform: scale(1);
+                      opacity: 1;
+                      box-shadow: 0 0 0 0 rgba(255, 77, 154, 0), 0 0 12px rgba(255, 77, 154, .4);
+                }
+          }
+
+          .live-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: #ff4d9a;
+                box-shadow: 0 0 0 0 rgba(255, 77, 154, .28), 0 0 10px rgba(255, 77, 154, .32);
+                display: inline-block;
+                animation: livePulse 1.8s ease-in-out infinite;
+                will-change: transform, opacity;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+                .live-dot {
+                      animation: none;
+                      transform: none;
+                      opacity: 1;
+                      box-shadow: 0 0 0 6px rgba(255, 77, 154, .12);
+                }
+          }
 
 	  .progress {
 		height: 6px;
@@ -772,16 +803,25 @@
 		z-index: 50;
 	  }
 
-	  /* Card stays solid on all themes */
-	  .card {
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--r-lg);
-		box-shadow: var(--shadow);
-		overflow: clip;
-		display: flex;
-		flex-direction: column;
-	  }
+          /* Card stays solid on all themes */
+          .card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--r-lg);
+                box-shadow: var(--shadow);
+                overflow: clip;
+                display: flex;
+                flex-direction: column;
+                transition: transform .25s ease, box-shadow .3s ease;
+          }
+
+          .card:hover,
+          .card:focus-within {
+                transform: translateY(-6px);
+                box-shadow:
+                  var(--shadow),
+                  0 20px 40px hsl(var(--brand-h) 95% 55% / .25);
+          }
 
 	  /* Square thumbnail area */
 	  .card .media {
@@ -821,26 +861,29 @@
 		background: linear-gradient(135deg, var(--brand-300), var(--brand));
 	  }
 
-	  /* Hover polish */
-	  .card:hover .media img {
-		transform: scale(1.03);
-	  }
-	  
+          /* Hover polish */
+          .card:hover .media img {
+                transform: scale(1.03);
+          }
+
           @media (prefers-reduced-motion: reduce) {
+                .card {
+                      transition: none;
+                }
+
+                .card:hover,
+                .card:focus-within {
+                      transform: none;
+                      box-shadow: var(--shadow);
+                }
+
                 .card .media img { transition: none; }
 
-                .hero .eyebrow,
-                .hero h1,
-                .hero p,
-                .hero .cta,
-                .promo-card,
-                .up-next-card {
-                  opacity: 1 !important;
-                  transform: none !important;
-                  animation: none !important;
+                .card:hover .media img {
+                      transform: none;
                 }
           }
-        </style>
+	</style>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
