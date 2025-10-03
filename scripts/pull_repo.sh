@@ -44,14 +44,18 @@ command -v git >/dev/null 2>&1 || fatal "git is not installed or not in PATH"
 
 mkdir -p "$TARGET_DIR"
 
-git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
-  log "Initializing git repository at $TARGET_DIR"
-  git -C "$TARGET_DIR" init >/dev/null \
-    || fatal "Failed to initialize git repository in $TARGET_DIR"
-}
+if ! git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
+    fatal "$TARGET_DIR exists but is not a git repository. Move or remove the contents before running this script."
+  fi
 
-git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
-  || fatal "$TARGET_DIR exists but is not a git repository"
+  log "Cloning repository from $REPO_URL into $TARGET_DIR"
+  git clone --branch "$BRANCH" --single-branch "$REPO_URL" "$TARGET_DIR" >/dev/null \
+    || fatal "Failed to clone $REPO_URL into $TARGET_DIR"
+
+  log "Repository ready at $TARGET_DIR on branch $BRANCH"
+  exit 0
+fi
 
 CURRENT_REMOTE="$(git -C "$TARGET_DIR" remote get-url origin 2>/dev/null || true)"
 if [[ -n "$CURRENT_REMOTE" ]]; then
