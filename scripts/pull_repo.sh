@@ -48,7 +48,10 @@ command -v git >/dev/null 2>&1 || fatal "git is not installed or not in PATH"
 
 mkdir -p "$TARGET_DIR"
 
-RESTORE_PWD=""
+TARGET_DIR_CANONICAL="$(cd "$TARGET_DIR" && pwd -P)"
+CALLER_CANONICAL="$(pwd -P)"
+
+RESTORE_PWD="$PWD"
 restore_pwd() {
   if [[ -z "$RESTORE_PWD" ]]; then
     return
@@ -61,6 +64,10 @@ restore_pwd() {
   fi
 }
 trap restore_pwd EXIT
+
+if [[ "$CALLER_CANONICAL" == "$TARGET_DIR_CANONICAL" || "$CALLER_CANONICAL" == "$TARGET_DIR_CANONICAL"/* ]]; then
+  fatal "Refusing to run inside target directory $TARGET_DIR"
+fi
 
 if ! git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   if [[ "$TARGET_DIR" == "/" ]]; then
