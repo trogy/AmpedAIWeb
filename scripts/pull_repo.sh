@@ -51,6 +51,11 @@ mkdir -p "$TARGET_DIR"
 TARGET_DIR_CANONICAL="$(cd "$TARGET_DIR" && pwd -P)"
 CALLER_CANONICAL="$(pwd -P)"
 
+if [[ "$TARGET_DIR_CANONICAL" == "/" ]]; then
+  fatal "Refusing to operate on the root directory"
+fi
+
+SAFE_WORKDIR="/tmp/ampedaiweb_pull_repo"
 RESTORE_PWD="$PWD"
 restore_pwd() {
   if [[ -z "$RESTORE_PWD" ]]; then
@@ -58,22 +63,24 @@ restore_pwd() {
   fi
 
   if [[ -d "$RESTORE_PWD" ]]; then
-    cd "$RESTORE_PWD" 2>/dev/null || cd / || true
+    cd "$RESTORE_PWD" 2>/dev/null || cd "$SAFE_WORKDIR" 2>/dev/null || true
   else
-    cd / || true
+    mkdir -p "$SAFE_WORKDIR" 2>/dev/null || true
+    cd "$SAFE_WORKDIR" 2>/dev/null || true
   fi
 }
 trap restore_pwd EXIT
 
 if [[ "$CALLER_CANONICAL" == "$TARGET_DIR_CANONICAL" || "$CALLER_CANONICAL" == "$TARGET_DIR_CANONICAL"/* ]]; then
-  fatal "Refusing to run inside target directory $TARGET_DIR"
+  log "Running from inside $TARGET_DIR; switching to a safe working directory"
+  mkdir -p "$SAFE_WORKDIR"
+  if ! cd "$SAFE_WORKDIR"; then
+    fatal "Failed to switch to a safe working directory"
+  fi
+  RESTORE_PWD=""
 fi
 
 if ! git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  if [[ "$TARGET_DIR" == "/" ]]; then
-    fatal "Refusing to operate on the root directory"
-  fi
-
   if find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
     log "Removing existing contents in $TARGET_DIR"
     find "$TARGET_DIR" -mindepth 1 -delete \
