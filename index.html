@@ -511,23 +511,37 @@
 		font-weight: 600;
 	  }
 
-	  footer {
-		border-top: 1px solid var(--border);
-		padding: 28px 0 40px;
-		color: var(--muted);
-	  }
+          footer {
+                border-top: 1px solid var(--border);
+                padding: 28px 0 40px;
+                color: var(--muted);
+          }
 
-	  .footer-grid {
-		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: 16px;
-		align-items: center;
-	  }
+          .footer-grid {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 16px;
+                align-items: center;
+          }
 
-	  .socials {
-		display: flex;
-		gap: 10px;
-	  }
+          .footer-brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+          }
+
+          .footer-logo {
+                height: 42px;
+                width: auto;
+                display: block;
+                filter: drop-shadow(0 0 12px hsl(var(--brand-h) 90% 60% / .45));
+          }
+
+          .socials {
+                display: flex;
+                gap: 10px;
+          }
 
 	  @media (max-width: 900px) {
 		.hero .wrap {
@@ -544,14 +558,28 @@
 		  grid-column: span 6;
 		}
 
-		.logo-img {
-		  width: 130px;
-		}
-	  }
+                .logo-img {
+                  width: 130px;
+                }
 
-	  @media (max-width: 760px) {
-		nav {
-		  display: none;
+                .footer-grid {
+                  grid-template-columns: 1fr;
+                  justify-items: center;
+                  text-align: center;
+                }
+
+                .footer-brand {
+                  justify-content: center;
+                }
+
+                .socials {
+                  justify-content: center;
+                }
+          }
+
+          @media (max-width: 760px) {
+                nav {
+                  display: none;
 		  position: absolute;
 		  top: 64px;
 		  left: 0;
@@ -839,7 +867,10 @@
 
   <footer>
     <div class="container footer-grid">
-      <div>© <span id="year"></span> Amped AI a TGNZ Networks Project • Parts of this website are AI Generated • V0.3hf1 </div>
+      <div class="footer-brand">
+        <img src="https://amped-ai.tgnz.net/AmpedMediaLogo.png" alt="Amped Media logo" class="footer-logo" width="220" height="80" loading="lazy">
+        <span>© <span id="year"></span> Amped AI a TGNZ Networks Project • Parts of this website are AI Generated • V0.3hf1</span>
+      </div>
       <div class="socials" aria-label="Social links">
         <a class="icon-btn" href="#" aria-label="X / Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h3l6.5 8.2L18.5 3H21l-7.4 9.5L21 21h-3l-6.8-8.6L6 21H3l8-10.3L3 3Z"/></svg></a>
         <a class="icon-btn" href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.3-.4-4.9c-.2-.9-.9-1.6-1.8-1.8C18.9 4.8 12 4.8 12 4.8s-6.9 0-8.8.5c-.9.2-1.6.9-1.8 1.8C1 8.7 1 12 1 12s0 3.3.4 4.9c.2.9.9 1.6 1.8 1.8 1.9.5 8.8.5 8.8.5s6.9 0 8.8-.5c.9-.2 1.6-.9 1.8-1.8.4-1.6.4-4.9.4-4.9Zm-13 3.3V8.7l5.8 3.3-5.8 3.3Z"/></svg></a>
