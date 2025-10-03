@@ -29,6 +29,10 @@ REPO_URL="${REPO_URL:-https://github.com/trogy/AmpedAIWeb.git}"
 TARGET_DIR="${1:-$DEFAULT_TARGET}"
 BRANCH="${BRANCH:-main}"
 
+if [[ "$TARGET_DIR" != "/" ]]; then
+  TARGET_DIR="${TARGET_DIR%/}"
+fi
+
 log() {
   printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
 }
@@ -43,6 +47,20 @@ fatal() {
 command -v git >/dev/null 2>&1 || fatal "git is not installed or not in PATH"
 
 mkdir -p "$TARGET_DIR"
+
+RESTORE_PWD=""
+restore_pwd() {
+  if [[ -z "$RESTORE_PWD" ]]; then
+    return
+  fi
+
+  if [[ -d "$RESTORE_PWD" ]]; then
+    cd "$RESTORE_PWD" 2>/dev/null || cd / || true
+  else
+    cd / || true
+  fi
+}
+trap restore_pwd EXIT
 
 if ! git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   if [[ "$TARGET_DIR" == "/" ]]; then
