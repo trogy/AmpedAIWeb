@@ -90,6 +90,20 @@
                 to   { transform: rotate(360deg); }
           }
 
+          @keyframes currentPulse {
+                0%, 100% {
+                  box-shadow:
+                    0 0 0 0 hsl(var(--brand-h) 95% 68% / .35),
+                    0 0 0 1px color-mix(in oklab, #fff 65%, transparent);
+                }
+
+                50% {
+                  box-shadow:
+                    0 0 0 6px hsl(var(--brand-h) 92% 68% / 0),
+                    0 0 0 1px color-mix(in oklab, #fff 65%, transparent);
+                }
+          }
+
           [data-theme="light"] {
                 --bg: #fbf7fb;
                 --surface: #fff;
@@ -768,13 +782,62 @@
 
           .recent-item {
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
                 gap: .75rem;
                 padding: .65rem .9rem;
                 border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
                 border-radius: var(--r-sm);
-                background: var(--surface-2);
+                background: color-mix(in oklab, var(--surface-2) 92%, transparent);
+                transition: background .25s ease, border-color .25s ease, box-shadow .35s ease;
+                flex-wrap: wrap;
+          }
+
+          .recent-item:hover,
+          .recent-item:focus-within {
+                background: color-mix(in oklab, var(--layer-hover-bg) 92%, transparent);
+                border-color: color-mix(in oklab, var(--border) 55%, var(--brand) 25%);
+                box-shadow: 0 12px 26px color-mix(in srgb, #000 18%, transparent);
+          }
+
+          .recent-item:focus-within {
+                outline: 2px solid color-mix(in oklab, var(--brand) 45%, transparent);
+                outline-offset: 3px;
+          }
+
+          .recent-item.is-current {
+                border-color: color-mix(in oklab, var(--border) 35%, var(--brand) 45%);
+                background: color-mix(in oklab, var(--surface-2) 80%, var(--brand) 10%);
+                box-shadow: 0 14px 30px color-mix(in srgb, #000 24%, transparent);
+          }
+
+          .recent-item.is-current:hover,
+          .recent-item.is-current:focus-within {
+                background: color-mix(in oklab, var(--layer-hover-bg) 96%, var(--brand) 12%);
+          }
+
+          .recent-item .recent-text {
+                display: inline-flex;
+                align-items: center;
+                gap: .35rem;
+                row-gap: .15rem;
+                flex: 1 1 auto;
+                min-width: 0;
+                color: var(--text);
+                flex-wrap: wrap;
+          }
+
+          .recent-item .recent-text strong {
+                font-weight: 600;
+                min-width: 0;
+          }
+
+          .recent-item .recent-artist {
+                color: color-mix(in oklab, var(--muted) 55%, var(--text) 45%);
+                min-width: 0;
+          }
+
+          .recent-item .recent-sep {
+                color: color-mix(in oklab, var(--muted) 70%, var(--text) 30%);
           }
 
           .recent-item .meta {
@@ -782,6 +845,48 @@
                 color: var(--muted);
                 text-align: right;
                 white-space: nowrap;
+                font-variant-numeric: tabular-nums;
+          }
+
+          .recent-item.is-current .meta {
+                color: color-mix(in oklab, var(--brand-300) 70%, var(--text) 30%);
+                font-weight: 600;
+          }
+
+          .recent-item .current-indicator {
+                display: none;
+          }
+
+          .recent-item.is-current .current-indicator {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 1.4rem;
+                height: 1.4rem;
+                border-radius: 999px;
+                background: linear-gradient(140deg, var(--brand-300), var(--brand));
+                color: #09040b;
+                box-shadow:
+                  0 0 0 0 hsl(var(--brand-h) 95% 68% / .35),
+                  0 0 0 1px color-mix(in oklab, #fff 65%, transparent);
+                animation: currentPulse 2.2s ease-in-out infinite;
+                flex-shrink: 0;
+          }
+
+          .recent-item.is-current .current-indicator svg {
+                width: .85rem;
+                height: .85rem;
+                fill: currentColor;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+                .recent-item {
+                      transition: background .2s ease, border-color .2s ease;
+                }
+
+                .recent-item.is-current .current-indicator {
+                      animation: none;
+                }
           }
 
           .up-next-item::before {
@@ -2809,15 +2914,62 @@ function initNowPlaying() {
         artwork: artUrl
       });
 
-      // Recently played — prepend a NBSP before the time so it never sticks to text
-      if (Array.isArray(data.song_history) && recentList) {
-        recentList.innerHTML = data.song_history.slice(0, 8).map(h => {
-          const ti = h.song?.title  || 'Unknown';
-          const ar = h.song?.artist || '—';
-          const time = fmt.time(h.played_at);
-          const timeText = time ? `&nbsp;${time}` : '';
-          return `<li class="recent-item"><span><strong>${ti}</strong> — ${ar}</span><span class="meta">${timeText}</span></li>`;
-        }).join('') || '<li class="meta">No history yet.</li>';
+      // Recently played — highlight the active track, dedupe, and respect reduced motion styling
+      if (recentList) {
+        const history = Array.isArray(data.song_history) ? data.song_history.slice(0, 8) : [];
+        const normalize = (val) => String(val || '').trim().toLowerCase();
+        const keyFor = (title, artist) => `${normalize(title)}::${normalize(artist)}`;
+        const nowTitle = song.title || 'Unknown Title';
+        const nowArtist = song.artist || 'Unknown Artist';
+        const nowKey = keyFor(nowTitle, nowArtist);
+        const seen = new Set();
+        const entries = [];
+        let currentHandled = false;
+
+        const pushEntry = (title, artist, timeText, { isCurrent = false, forceTop = false } = {}) => {
+          const key = keyFor(title, artist);
+          if (key && seen.has(key) && !isCurrent) return;
+          const entry = {
+            title: title || 'Unknown',
+            artist: artist || '—',
+            timeText: timeText || '',
+            isCurrent
+          };
+          if (forceTop) entries.unshift(entry);
+          else entries.push(entry);
+          if (key) seen.add(key);
+          if (isCurrent) currentHandled = true;
+        };
+
+        history.forEach(h => {
+          const hSong = h?.song || {};
+          const title = hSong.title || 'Unknown';
+          const artist = hSong.artist || '—';
+          const time = fmt.time(h.played_at) || '';
+          const isCurrentMatch = nowKey && keyFor(title, artist) === nowKey && !currentHandled;
+          pushEntry(title, artist, time, { isCurrent: isCurrentMatch });
+        });
+
+        if (!currentHandled && (nowTitle || nowArtist)) {
+          pushEntry(nowTitle, nowArtist, '', { isCurrent: true, forceTop: true });
+        }
+
+        const limited = entries.slice(0, 8);
+        const escapeAttr = (value = '') => String(value).replace(/"/g, '&quot;');
+
+        const html = limited.map(item => {
+          const ti = item.title || 'Unknown';
+          const ar = item.artist || '—';
+          const metaLabel = item.isCurrent ? 'Now playing' : (item.timeText ? `Played at ${item.timeText}` : '');
+          const metaAttr = metaLabel ? ` aria-label="${escapeAttr(metaLabel)}"` : '';
+          const timeMarkup = item.isCurrent ? 'Now' : (item.timeText ? `&nbsp;${item.timeText}` : '');
+          const indicator = item.isCurrent
+            ? '<span class="current-indicator" aria-hidden="true"><svg viewBox="0 0 12 12" role="presentation" focusable="false"><path d="M5.25 8.5 2.75 6l.7-.7L5.25 7.09l3.3-3.3.7.7-4 4Z"/></svg></span>'
+            : '';
+          return `<li class="recent-item${item.isCurrent ? ' is-current' : ''}">${indicator}<span class="recent-text"><strong>${ti}</strong><span class="recent-sep" aria-hidden="true">—</span><span class="recent-artist">${ar}</span></span><span class="meta"${metaAttr}>${timeMarkup}</span></li>`;
+        }).join('');
+
+        recentList.innerHTML = html || '<li class="meta">No history yet.</li>';
       }
 
       elapsed  = Number(np.elapsed ?? 0);
