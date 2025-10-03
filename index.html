@@ -506,6 +506,72 @@
                 height: 12px;
           }
 
+          #carModeUpNext {
+                display: none;
+          }
+
+          #carModeUpNext .car-mode-section {
+                display: flex;
+                flex-direction: column;
+                gap: .75rem;
+          }
+
+          #carModeUpNext .car-mode-chip {
+                font-size: .95rem;
+                font-weight: 600;
+          }
+
+          #carModeUpNext .car-mode-time {
+                font-size: 1.1rem;
+                color: var(--muted);
+          }
+
+          #carModeUpNext .car-mode-countdown {
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: var(--text);
+          }
+
+          [data-car-mode="true"] #carModeUpNext {
+                display: flex;
+                flex-direction: column;
+                gap: 2.25rem;
+                padding: 2.4rem;
+                border-radius: var(--r-lg);
+                border: 1px solid var(--border);
+                background: var(--surface-2);
+                box-shadow: var(--shadow);
+          }
+
+          [data-car-mode="true"] #carModeUpNext .car-mode-chip {
+                font-size: 1.05rem;
+                padding: .45rem .95rem;
+          }
+
+          [data-car-mode="true"] #carModeUpNext h2,
+          [data-car-mode="true"] #carModeUpNext h3 {
+                margin: 0;
+          }
+
+          [data-car-mode="true"] #carModeUpNext h2 {
+                font-size: clamp(2rem, 1.6rem + 3vw, 3.1rem);
+                line-height: 1.1;
+          }
+
+          [data-car-mode="true"] #carModeUpNext h3 {
+                font-size: clamp(1.6rem, 1.2rem + 2vw, 2.4rem);
+                line-height: 1.15;
+          }
+
+          [data-car-mode="true"] #carModeUpNext .car-mode-time {
+                font-size: clamp(1.3rem, 1.1rem + 1vw, 1.8rem);
+          }
+
+          [data-car-mode="true"] #carModeUpNext .car-mode-countdown {
+                font-size: clamp(1.2rem, 1rem + .8vw, 1.6rem);
+                letter-spacing: .02em;
+          }
+
           [data-car-mode="true"] #upNextCard {
                 display: none;
           }
@@ -1301,6 +1367,19 @@
             </div>
             <audio id="player" preload="none" crossorigin="anonymous"></audio>
           </aside>
+          <div id="carModeUpNext" class="car-mode-up-next" aria-live="polite" hidden aria-hidden="true">
+            <div class="car-mode-section">
+              <span class="chip car-mode-chip">On Air</span>
+              <h2 id="carModeCurrentTitle">Loading current show…</h2>
+              <p id="carModeCurrentTime" class="car-mode-time">—</p>
+            </div>
+            <div class="car-mode-section">
+              <span class="chip car-mode-chip">Up Next</span>
+              <h3 id="carModeNextTitle">Loading next show…</h3>
+              <p id="carModeNextTime" class="car-mode-time">—</p>
+              <p id="carModeNextCountdown" class="car-mode-countdown" hidden>Starts soon</p>
+            </div>
+          </div>
           <div class="card up-next-card" id="upNextCard" aria-live="polite">
             <div class="body">
               <div class="current-show" id="currentShow" aria-live="polite">
@@ -1969,7 +2048,7 @@ const updateCurrentShowFromEvents = (events, tz) => {
     lastScheduleSlug = slug;
     applyHostSkin(slug, { asSlug: true, force: true });
     updateCurrentShowUI(current, tz);
-    return true;
+    return current;
   }
 
   const shellSlot = getCurrentShellSlot(tz);
@@ -1979,21 +2058,83 @@ const updateCurrentShowFromEvents = (events, tz) => {
     applyHostSkin(slug, { asSlug: true, force: true });
   }
   updateCurrentShowUI(shellSlot, tz);
-  return Boolean(shellSlot);
+  return shellSlot;
+};
+
+const renderCarModeUpNext = (current, next, tz) => {
+  const container = $('#carModeUpNext');
+  const currentTitleEl = $('#carModeCurrentTitle');
+  const currentTimeEl = $('#carModeCurrentTime');
+  const nextTitleEl = $('#carModeNextTitle');
+  const nextTimeEl = $('#carModeNextTime');
+  const countdownEl = $('#carModeNextCountdown');
+  if (!container) return;
+
+  const formatRange = (event) => {
+    if (!event?.start || !event?.end) return '—';
+    return `${fmt.hm(event.start, tz)} – ${fmt.hm(event.end, tz)}`;
+  };
+
+  if (currentTitleEl) {
+    setText(currentTitleEl, current?.title || 'Schedule unavailable');
+  }
+  if (currentTimeEl) {
+    setText(currentTimeEl, formatRange(current));
+  }
+
+  if (nextTitleEl) {
+    setText(nextTitleEl, next?.title || 'No upcoming show');
+  }
+  if (nextTimeEl) {
+    setText(nextTimeEl, next ? `${fmt.dayShort(next.start, tz)} ${formatRange(next)}` : '—');
+  }
+
+  if (!countdownEl) return;
+
+  const formatCountdown = (ms) => {
+    const totalMinutes = Math.round(ms / MINUTE_MS);
+    if (totalMinutes <= 0) return '';
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours > 0) {
+      const hourLabel = `${hours} hr${hours === 1 ? '' : 's'}`;
+      const minuteLabel = minutes > 0 ? ` ${minutes} min` : '';
+      return `Starts in ${hourLabel}${minuteLabel}`;
+    }
+    return `Starts in ${totalMinutes} min`;
+  };
+
+  if (next?.start instanceof Date) {
+    const diffLabel = formatCountdown(next.start.getTime() - Date.now());
+    if (diffLabel) {
+      setText(countdownEl, diffLabel);
+      countdownEl.removeAttribute('hidden');
+    } else {
+      countdownEl.setAttribute('hidden', '');
+      countdownEl.textContent = '';
+    }
+  } else {
+    countdownEl.setAttribute('hidden', '');
+    countdownEl.textContent = '';
+  }
 };
 
 const updateUpNextFromSchedule = (events, tz) => {
-  updateCurrentShowFromEvents(events, tz);
+  const current = updateCurrentShowFromEvents(events, tz);
 
   const upcoming = getUpcomingEventsFromSchedule(events, tz);
+  const next = upcoming[0] || null;
+  renderCarModeUpNext(current, next, tz);
   if (!upcoming.length) return false;
   return renderUpNextList(upcoming, tz);
 };
 
 const renderUpNextFallback = (tz) => {
   const fallbackEvents = buildShellFallbackEvents(tz);
+  const current = updateCurrentShowFromEvents(fallbackEvents, tz);
+  const next = fallbackEvents[0] || null;
+  renderCarModeUpNext(current, next, tz);
   renderUpNextList(fallbackEvents, tz);
-  updateCurrentShowFromEvents(fallbackEvents, tz);
 };
 
 /** Format helpers with target TZ */
@@ -2247,6 +2388,7 @@ function initPlayer() {
   const muteIcon     = $('#muteIcon');
   const muteText     = $('#muteText');
   const upNextCard   = $('#upNextCard');
+  const carModeUpNext = $('#carModeUpNext');
   const carModeHint  = $('#carModeHint');
   const carModeHintId = carModeHint?.id || null;
 
@@ -2497,6 +2639,16 @@ function initPlayer() {
   player.addEventListener('playing', () => { clearTimeout(waitingTimer); });
   player.addEventListener('timeupdate', () => { clearTimeout(waitingTimer); });
 
+  const setCarModeUpNextVisibility = (active) => {
+    if (!carModeUpNext) return;
+    carModeUpNext.setAttribute('aria-hidden', active ? 'false' : 'true');
+    if (active) {
+      carModeUpNext.removeAttribute('hidden');
+    } else {
+      carModeUpNext.setAttribute('hidden', '');
+    }
+  };
+
   const applyCarModeAccessibility = (active, { focusControl = false } = {}) => {
     const controls = [playBtn, volumeSlider, muteBtn];
     controls.forEach(ctrl => {
@@ -2510,6 +2662,7 @@ function initPlayer() {
     if (upNextCard) {
       upNextCard.setAttribute('aria-hidden', active ? 'true' : 'false');
     }
+    setCarModeUpNextVisibility(active);
     if (focusControl && active) {
       try {
         playBtn.focus({ preventScroll: true });
@@ -2521,10 +2674,12 @@ function initPlayer() {
 
   document.addEventListener('car-mode-change', (event) => {
     const active = Boolean(event?.detail?.active);
+    setCarModeUpNextVisibility(active);
     applyCarModeAccessibility(active, { focusControl: true });
   });
 
   const initialCarMode = document.documentElement.getAttribute('data-car-mode') === 'true';
+  setCarModeUpNextVisibility(initialCarMode);
   applyCarModeAccessibility(initialCarMode);
 }
 
