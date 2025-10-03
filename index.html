@@ -1226,7 +1226,7 @@ const HOST_THEMES = {
   },
   miki: {
     label: 'Miki',
-    aliases: ['miki-rivers', 'miki-show'],
+    aliases: ['miki-rivers', 'miki-show', 'amped-mornings-with-miki'],
     darkVars: {
       '--brand-h': '195',
       '--brand-s': '100%',
@@ -1254,7 +1254,7 @@ const HOST_THEMES = {
   },
   jax: {
     label: 'Jax',
-    aliases: ['jax-drive', 'jax-miki'],
+    aliases: ['jax-drive', 'jax-miki', 'the-amped-drive-home-with-jax', 'amped-ai-with-jax-miki'],
     darkVars: {
       '--brand-h': '25',
       '--brand-s': '100%',
@@ -1282,7 +1282,7 @@ const HOST_THEMES = {
   },
   sam: {
     label: 'Sam',
-    aliases: ['sam-carter', 'midnight-flow'],
+    aliases: ['sam-carter', 'midnight-flow', 'midnight-flow-with-sam-carter'],
     darkVars: {
       '--brand-h': '250',
       '--brand-s': '88%',
@@ -1340,6 +1340,7 @@ const HOST_THEMES = {
 
 const HOST_THEME_STORAGE_KEY = 'amped-active-host';
 const DEFAULT_HOST_SLUG = 'autodj';
+let lastScheduleSlug = DEFAULT_HOST_SLUG;
 
 const STATION_TZ = CONFIG.timeZone || 'Pacific/Auckland';
 const UP_NEXT_LIMIT = 4;
@@ -1387,6 +1388,10 @@ const resolveHostThemeSlug = (hostName, { asSlug = false } = {}) => {
     if (key === slug) return key;
     const aliases = theme.aliases || [];
     if (aliases.includes(slug)) return key;
+  }
+
+  for (const [key, theme] of Object.entries(HOST_THEMES)) {
+    const aliases = theme.aliases || [];
     if (slug.includes(key)) return key;
     if (aliases.some(alias => slug.includes(alias))) return key;
   }
@@ -1706,11 +1711,19 @@ const updateCurrentShowUI = (event, tz) => {
 const updateCurrentShowFromEvents = (events, tz) => {
   const current = getCurrentEventFromSchedule(events);
   if (current) {
+    const slug = resolveHostThemeSlug(current.title);
+    lastScheduleSlug = slug;
+    applyHostSkin(slug, { asSlug: true, force: true });
     updateCurrentShowUI(current, tz);
     return true;
   }
 
   const shellSlot = getCurrentShellSlot(tz);
+  if (shellSlot) {
+    const slug = resolveHostThemeSlug(shellSlot.title);
+    lastScheduleSlug = slug;
+    applyHostSkin(slug, { asSlug: true, force: true });
+  }
   updateCurrentShowUI(shellSlot, tz);
   return Boolean(shellSlot);
 };
@@ -2229,11 +2242,15 @@ function initNowPlaying() {
       const song   = np.song || {};
       const isLive = (data.live && data.live.is_live) || false;
       const host   = isLive ? (data.live.streamer_name || 'Live') : (data.playing_next?.artist || 'AutoDJ');
-      const hostSlug = resolveHostThemeSlug(host, { asSlug: true });
+      const hostSlug = resolveHostThemeSlug(host);
       const isAutomation = hostSlug === DEFAULT_HOST_SLUG;
       const liveChip = liveLabelEl?.closest('.chip');
 
-      applyHostSkinDebounced(host || 'AutoDJ');
+      if (!isAutomation) {
+        applyHostSkinDebounced(host || 'AutoDJ');
+      } else {
+        applyHostSkin(lastScheduleSlug, { asSlug: true });
+      }
 
       setText(titleEl, song.title || 'Unknown Title');
 
@@ -2287,7 +2304,7 @@ function initNowPlaying() {
         { title: 'Neon City',   artist: 'Amped AI', host: 'AutoDJ', seconds: 200 }
       ][Math.floor(Math.random() * 2)];
 
-      const hostSlug = resolveHostThemeSlug(dummy.host, { asSlug: true });
+      const hostSlug = resolveHostThemeSlug(dummy.host);
       const isAutomation = hostSlug === DEFAULT_HOST_SLUG;
       const liveChip = liveLabelEl?.closest('.chip');
       const isLive = false;
@@ -2310,7 +2327,11 @@ function initNowPlaying() {
         host: dummy.host,
         artwork: ''
       });
-      applyHostSkinDebounced(dummy.host);
+      if (!isAutomation) {
+        applyHostSkinDebounced(dummy.host);
+      } else {
+        applyHostSkin(lastScheduleSlug, { asSlug: true });
+      }
       elapsed = 0; duration = dummy.seconds;
       updateProgress();
     }
