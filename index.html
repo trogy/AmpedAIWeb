@@ -382,6 +382,62 @@
                 flex-wrap: wrap;
           }
 
+          .car-mode-panel {
+                display: flex;
+                align-items: center;
+                gap: .6rem;
+                margin-top: .75rem;
+                padding: .55rem .75rem;
+                border-radius: var(--r-sm);
+                background: color-mix(in oklab, var(--surface-2) 85%, transparent);
+                box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--border) 70%, transparent);
+                color: var(--muted);
+                font-size: .85rem;
+                max-width: 320px;
+          }
+
+          .car-mode-panel[hidden] {
+                display: none !important;
+          }
+
+          .car-mode-panel-indicator {
+                width: .65rem;
+                height: .65rem;
+                border-radius: 999px;
+                background: var(--muted);
+                box-shadow: 0 0 0 3px color-mix(in oklab, var(--surface) 88%, transparent);
+                transition: background .2s ease, box-shadow .2s ease, opacity .2s ease;
+                opacity: .7;
+          }
+
+          .car-mode-panel[data-state="locked"] {
+                background: color-mix(in oklab, var(--surface-2) 92%, transparent);
+                box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand-300) 45%, transparent);
+                color: var(--text);
+          }
+
+          .car-mode-panel[data-state="locked"] .car-mode-panel-indicator {
+                background: var(--brand-300);
+                box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-300) 35%, transparent);
+                opacity: 1;
+          }
+
+          .car-mode-panel[data-state="unsupported"] .car-mode-panel-indicator {
+                background: #f0b429;
+                box-shadow: 0 0 0 3px color-mix(in oklab, #f0b429 35%, transparent);
+                opacity: 1;
+          }
+
+          .car-mode-panel[data-state="error"] {
+                color: #ffb4c6;
+          }
+
+          .car-mode-panel[data-state="error"] .car-mode-panel-indicator {
+                background: #ff4d78;
+                box-shadow: 0 0 0 3px color-mix(in oklab, #ff4d78 32%, transparent);
+                opacity: 1;
+          }
+
           .player-volume {
                 display: flex;
                 align-items: center;
@@ -1259,6 +1315,10 @@
                   <span>Car Mode</span>
                 </button>
                 <span id="carModeHint" class="sr-only">Car mode enlarges the player controls and hides secondary content for easier in-car use.</span>
+              </div>
+              <div id="carModePanel" class="car-mode-panel" hidden aria-live="polite">
+                <span id="carModePanelIndicator" class="car-mode-panel-indicator" aria-hidden="true"></span>
+                <span id="carModePanelText">Car Mode keeps controls large for driving.</span>
               </div>
               <a class="btn btn-ghost" href="#schedule">View Schedule</a>
               <a class="btn btn-ghost" href="#recent">Recently Played</a>
@@ -2237,6 +2297,78 @@ async function tryPopulateScheduleFromScheduleAPI() {
 }
 
 /* ------------------------------ PLAYER --------------------------------- */
+const carModeWakeLockSupported = typeof navigator !== 'undefined' && Boolean(navigator.wakeLock?.request);
+let carModeWakeLock = null;
+let carModeWakeLockReleaseListener = null;
+let carModeWakeLockChangeHandler = () => {};
+
+const setCarModeWakeLockChangeHandler = (handler) => {
+  carModeWakeLockChangeHandler = typeof handler === 'function' ? handler : () => {};
+};
+
+const emitCarModeWakeLockChange = (locked, details = {}) => {
+  try {
+    carModeWakeLockChangeHandler(locked, { supported: carModeWakeLockSupported, ...details });
+  } catch (err) {
+    console.error('car mode wake lock handler error', err);
+  }
+};
+
+const attachCarModeWakeLockRelease = (lock) => {
+  if (!lock) return;
+  if (carModeWakeLockReleaseListener) {
+    try { lock.removeEventListener('release', carModeWakeLockReleaseListener); }
+    catch (err) { /* ignore */ }
+  }
+  carModeWakeLockReleaseListener = () => {
+    carModeWakeLock = null;
+    carModeWakeLockReleaseListener = null;
+    emitCarModeWakeLockChange(false, { reason: 'released' });
+  };
+  try { lock.addEventListener('release', carModeWakeLockReleaseListener); }
+  catch (err) { /* ignore */ }
+};
+
+const requestCarModeWakeLock = async () => {
+  if (!carModeWakeLockSupported) {
+    emitCarModeWakeLockChange(false, { supported: false });
+    return null;
+  }
+  if (carModeWakeLock) return carModeWakeLock;
+  try {
+    const lock = await navigator.wakeLock.request('screen');
+    carModeWakeLock = lock;
+    attachCarModeWakeLockRelease(lock);
+    emitCarModeWakeLockChange(true, { reason: 'acquired' });
+    return lock;
+  } catch (err) {
+    carModeWakeLock = null;
+    emitCarModeWakeLockChange(false, { error: err });
+    throw err;
+  }
+};
+
+const releaseCarModeWakeLock = async () => {
+  if (!carModeWakeLock) return;
+  const lock = carModeWakeLock;
+  carModeWakeLock = null;
+  try {
+    if (carModeWakeLockReleaseListener) {
+      lock.removeEventListener('release', carModeWakeLockReleaseListener);
+      carModeWakeLockReleaseListener = null;
+    }
+  } catch (err) {
+    /* ignore */
+  }
+  try {
+    await lock.release();
+  } catch (err) {
+    emitCarModeWakeLockChange(false, { error: err });
+    throw err;
+  }
+  emitCarModeWakeLockChange(false, { reason: 'manual' });
+};
+
 function initPlayer() {
   const player   = $('#player');
   const playBtn  = $('#playBtn');
@@ -2249,8 +2381,55 @@ function initPlayer() {
   const upNextCard   = $('#upNextCard');
   const carModeHint  = $('#carModeHint');
   const carModeHintId = carModeHint?.id || null;
+  const carModePanel = $('#carModePanel');
+  const carModePanelText = $('#carModePanelText');
 
   if (!player || !playBtn || !playIcon || !playLabel) return;
+
+  let lastWakeLockError = null;
+
+  const setCarModePanelState = ({ active, supported = carModeWakeLockSupported, locked = Boolean(carModeWakeLock), error = null } = {}) => {
+    if (!carModePanel || !carModePanelText) return;
+    if (!active) {
+      carModePanel.hidden = true;
+      carModePanel.dataset.state = 'idle';
+      carModePanelText.textContent = 'Car Mode keeps controls large for driving.';
+      return;
+    }
+    carModePanel.hidden = false;
+    if (!supported) {
+      carModePanel.dataset.state = 'unsupported';
+      carModePanelText.textContent = 'Car Mode is on, but this browser may still let the screen sleep.';
+      return;
+    }
+    if (locked) {
+      carModePanel.dataset.state = 'locked';
+      carModePanelText.textContent = 'Car Mode will keep your screen awake.';
+      return;
+    }
+    if (error) {
+      carModePanel.dataset.state = 'error';
+      carModePanelText.textContent = 'Car Mode couldn’t keep the screen awake. Tap the screen if it dims.';
+    } else {
+      carModePanel.dataset.state = 'pending';
+      carModePanelText.textContent = 'Car Mode is trying to keep your screen awake…';
+    }
+  };
+
+  setCarModeWakeLockChangeHandler((locked, details = {}) => {
+    if (details.error) {
+      lastWakeLockError = details.error;
+    } else {
+      lastWakeLockError = null;
+    }
+    const active = document.documentElement.getAttribute('data-car-mode') === 'true';
+    setCarModePanelState({
+      active,
+      supported: details.supported,
+      locked,
+      error: details.error || (active ? lastWakeLockError : null),
+    });
+  });
 
   const ICON_PLAY  = '<path d="m8 5 12 7-12 7V5Z"/>';
   const ICON_PAUSE = '<path d="M7 5h5v14H7V5Zm7 0h5v14h-5V5Z"/>';
@@ -2522,10 +2701,70 @@ function initPlayer() {
   document.addEventListener('car-mode-change', (event) => {
     const active = Boolean(event?.detail?.active);
     applyCarModeAccessibility(active, { focusControl: true });
+    setCarModePanelState({
+      active,
+      supported: carModeWakeLockSupported,
+      locked: Boolean(carModeWakeLock),
+      error: active ? lastWakeLockError : null,
+    });
+
+    if (!active) {
+      releaseCarModeWakeLock().catch((err) => {
+        console.error('Car mode wake lock release failed', err);
+      });
+      return;
+    }
+
+    if (!carModeWakeLockSupported) return;
+
+    requestCarModeWakeLock().catch((err) => {
+      lastWakeLockError = err;
+      console.error('Car mode wake lock request failed', err);
+      setCarModePanelState({
+        active: true,
+        supported: carModeWakeLockSupported,
+        locked: false,
+        error: err,
+      });
+    });
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    const active = document.documentElement.getAttribute('data-car-mode') === 'true';
+    if (!active || !carModeWakeLockSupported) return;
+    requestCarModeWakeLock().catch((err) => {
+      lastWakeLockError = err;
+      console.error('Car mode wake lock request failed after visibility change', err);
+      setCarModePanelState({
+        active: true,
+        supported: carModeWakeLockSupported,
+        locked: false,
+        error: err,
+      });
+    });
   });
 
   const initialCarMode = document.documentElement.getAttribute('data-car-mode') === 'true';
   applyCarModeAccessibility(initialCarMode);
+  setCarModePanelState({
+    active: initialCarMode,
+    supported: carModeWakeLockSupported,
+    locked: Boolean(carModeWakeLock),
+    error: initialCarMode ? lastWakeLockError : null,
+  });
+  if (initialCarMode && carModeWakeLockSupported) {
+    requestCarModeWakeLock().catch((err) => {
+      lastWakeLockError = err;
+      console.error('Car mode wake lock request failed', err);
+      setCarModePanelState({
+        active: true,
+        supported: carModeWakeLockSupported,
+        locked: false,
+        error: err,
+      });
+    });
+  }
 }
 
 /* ----------------------- NOW PLAYING / RECENTS ------------------------- */
