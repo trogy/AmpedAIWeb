@@ -425,6 +425,7 @@
 
           .up-next-card {
                 margin-top: 18px;
+                grid-column: 1 / -1;
                 animation-delay: .35s;
           }
 
@@ -718,14 +719,18 @@
                 gap: 10px;
           }
 
-	  @media (max-width: 900px) {
-		.hero .wrap {
-		  grid-template-columns: 1fr;
-		}
+          @media (max-width: 900px) {
+                .hero .wrap {
+                  grid-template-columns: 1fr;
+                }
 
-		.grid {
-		  grid-template-columns: repeat(6, 1fr);
-		}
+                .up-next-card {
+                  grid-column: auto;
+                }
+
+                .grid {
+                  grid-template-columns: repeat(6, 1fr);
+                }
 
 		.col-4,
 		.col-6,
