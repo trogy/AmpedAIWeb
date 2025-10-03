@@ -45,18 +45,22 @@ command -v git >/dev/null 2>&1 || fatal "git is not installed or not in PATH"
 mkdir -p "$TARGET_DIR"
 
 if ! git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  if find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
-    log "Initializing git repository at $TARGET_DIR"
-    git -C "$TARGET_DIR" init >/dev/null \
-      || fatal "Failed to initialize git repository at $TARGET_DIR"
-  else
-    log "Cloning repository from $REPO_URL into $TARGET_DIR"
-    git clone --branch "$BRANCH" --single-branch "$REPO_URL" "$TARGET_DIR" >/dev/null \
-      || fatal "Failed to clone $REPO_URL into $TARGET_DIR"
-
-    log "Repository ready at $TARGET_DIR on branch $BRANCH"
-    exit 0
+  if [[ "$TARGET_DIR" == "/" ]]; then
+    fatal "Refusing to operate on the root directory"
   fi
+
+  if find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
+    log "Removing existing contents in $TARGET_DIR"
+    find "$TARGET_DIR" -mindepth 1 -delete \
+      || fatal "Failed to clear existing contents in $TARGET_DIR"
+  fi
+
+  log "Cloning repository from $REPO_URL into $TARGET_DIR"
+  git clone --branch "$BRANCH" --single-branch "$REPO_URL" "$TARGET_DIR" >/dev/null \
+    || fatal "Failed to clone $REPO_URL into $TARGET_DIR"
+
+  log "Repository ready at $TARGET_DIR on branch $BRANCH"
+  exit 0
 fi
 
 CURRENT_REMOTE="$(git -C "$TARGET_DIR" remote get-url origin 2>/dev/null || true)"
