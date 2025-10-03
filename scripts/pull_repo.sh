@@ -67,11 +67,6 @@ if ! git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     fatal "Refusing to operate on the root directory"
   fi
 
-  if [[ "$PWD" == "$TARGET_DIR" || "$PWD" == "$TARGET_DIR"/* ]]; then
-    RESTORE_PWD="$PWD"
-    cd /
-  fi
-
   if find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
     log "Removing existing contents in $TARGET_DIR"
     find "$TARGET_DIR" -mindepth 1 -delete \
