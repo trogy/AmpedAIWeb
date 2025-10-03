@@ -45,8 +45,14 @@ command -v git >/dev/null 2>&1 || fatal "git is not installed or not in PATH"
 mkdir -p "$TARGET_DIR"
 
 if ! git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if [[ "$TARGET_DIR" == "/" ]]; then
+    fatal "Refusing to operate on the root directory"
+  fi
+
   if find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
-    fatal "$TARGET_DIR exists but is not a git repository. Move or remove the contents before running this script."
+    log "Removing existing contents in $TARGET_DIR"
+    find "$TARGET_DIR" -mindepth 1 -delete \
+      || fatal "Failed to clear existing contents in $TARGET_DIR"
   fi
 
   log "Cloning repository from $REPO_URL into $TARGET_DIR"
