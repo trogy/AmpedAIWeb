@@ -76,6 +76,11 @@
                 }
           }
 
+          @keyframes spin {
+                from { transform: rotate(0deg); }
+                to   { transform: rotate(360deg); }
+          }
+
 	  [data-theme="light"] {
 		--bg: #fbf7fb;
 		--surface: #fff;
@@ -143,9 +148,18 @@
 		outline-offset: 2px;
 	  }
 
-	  .btn:hover {
-		transform: translateY(-1px);
-	  }
+          .btn:hover {
+                transform: translateY(-1px);
+          }
+
+          .btn[aria-busy="true"] {
+                cursor: progress;
+                opacity: .7;
+          }
+
+          .btn[aria-busy="true"] svg {
+                animation: spin 1s linear infinite;
+          }
 
 	  .btn-primary {
 		background: linear-gradient(135deg, var(--brand), var(--brand-700));
@@ -1843,12 +1857,13 @@ function initPlayer() {
   const player   = $('#player');
   const playBtn  = $('#playBtn');
   const playIcon = $('#playIcon');
+  const playLabel = playBtn?.querySelector('span');
   const volumeSlider = $('#volumeControl');
   const muteBtn      = $('#muteBtn');
   const muteIcon     = $('#muteIcon');
   const muteText     = $('#muteText');
 
-  if (!player || !playBtn || !playIcon) return;
+  if (!player || !playBtn || !playIcon || !playLabel) return;
 
   const ICON_PLAY  = '<path d="m8 5 12 7-12 7V5Z"/>';
   const ICON_PAUSE = '<path d="M7 5h5v14H7V5Zm7 0h5v14h-5V5Z"/>';
@@ -1935,8 +1950,39 @@ function initPlayer() {
     player.src = `${CONFIG.streamURL}?ts=${Date.now()}`; // cache-bust to avoid old buffer
     player.load();
   };
-  const toPlayUI  = () => { playBtn.setAttribute('aria-pressed','false'); playBtn.querySelector('span').textContent = 'Play Stream';  playIcon.innerHTML = ICON_PLAY; };
-  const toPauseUI = () => { playBtn.setAttribute('aria-pressed','true');  playBtn.querySelector('span').textContent = 'Pause Stream'; playIcon.innerHTML = ICON_PAUSE; };
+  const ICON_SPINNER = '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 4a8 8 0 1 1-5.657 13.657"/>';
+
+  const resetPlayBtn = (label) => {
+    playBtn.disabled = false;
+    playBtn.removeAttribute('aria-busy');
+    playBtn.removeAttribute('aria-disabled');
+    playBtn.setAttribute('title', label);
+    playBtn.setAttribute('aria-label', label);
+    playLabel.textContent = label;
+  };
+
+  const toPlayUI = () => {
+    resetPlayBtn('Play Stream');
+    playBtn.setAttribute('aria-pressed', 'false');
+    playIcon.innerHTML = ICON_PLAY;
+  };
+
+  const toPauseUI = () => {
+    resetPlayBtn('Pause Stream');
+    playBtn.setAttribute('aria-pressed', 'true');
+    playIcon.innerHTML = ICON_PAUSE;
+  };
+
+  const toConnectingUI = () => {
+    playBtn.setAttribute('aria-pressed', 'false');
+    playBtn.setAttribute('aria-busy', 'true');
+    playBtn.setAttribute('aria-disabled', 'true');
+    playBtn.disabled = true;
+    playBtn.setAttribute('title', 'Connecting…');
+    playBtn.setAttribute('aria-label', 'Connecting…');
+    playLabel.textContent = 'Connecting…';
+    playIcon.innerHTML = ICON_SPINNER;
+  };
 
   const mediaSession = ('mediaSession' in navigator) ? navigator.mediaSession : null;
   const setMediaSessionPlaybackState = (state) => {
@@ -1952,6 +1998,7 @@ function initPlayer() {
       return;
     }
 
+    toConnectingUI();
     setLiveSrc();
     try {
       await player.play();
@@ -2042,8 +2089,18 @@ function initPlayer() {
     }, delay);
   };
 
+  player.addEventListener('playing', () => {
+    toPauseUI();
+    setMediaSessionPlaybackState('playing');
+  });
+
+  player.addEventListener('error', () => {
+    toPlayUI();
+    setMediaSessionPlaybackState('paused');
+    scheduleRecover('error', 1200);
+  });
+
   player.addEventListener('stalled', () => scheduleRecover('stalled', 1200));
-  player.addEventListener('error',   () => scheduleRecover('error', 1200));
 
   // If we sit in "waiting" for a few seconds, try a gentle recover
   player.addEventListener('waiting', () => {
