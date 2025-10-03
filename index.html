@@ -775,11 +775,11 @@
                   grid-template-columns: repeat(6, 1fr);
                 }
 
-		.col-4,
-		.col-6,
-		.col-8 {
-		  grid-column: span 6;
-		}
+                .col-4,
+                .col-6,
+                .col-8 {
+                  grid-column: span 6;
+                }
 
                 .logo-img {
                   width: 130px;
@@ -797,6 +797,29 @@
 
                 .socials {
                   justify-content: center;
+                }
+
+                .leanback__wrap {
+                  padding: 32px;
+                }
+
+                .leanback__panels {
+                  grid-template-columns: 1fr;
+                }
+
+                .leanback__panel {
+                  text-align: center;
+                }
+
+                .leanback__item {
+                  flex-direction: column;
+                  align-items: center;
+                }
+
+                .leanback__item .leanback__list-label,
+                .leanback__item .leanback__list-meta {
+                  text-align: center;
+                  min-width: auto;
                 }
           }
 
@@ -857,17 +880,243 @@
 		overflow: hidden;
 	  }
 
-	  .skip:focus {
-		left: 10px;
-		top: 10px;
-		width: auto;
-		height: auto;
-		padding: .6rem .8rem;
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--r-sm);
-		z-index: 50;
-	  }
+          .skip:focus {
+                left: 10px;
+                top: 10px;
+                width: auto;
+                height: auto;
+                padding: .6rem .8rem;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--r-sm);
+                z-index: 50;
+          }
+
+          .leanback {
+                display: none;
+          }
+
+          .leanback__wrap {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: clamp(24px, 3vw, 48px);
+                padding: clamp(24px, 5vw, 72px);
+          }
+
+          .leanback__header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: clamp(18px, 3vw, 48px);
+          }
+
+          .leanback__brand {
+                display: grid;
+                gap: 12px;
+          }
+
+          .leanback__logo {
+                max-width: clamp(180px, 22vw, 320px);
+                height: auto;
+          }
+
+          .leanback__tagline {
+                font-size: clamp(1rem, 1vw + .8rem, 1.6rem);
+                color: var(--muted);
+                margin: 0;
+          }
+
+          .leanback__panels {
+                flex: 1;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: clamp(20px, 4vw, 60px);
+                align-items: stretch;
+                position: relative;
+          }
+
+          .leanback__panel {
+                border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+                border-radius: clamp(16px, 2vw, 32px);
+                padding: clamp(20px, 3vw, 48px);
+                background: color-mix(in oklab, var(--surface) 82%, transparent);
+                box-shadow: 0 24px 50px rgba(0, 0, 0, .35);
+                display: none;
+                gap: clamp(16px, 2vw, 32px);
+                opacity: 0;
+                transform: scale(.98);
+                transition: opacity .6s ease, transform .6s ease;
+                pointer-events: none;
+          }
+
+          .leanback__panel.is-active {
+                display: grid;
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto;
+          }
+
+          .leanback__artwrap {
+                position: relative;
+                display: grid;
+                place-items: center;
+                aspect-ratio: 1 / 1;
+                border-radius: clamp(20px, 3vw, 38px);
+                overflow: hidden;
+                background: var(--surface-2);
+          }
+
+          .leanback__accent {
+                position: absolute;
+                inset: 0;
+                background-repeat: no-repeat;
+                background-size: cover;
+                opacity: .45;
+                z-index: 0;
+          }
+
+          .leanback__art {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                position: relative;
+                z-index: 1;
+          }
+
+          .leanback__art-fallback {
+                position: relative;
+                z-index: 1;
+                font-size: clamp(3rem, 10vw, 8rem);
+                font-weight: 800;
+                letter-spacing: .3rem;
+                color: color-mix(in oklab, var(--text) 85%, transparent);
+          }
+
+          .leanback__info {
+                display: grid;
+                gap: clamp(12px, 2vw, 24px);
+          }
+
+          .leanback__eyebrow {
+                text-transform: uppercase;
+                letter-spacing: .2em;
+                font-size: clamp(.9rem, .6vw + .7rem, 1.1rem);
+                color: var(--muted);
+                margin: 0;
+          }
+
+          .leanback__info h2,
+          .leanback__panel h2 {
+                font-size: clamp(2.2rem, 3vw + 1.2rem, 4rem);
+                margin: 0;
+                line-height: 1.05;
+          }
+
+          .leanback__info p,
+          .leanback__panel p,
+          .leanback__panel li {
+                font-size: clamp(1.1rem, 1vw + 1rem, 1.8rem);
+                margin: 0;
+          }
+
+          .leanback__live {
+                display: inline-flex;
+                align-items: center;
+                gap: .75rem;
+                background: color-mix(in oklab, var(--brand) 40%, transparent);
+                color: var(--text);
+                padding: .65rem 1.4rem;
+                border-radius: 999px;
+                font-weight: 600;
+                width: fit-content;
+          }
+
+          .leanback__list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: grid;
+                gap: clamp(12px, 1.8vw, 22px);
+          }
+
+          .leanback__item {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: clamp(12px, 2vw, 24px);
+                border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+                padding-bottom: clamp(10px, 1.2vw, 18px);
+                font-size: clamp(1.1rem, 1vw + 1rem, 1.8rem);
+                width: 100%;
+          }
+
+          .leanback__item:last-child {
+                border-bottom: none;
+          }
+
+          .leanback__list-label {
+                font-weight: 700;
+                letter-spacing: .08em;
+                text-transform: uppercase;
+                min-width: clamp(60px, 8vw, 120px);
+                color: var(--muted);
+                text-align: left;
+          }
+
+          .leanback__list-body {
+                flex: 1;
+                text-align: left;
+          }
+
+          .leanback__list-body strong {
+                font-weight: 800;
+          }
+
+          .leanback__list-meta {
+                color: var(--muted);
+                white-space: nowrap;
+                font-variant-numeric: tabular-nums;
+                text-align: right;
+          }
+
+          .leanback__empty {
+                color: var(--muted);
+                font-style: italic;
+                text-align: center;
+                font-size: clamp(1.1rem, 1vw + 1rem, 1.8rem);
+          }
+
+          .leanback__controls {
+                display: flex;
+                gap: 12px;
+          }
+
+          html[data-leanback="true"] body {
+                overflow: hidden;
+          }
+
+          html[data-leanback="true"] .leanback {
+                display: flex;
+                position: fixed;
+                inset: 0;
+                z-index: 100;
+                backdrop-filter: saturate(1.2) blur(28px);
+                background: color-mix(in oklab, var(--bg) 92%, transparent);
+                overflow: auto;
+          }
+
+          html[data-leanback="true"] .header,
+          html[data-leanback="true"] main,
+          html[data-leanback="true"] footer,
+          html[data-leanback="true"] .skip {
+                display: none;
+          }
+
+          html[data-leanback="true"] .leanback__panel.is-active {
+                opacity: 1;
+          }
 
           /* Card stays solid on all themes */
           .card {
@@ -972,6 +1221,9 @@
         </ul>
       </nav>
       <div class="header-actions">
+        <button id="leanbackBtn" type="button" class="btn btn-ghost" aria-pressed="false" aria-label="Toggle lean-back mode" title="Toggle lean-back mode">
+          Lean-back
+        </button>
         <button id="themeBtn" class="icon-btn" aria-label="Toggle theme" title="Toggle light/dark">
           <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path fill-rule="evenodd" clip-rule="evenodd" d="M12 3a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm7 9a7 7 0 1 1-7-7 5 5 0 0 0 0 10 7 7 0 0 1 7-3Z"/></svg>
         </button>
@@ -979,6 +1231,55 @@
       </div>
     </div>
   </header>
+
+  <section class="leanback" aria-hidden="true">
+    <div class="leanback__wrap">
+      <header class="leanback__header">
+        <div class="leanback__brand">
+          <img src="logo.png" alt="Amped AI" class="leanback__logo" width="240" height="96" loading="lazy">
+          <p class="leanback__tagline">100% AI-Generated Radio</p>
+        </div>
+        <div class="leanback__controls">
+          <button id="leanbackExit" type="button" class="btn btn-ghost" aria-label="Exit lean-back mode" title="Exit lean-back mode">Exit</button>
+        </div>
+      </header>
+
+      <div class="leanback__panels" role="presentation">
+        <article class="leanback__panel is-active" data-view="track">
+          <div class="leanback__artwrap">
+            <div class="leanback__accent" id="leanbackAccent" aria-hidden="true"></div>
+            <img id="leanbackArt" src="" alt="Album art" class="leanback__art" hidden>
+            <div id="leanbackArtFallback" class="leanback__art-fallback" aria-hidden="true">AMP</div>
+          </div>
+          <div class="leanback__info">
+            <p class="leanback__eyebrow">Now Playing</p>
+            <h2 id="leanbackTrackTitle">Track Title</h2>
+            <p id="leanbackTrackMeta">Artist • with Host</p>
+            <div class="leanback__live" id="leanbackLiveChip" hidden>
+              <span class="live-dot" aria-hidden="true"></span>
+              <span id="leanbackLiveLabel">Live</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="leanback__panel" data-view="upcoming">
+          <div>
+            <p class="leanback__eyebrow">Up Next</p>
+            <h2>Upcoming Shows</h2>
+          </div>
+          <ul id="leanbackUpNext" class="leanback__list"></ul>
+        </article>
+
+        <article class="leanback__panel" data-view="recent">
+          <div>
+            <p class="leanback__eyebrow">Recently Played</p>
+            <h2>Track History</h2>
+          </div>
+          <ul id="leanbackRecent" class="leanback__list"></ul>
+        </article>
+      </div>
+    </div>
+  </section>
 
   <main id="main">
     <section class="hero" id="listen">
@@ -1357,9 +1658,223 @@ const WEEKDAY_SHELL_SLOTS = [
 /* ------------------------------ HELPERS -------------------------------- */
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+const htmlEl = document.documentElement;
+
+const LEANBACK_VIEWS = ['track', 'upcoming', 'recent'];
+const LEANBACK_CYCLE_MS = 15000;
+const LEANBACK_PAUSE_MS = 30000;
+
+const leanback = {
+  section: $('.leanback'),
+  btn: $('#leanbackBtn'),
+  exitBtn: $('#leanbackExit'),
+  panels: null,
+  art: $('#leanbackArt'),
+  accent: $('#leanbackAccent'),
+  artFallback: $('#leanbackArtFallback'),
+  title: $('#leanbackTrackTitle'),
+  meta: $('#leanbackTrackMeta'),
+  liveChip: $('#leanbackLiveChip'),
+  liveLabel: $('#leanbackLiveLabel'),
+  upcomingList: $('#leanbackUpNext'),
+  recentList: $('#leanbackRecent'),
+  currentIndex: 0,
+  timer: null,
+  pauseUntil: 0
+};
+
+leanback.panels = $$('.leanback__panel');
+let lastLeanbackUpNext = [];
+let lastLeanbackRecent = [];
 const setText = (el, txt) => { if (el) el.textContent = txt; };
 const show   = (el, display = "") => { if (el) el.style.display = display; };
 const hide   = el => { if (el) el.style.display = "none"; };
+const isLeanbackActive = () => htmlEl.getAttribute('data-leanback') === 'true';
+
+const updateLeanbackToggleUI = (enabled) => {
+  if (leanback.btn) {
+    leanback.btn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+    leanback.btn.setAttribute('aria-label', enabled ? 'Exit lean-back mode' : 'Enter lean-back mode');
+    leanback.btn.textContent = 'Lean-back';
+    leanback.btn.setAttribute('title', enabled ? 'Exit lean-back mode' : 'Enter lean-back mode');
+  }
+  if (leanback.exitBtn) {
+    leanback.exitBtn.hidden = !enabled;
+  }
+  if (leanback.section) {
+    leanback.section.setAttribute('aria-hidden', enabled ? 'false' : 'true');
+  }
+};
+
+const setLeanbackView = (view) => {
+  if (!leanback.panels || !leanback.panels.length) return;
+  const index = LEANBACK_VIEWS.indexOf(view);
+  leanback.currentIndex = index >= 0 ? index : 0;
+  for (const panel of leanback.panels) {
+    const active = panel.dataset.view === LEANBACK_VIEWS[leanback.currentIndex];
+    panel.classList.toggle('is-active', active);
+  }
+};
+
+const stopLeanbackCycle = () => {
+  if (leanback.timer) {
+    clearInterval(leanback.timer);
+    leanback.timer = null;
+  }
+};
+
+const startLeanbackCycle = () => {
+  stopLeanbackCycle();
+  leanback.pauseUntil = 0;
+  if (!isLeanbackActive()) return;
+  leanback.timer = setInterval(() => {
+    if (leanback.pauseUntil && leanback.pauseUntil > Date.now()) return;
+    leanback.pauseUntil = 0;
+    leanback.currentIndex = (leanback.currentIndex + 1) % LEANBACK_VIEWS.length;
+    setLeanbackView(LEANBACK_VIEWS[leanback.currentIndex]);
+  }, LEANBACK_CYCLE_MS);
+};
+
+const pauseLeanbackCycle = (ms = LEANBACK_PAUSE_MS) => {
+  if (!isLeanbackActive()) return;
+  leanback.pauseUntil = Date.now() + ms;
+};
+
+const renderLeanbackUpNext = (items, tz) => {
+  if (!leanback.upcomingList) return;
+  const list = leanback.upcomingList;
+  list.innerHTML = '';
+
+  if (!Array.isArray(items) || !items.length) {
+    const li = document.createElement('li');
+    li.className = 'leanback__empty';
+    li.textContent = 'Schedule unavailable.';
+    list.append(li);
+    return;
+  }
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.className = 'leanback__item leanback__item-upnext';
+
+    const label = document.createElement('span');
+    label.className = 'leanback__list-label';
+    label.textContent = fmt.dayShort(item.start, tz);
+
+    const body = document.createElement('span');
+    body.className = 'leanback__list-body';
+    body.textContent = item.title || 'Show';
+
+    const meta = document.createElement('span');
+    meta.className = 'leanback__list-meta';
+    meta.textContent = `${fmt.hm(item.start, tz)} – ${fmt.hm(item.end, tz)}`;
+
+    li.append(label, body, meta);
+    list.append(li);
+  }
+};
+
+const renderLeanbackRecent = (history) => {
+  if (!leanback.recentList) return;
+  const list = leanback.recentList;
+  list.innerHTML = '';
+
+  if (!Array.isArray(history) || !history.length) {
+    const li = document.createElement('li');
+    li.className = 'leanback__empty';
+    li.textContent = 'No history yet.';
+    list.append(li);
+    return;
+  }
+
+  for (const item of history) {
+    const li = document.createElement('li');
+    li.className = 'leanback__item leanback__item-recent';
+
+    const body = document.createElement('span');
+    body.className = 'leanback__list-body';
+    const strong = document.createElement('strong');
+    strong.textContent = item.title || 'Unknown';
+    body.append(strong, document.createTextNode(` — ${item.artist || '—'}`));
+
+    const meta = document.createElement('span');
+    meta.className = 'leanback__list-meta';
+    const timeText = fmt.time(item.played_at);
+    meta.textContent = timeText || '';
+
+    li.append(body);
+    if (meta.textContent) {
+      li.append(meta);
+    }
+    list.append(li);
+  }
+};
+
+const updateLeanbackNowPlaying = ({ title, artist, host, isLive, artUrl, isAutomation }) => {
+  if (!leanback.section) return;
+  setText(leanback.title, title || 'Unknown Title');
+  if (leanback.meta) {
+    leanback.meta.replaceChildren();
+    const artistSpan = document.createElement('span');
+    artistSpan.textContent = artist || 'Unknown Artist';
+    leanback.meta.append(artistSpan);
+    if (!isAutomation && host) {
+      const descriptor = isLive ? 'live with ' : 'with ';
+      leanback.meta.append(
+        document.createTextNode(' • '),
+        document.createTextNode(descriptor),
+        Object.assign(document.createElement('strong'), { textContent: host })
+      );
+    }
+  }
+  const showLive = Boolean(isLive && !isAutomation);
+  if (leanback.liveChip) {
+    leanback.liveChip.hidden = !showLive;
+  }
+  if (leanback.liveLabel) {
+    setText(leanback.liveLabel, showLive ? CONFIG.liveLabel : '');
+  }
+  if (leanback.art) {
+    if (artUrl) {
+      leanback.art.src = artUrl;
+      leanback.art.hidden = false;
+    } else {
+      leanback.art.hidden = true;
+      leanback.art.removeAttribute('src');
+    }
+  }
+  if (leanback.artFallback) {
+    leanback.artFallback.hidden = Boolean(artUrl);
+  }
+};
+
+const setLeanbackMode = (enabled) => {
+  if (!leanback.section) return;
+  if (enabled) {
+    htmlEl.setAttribute('data-leanback', 'true');
+    updateLeanbackToggleUI(true);
+    if (typeof leanback.section.scrollTo === 'function') {
+      leanback.section.scrollTo({ top: 0, behavior: 'auto' });
+    } else {
+      leanback.section.scrollTop = 0;
+    }
+    renderLeanbackUpNext(lastLeanbackUpNext, STATION_TZ);
+    renderLeanbackRecent(lastLeanbackRecent);
+    leanback.currentIndex = 0;
+    setLeanbackView(LEANBACK_VIEWS[0]);
+    startLeanbackCycle();
+  } else {
+    htmlEl.removeAttribute('data-leanback');
+    updateLeanbackToggleUI(false);
+    stopLeanbackCycle();
+  }
+};
+
+const attachLeanbackPauseOnInteraction = (el) => {
+  if (!el) return;
+  const handler = () => pauseLeanbackCycle();
+  ['pointerdown', 'keydown', 'touchstart'].forEach(evt => el.addEventListener(evt, handler));
+};
 const debounce = (fn, wait = 120) => {
   let timer;
   return (...args) => {
@@ -1439,14 +1954,23 @@ const applyHostSkin = (() => {
     document.documentElement.style.setProperty('--promo-texture', textureValue || 'none');
 
     if (promoCard) promoCard.setAttribute('data-host', slug);
-    if (!accentEl) return;
 
-    if (accentSvg) {
-      accentEl.src = accentSvg;
-      accentEl.hidden = false;
-    } else {
-      accentEl.hidden = true;
-      accentEl.removeAttribute('src');
+    if (accentEl) {
+      if (accentSvg) {
+        accentEl.src = accentSvg;
+        accentEl.hidden = false;
+      } else {
+        accentEl.hidden = true;
+        accentEl.removeAttribute('src');
+      }
+    }
+
+    if (leanback.section) {
+      leanback.section.setAttribute('data-host', slug);
+      if (leanback.accent) {
+        leanback.accent.style.backgroundImage = accentSvg ? `url(${accentSvg})` : 'none';
+        leanback.accent.style.opacity = accentSvg ? '0.45' : '0';
+      }
     }
   };
 
@@ -1566,6 +2090,8 @@ const renderUpNextList = (items, tz) => {
 
   if (!Array.isArray(items) || !items.length) {
     list.innerHTML = '<li class="meta">Schedule unavailable.</li>';
+    lastLeanbackUpNext = [];
+    renderLeanbackUpNext(lastLeanbackUpNext, tz);
     return false;
   }
 
@@ -1593,6 +2119,14 @@ const renderUpNextList = (items, tz) => {
     li.append(badge, textWrap);
     list.appendChild(li);
   }
+  lastLeanbackUpNext = items
+    .map(item => ({
+      title: item.title,
+      start: toDate(item.start),
+      end: toDate(item.end)
+    }))
+    .filter(ev => ev.start && ev.end);
+  renderLeanbackUpNext(lastLeanbackUpNext, tz);
   return true;
 };
 
@@ -1804,6 +2338,28 @@ function initHeaderUI() {
   });
 }
 
+function initLeanbackUI() {
+  const params = new URLSearchParams(window.location.search);
+  const hash = (window.location.hash || '').toLowerCase();
+  const shouldEnable = params.has('leanback') || hash.includes('leanback');
+
+  leanback.btn?.addEventListener('click', () => {
+    setLeanbackMode(!isLeanbackActive());
+  });
+
+  leanback.exitBtn?.addEventListener('click', () => {
+    setLeanbackMode(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isLeanbackActive()) {
+      setLeanbackMode(false);
+    }
+  });
+
+  setLeanbackMode(shouldEnable);
+}
+
 /* ------------------------------ SHOW GRID ------------------------------ */
 function renderShows() {
   const grid = document.getElementById('showsGrid');
@@ -1949,6 +2505,10 @@ function initPlayer() {
   const muteText     = $('#muteText');
 
   if (!player || !playBtn || !playIcon || !playLabel) return;
+
+  attachLeanbackPauseOnInteraction(playBtn);
+  attachLeanbackPauseOnInteraction(volumeSlider);
+  attachLeanbackPauseOnInteraction(muteBtn);
 
   const ICON_PLAY  = '<path d="m8 5 12 7-12 7V5Z"/>';
   const ICON_PAUSE = '<path d="M7 5h5v14H7V5Zm7 0h5v14h-5V5Z"/>';
@@ -2276,6 +2836,15 @@ function initNowPlaying() {
       if (artUrl) { artImg.src = artUrl; show(artImg, 'block'); hide(artFallback); }
       else { artImg.removeAttribute('src'); hide(artImg); show(artFallback); }
 
+      updateLeanbackNowPlaying({
+        title: song.title || 'Unknown Title',
+        artist: song.artist || 'Unknown Artist',
+        host,
+        isLive: showLiveChip,
+        artUrl,
+        isAutomation
+      });
+
       pushMediaSessionMetadata({
         title: song.title || 'Unknown Title',
         artist: song.artist || 'Unknown Artist',
@@ -2284,15 +2853,25 @@ function initNowPlaying() {
       });
 
       // Recently played — prepend a NBSP before the time so it never sticks to text
-      if (Array.isArray(data.song_history) && recentList) {
-        recentList.innerHTML = data.song_history.slice(0, 8).map(h => {
-          const ti = h.song?.title  || 'Unknown';
-          const ar = h.song?.artist || '—';
-          const time = fmt.time(h.played_at);
-          const timeText = time ? `&nbsp;${time}` : '';
-          return `<li class="recent-item"><span><strong>${ti}</strong> — ${ar}</span><span class="meta">${timeText}</span></li>`;
-        }).join('') || '<li class="meta">No history yet.</li>';
+      let historyItems = [];
+      if (Array.isArray(data.song_history)) {
+        historyItems = data.song_history.slice(0, 8).map(h => ({
+          title: h.song?.title || 'Unknown',
+          artist: h.song?.artist || '—',
+          played_at: Number(h.played_at)
+        }));
       }
+      if (recentList) {
+        recentList.innerHTML = historyItems.length
+          ? historyItems.map(item => {
+              const time = fmt.time(item.played_at);
+              const timeText = time ? `&nbsp;${time}` : '';
+              return `<li class="recent-item"><span><strong>${item.title}</strong> — ${item.artist}</span><span class="meta">${timeText}</span></li>`;
+            }).join('')
+          : '<li class="meta">No history yet.</li>';
+      }
+      lastLeanbackRecent = historyItems;
+      renderLeanbackRecent(lastLeanbackRecent);
 
       elapsed  = Number(np.elapsed ?? 0);
       duration = Number(np.duration ?? 1) || 1;
@@ -2321,6 +2900,14 @@ function initNowPlaying() {
       const showLiveChip = isLive && !isAutomation;
       if (liveChip) liveChip.hidden = !showLiveChip;
       setText(liveLabelEl, showLiveChip ? CONFIG.liveLabel : '');
+      updateLeanbackNowPlaying({
+        title: dummy.title,
+        artist: dummy.artist,
+        host: dummy.host,
+        isLive: showLiveChip,
+        artUrl: '',
+        isAutomation
+      });
       pushMediaSessionMetadata({
         title: dummy.title,
         artist: dummy.artist,
@@ -2332,6 +2919,8 @@ function initNowPlaying() {
       } else {
         applyHostSkin(lastScheduleSlug, { asSlug: true });
       }
+      lastLeanbackRecent = [];
+      renderLeanbackRecent(lastLeanbackRecent);
       elapsed = 0; duration = dummy.seconds;
       updateProgress();
     }
@@ -2352,6 +2941,7 @@ function initNowPlaying() {
 /* ------------------------------ INIT ----------------------------------- */
 function init() {
   initHeaderUI();
+  initLeanbackUI();
   renderShows();
   renderScheduleShell();
   const tz = STATION_TZ;
