@@ -1258,7 +1258,7 @@
                   </svg>
                   <span>Car Mode</span>
                 </button>
-                <span id="carModeHint" class="sr-only">Car mode enlarges the player controls and hides secondary content for easier in-car use.</span>
+                <span id="carModeHint" class="sr-only">Car mode enlarges the player controls, hides secondary content for easier in-car use, and may immediately resume playback when enabled.</span>
               </div>
               <a class="btn btn-ghost" href="#schedule">View Schedule</a>
               <a class="btn btn-ghost" href="#recent">Recently Played</a>
@@ -2249,6 +2249,16 @@ function initPlayer() {
   const upNextCard   = $('#upNextCard');
   const carModeHint  = $('#carModeHint');
   const carModeHintId = carModeHint?.id || null;
+  const CAR_MODE_AUTOPLAY_KEY = 'amped-car-mode-autoplay';
+  const isCarModeActive = () => document.documentElement.getAttribute('data-car-mode') === 'true';
+  let carModeAutoPlayOptIn = (() => {
+    try {
+      return localStorage.getItem(CAR_MODE_AUTOPLAY_KEY) === 'true';
+    } catch (err) {
+      return false;
+    }
+  })();
+  let carModeAutoPlaySuppressed = false;
 
   if (!player || !playBtn || !playIcon || !playLabel) return;
 
@@ -2382,7 +2392,7 @@ function initPlayer() {
     if (!CONFIG.streamURL) {
       if (showAlert) alert('Add your stream URL in CONFIG.streamURL first.');
       setMediaSessionPlaybackState('none');
-      return;
+      return false;
     }
 
     toConnectingUI();
@@ -2391,26 +2401,49 @@ function initPlayer() {
       await player.play();
       toPauseUI();
       setMediaSessionPlaybackState('playing');
+      if (isCarModeActive()) {
+        carModeAutoPlayOptIn = true;
+        carModeAutoPlaySuppressed = false;
+        try {
+          localStorage.setItem(CAR_MODE_AUTOPLAY_KEY, 'true');
+        } catch (err) {
+          /* ignore */
+        }
+      }
+      return true;
     } catch (e) {
       console.warn(e);
       toPlayUI();
       setMediaSessionPlaybackState('paused');
+      return false;
     }
   };
 
-  const stopPlayback = () => {
+  const stopPlayback = ({ manual = false } = {}) => {
     player.pause();
     player.removeAttribute('src');
     player.load();
     toPlayUI();
     setMediaSessionPlaybackState('paused');
+    if (manual && isCarModeActive()) {
+      carModeAutoPlaySuppressed = true;
+    }
+  };
+
+  const attemptCarModeAutoStart = (active, { requireOptIn = true } = {}) => {
+    if (!active) return;
+    if (!CONFIG.streamURL) return;
+    if (carModeAutoPlaySuppressed) return;
+    if (requireOptIn && !carModeAutoPlayOptIn) return;
+    if (!player.paused && player.src) return;
+    void startPlayback({ showAlert: false });
   };
 
   playBtn.addEventListener('click', async () => {
     if (player.paused || !player.src) {
       await startPlayback();
     } else {
-      stopPlayback();
+      stopPlayback({ manual: true });
     }
   });
 
@@ -2442,12 +2475,12 @@ function initPlayer() {
     });
     safeActionHandler('pause', () => {
       if (!player.paused || player.readyState > 0) {
-        stopPlayback();
+        stopPlayback({ manual: true });
       } else {
         setMediaSessionPlaybackState('paused');
       }
     });
-    safeActionHandler('stop', () => { stopPlayback(); });
+    safeActionHandler('stop', () => { stopPlayback({ manual: true }); });
     safeActionHandler('seekto', () => { /* Live stream: no seeking supported */ });
 
     setMediaSessionPlaybackState(player.paused ? 'paused' : 'playing');
@@ -2522,10 +2555,16 @@ function initPlayer() {
   document.addEventListener('car-mode-change', (event) => {
     const active = Boolean(event?.detail?.active);
     applyCarModeAccessibility(active, { focusControl: true });
+    if (active) {
+      attemptCarModeAutoStart(active, { requireOptIn: false });
+    }
   });
 
   const initialCarMode = document.documentElement.getAttribute('data-car-mode') === 'true';
   applyCarModeAccessibility(initialCarMode);
+  if (initialCarMode && carModeAutoPlayOptIn) {
+    attemptCarModeAutoStart(initialCarMode, { requireOptIn: true });
+  }
 }
 
 /* ----------------------- NOW PLAYING / RECENTS ------------------------- */
