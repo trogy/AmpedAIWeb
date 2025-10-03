@@ -740,16 +740,25 @@
 		z-index: 50;
 	  }
 
-	  /* Card stays solid on all themes */
-	  .card {
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--r-lg);
-		box-shadow: var(--shadow);
-		overflow: clip;
-		display: flex;
-		flex-direction: column;
-	  }
+          /* Card stays solid on all themes */
+          .card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--r-lg);
+                box-shadow: var(--shadow);
+                overflow: clip;
+                display: flex;
+                flex-direction: column;
+                transition: transform .25s ease, box-shadow .3s ease;
+          }
+
+          .card:hover,
+          .card:focus-within {
+                transform: translateY(-6px);
+                box-shadow:
+                  var(--shadow),
+                  0 20px 40px hsl(var(--brand-h) 95% 55% / .25);
+          }
 
 	  /* Square thumbnail area */
 	  .card .media {
@@ -789,14 +798,28 @@
 		background: linear-gradient(135deg, var(--brand-300), var(--brand));
 	  }
 
-	  /* Hover polish */
-	  .card:hover .media img {
-		transform: scale(1.03);
-	  }
-	  
-	  @media (prefers-reduced-motion: reduce) {
-		.card .media img { transition: none; }
-	  }
+          /* Hover polish */
+          .card:hover .media img {
+                transform: scale(1.03);
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+                .card {
+                      transition: none;
+                }
+
+                .card:hover,
+                .card:focus-within {
+                      transform: none;
+                      box-shadow: var(--shadow);
+                }
+
+                .card .media img { transition: none; }
+
+                .card:hover .media img {
+                      transform: none;
+                }
+          }
 	</style>
 </head>
 <body>
