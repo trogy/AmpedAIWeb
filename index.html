@@ -428,6 +428,35 @@
                 animation-delay: .35s;
           }
 
+          .current-show {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px;
+                border: 1px solid var(--border);
+                border-radius: var(--r-md);
+                background: var(--surface-2);
+          }
+
+          .current-show-badge {
+                flex-shrink: 0;
+          }
+
+          .current-show-text {
+                display: grid;
+                gap: 4px;
+          }
+
+          .current-show-title {
+                margin: 0;
+                font-size: 1rem;
+          }
+
+          .current-show-time {
+                color: var(--muted);
+                font-size: .85rem;
+          }
+
           .up-next-head {
                 display: flex;
                 align-items: center;
@@ -1001,6 +1030,13 @@
           </aside>
           <div class="card up-next-card" id="upNextCard" aria-live="polite">
             <div class="body">
+              <div class="current-show" id="currentShow" aria-live="polite">
+                <span class="chip up-next-chip current-show-badge">On Air</span>
+                <div class="current-show-text">
+                  <h3 class="current-show-title" id="currentShowTitle">Loading current show…</h3>
+                  <span class="current-show-time" id="currentShowTime">—</span>
+                </div>
+              </div>
               <div class="up-next-head">
                 <span class="chip">Up Next</span>
                 <span class="meta" id="upNextTzLabel"></span>
@@ -1467,32 +1503,56 @@ const renderUpNextList = (items, tz) => {
   return true;
 };
 
+const normalizeScheduleEvent = (ev) => {
+  if (!ev) return null;
+
+  const startDate = toDate(ev?.start ?? ev?.start_at ?? ev?.start_timestamp ?? ev?.start_time ?? ev?.startDate);
+  if (!startDate) return null;
+
+  let endDate = toDate(ev?.end ?? ev?.end_at ?? ev?.end_timestamp ?? ev?.end_time ?? ev?.endDate);
+  if (!endDate || endDate <= startDate) {
+    const duration = Number(ev?.duration ?? ev?.length ?? ev?.length_seconds ?? ev?.playout_duration ?? ev?.duration_seconds ?? ev?.minutes ?? 0);
+    const fallback = Number.isFinite(duration) && duration > 0 ? duration * 1000 : 60 * MINUTE_MS;
+    endDate = new Date(startDate.getTime() + fallback);
+  }
+
+  return {
+    title: String(ev?.title || ev?.name || 'Show'),
+    start: startDate,
+    end: endDate
+  };
+};
+
 const getUpcomingEventsFromSchedule = (events, tz, limit = UP_NEXT_LIMIT) => {
   const now = Date.now();
   const upcoming = [];
 
   for (const ev of events || []) {
-    const startDate = toDate(ev?.start ?? ev?.start_at ?? ev?.start_timestamp ?? ev?.start_time ?? ev?.startDate);
-    if (!startDate) continue;
-
-    let endDate = toDate(ev?.end ?? ev?.end_at ?? ev?.end_timestamp ?? ev?.end_time ?? ev?.endDate);
-    if (!endDate || endDate <= startDate) {
-      const duration = Number(ev?.duration ?? ev?.length ?? ev?.length_seconds ?? ev?.playout_duration ?? 0);
-      const fallback = Number.isFinite(duration) && duration > 0 ? duration * 1000 : 60 * MINUTE_MS;
-      endDate = new Date(startDate.getTime() + fallback);
-    }
-
-    if (startDate.getTime() <= now) continue;
-
-    upcoming.push({
-      title: String(ev?.title || ev?.name || 'Show'),
-      start: startDate,
-      end: endDate
-    });
+    const item = normalizeScheduleEvent(ev);
+    if (!item) continue;
+    if (item.start.getTime() <= now) continue;
+    upcoming.push(item);
   }
 
   upcoming.sort((a, b) => a.start - b.start);
   return upcoming.slice(0, limit);
+};
+
+const getCurrentEventFromSchedule = (events) => {
+  const now = Date.now();
+  let current = null;
+
+  for (const ev of events || []) {
+    const item = normalizeScheduleEvent(ev);
+    if (!item) continue;
+    if (item.start.getTime() <= now && item.end.getTime() > now) {
+      if (!current || item.start > current.start) {
+        current = item;
+      }
+    }
+  }
+
+  return current;
 };
 
 const buildShellFallbackEvents = (tz, limit = UP_NEXT_LIMIT) => {
@@ -1514,7 +1574,62 @@ const buildShellFallbackEvents = (tz, limit = UP_NEXT_LIMIT) => {
   return events.slice(0, limit);
 };
 
+const getCurrentShellSlot = (tz) => {
+  const { startLocal } = getStationStartOfDay(tz);
+  const now = Date.now();
+  const dayOffsets = [0, -1];
+
+  for (const dayOffset of dayOffsets) {
+    const dayStart = new Date(startLocal.getTime() + dayOffset * DAY_MS);
+    for (const slot of WEEKDAY_SHELL_SLOTS) {
+      const start = new Date(dayStart.getTime() + slot.startMinutes * MINUTE_MS);
+      const end = new Date(dayStart.getTime() + slot.endMinutes * MINUTE_MS);
+      if (start.getTime() <= now && end.getTime() > now) {
+        return { title: slot.title, start, end };
+      }
+    }
+  }
+
+  return null;
+};
+
+const updateCurrentShowUI = (event, tz) => {
+  const titleEl = $('#currentShowTitle');
+  const timeEl = $('#currentShowTime');
+  if (!titleEl || !timeEl) return false;
+
+  if (!event) {
+    setText(titleEl, 'Schedule unavailable');
+    setText(timeEl, '—');
+    return false;
+  }
+
+  setText(titleEl, event.title || 'On Air');
+
+  if (event.start && event.end) {
+    setText(timeEl, `${fmt.hm(event.start, tz)} – ${fmt.hm(event.end, tz)}`);
+  } else {
+    setText(timeEl, '—');
+  }
+
+  return true;
+};
+
+const updateCurrentShowFromEvents = (events, tz) => {
+  const current = getCurrentEventFromSchedule(events);
+  if (current) {
+    updateCurrentShowUI(current, tz);
+    return true;
+  }
+
+  const shellSlot = getCurrentShellSlot(tz);
+  updateCurrentShowUI(shellSlot, tz);
+  return Boolean(shellSlot);
+};
+
 const updateUpNextFromSchedule = (events, tz) => {
+  updateCurrentShowFromEvents(events, tz);
+
   const upcoming = getUpcomingEventsFromSchedule(events, tz);
   if (!upcoming.length) return false;
   return renderUpNextList(upcoming, tz);
@@ -1523,6 +1638,7 @@ const updateUpNextFromSchedule = (events, tz) => {
 const renderUpNextFallback = (tz) => {
   const fallbackEvents = buildShellFallbackEvents(tz);
   renderUpNextList(fallbackEvents, tz);
+  updateCurrentShowFromEvents(fallbackEvents, tz);
 };
 
 /** Format helpers with target TZ */
