@@ -43,25 +43,26 @@
 	<meta name="color-scheme" content="dark light">
 
 	<style>
-	  :root {
-		--brand-h: 330;
-		--brand-s: 100%;
-		--brand-l: 60%;
-		--brand: hsl(var(--brand-h) var(--brand-s) var(--brand-l));
-		--brand-700: hsl(var(--brand-h) var(--brand-s) 45%);
-		--brand-300: hsl(var(--brand-h) 95% 72%);
-		--bg: #0a0b0f;
-		--surface: #101218;
-		--surface-2: #141823;
-		--text: #f5f7fb;
-		--muted: #97a1b3;
-		--border: #283042;
-		--shadow: 0 10px 30px rgba(0, 0, 0, .35);
-		--r-lg: 16px;
-		--r-md: 12px;
-		--r-sm: 10px;
-		--max: 1100px;
-	  }
+          :root {
+                --brand-h: 330;
+                --brand-s: 100%;
+                --brand-l: 60%;
+                --brand: hsl(var(--brand-h) var(--brand-s) var(--brand-l));
+                --brand-700: hsl(var(--brand-h) var(--brand-s) 45%);
+                --brand-300: hsl(var(--brand-h) 95% 72%);
+                --bg: #0a0b0f;
+                --surface: #101218;
+                --surface-2: #141823;
+                --text: #f5f7fb;
+                --muted: #97a1b3;
+                --border: #283042;
+                --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+                --r-lg: 16px;
+                --r-md: 12px;
+                --r-sm: 10px;
+                --max: 1100px;
+                --promo-texture: none;
+          }
 
 	  [data-theme="light"] {
 		--bg: #fbf7fb;
@@ -348,11 +349,38 @@
           }
 
           .promo-card {
-                background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 85%, transparent), var(--surface));
+                position: relative;
+                overflow: hidden;
+                background-image:
+                  var(--promo-texture),
+                  linear-gradient(180deg, color-mix(in oklab, var(--surface) 85%, transparent), var(--surface));
+                background-repeat: no-repeat;
+                background-size: cover, auto;
                 border: 1px solid var(--border);
                 border-radius: var(--r-lg);
                 padding: 18px;
                 box-shadow: var(--shadow);
+          }
+
+          .promo-card .promo-accent {
+                position: absolute;
+                top: -30px;
+                right: -20px;
+                width: clamp(160px, 22vw, 220px);
+                opacity: .55;
+                pointer-events: none;
+                filter: drop-shadow(0 18px 28px rgba(0, 0, 0, .35));
+                transition: opacity .3s ease;
+                z-index: 0;
+          }
+
+          .promo-card .promo-accent[hidden] {
+                opacity: 0;
+          }
+
+          .promo-card .now {
+                position: relative;
+                z-index: 1;
           }
 
           .promo-card h3 {
@@ -839,6 +867,7 @@
       </div>
 
       <aside class="promo-card" aria-label="Now playing">
+        <img id="hostAccent" class="promo-accent" alt="" aria-hidden="true" hidden>
         <div class="now">
           <div class="art">
             <img id="artImg" alt="Album art" src="">
@@ -1000,6 +1029,97 @@ const SHOWS = [
   { title: "Midnight Flow with Sam Carter", time: "Nightly 11 PM–2 AM", image: "MFSC.png", imageText: "SAM", desc: "Late-night downtempo and calm talk." }
 ];
 
+const HOST_THEMES = {
+  autodj: {
+    label: 'AutoDJ',
+    aliases: ['auto', 'automation', 'radio-bot', 'amp'],
+    vars: {
+      '--brand-h': '330',
+      '--brand-s': '100%',
+      '--brand-l': '60%',
+      '--bg': '#0a0b0f',
+      '--surface': '#101218',
+      '--surface-2': '#141823',
+      '--text': '#f5f7fb',
+      '--muted': '#97a1b3',
+      '--border': '#283042'
+    },
+    accentSvg: 'data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20280%20220%22><defs><linearGradient%20id=%22g%22%20x1=%220%%22%20y1=%220%%22%20x2=%22100%%22%20y2=%22100%%22><stop%20offset=%220%%22%20stop-color=%22%23ff4db8%22/><stop%20offset=%22100%%22%20stop-color=%22%23ff8a1f%22/></linearGradient></defs><path%20fill=%22url(%23g)%22%20d=%22M30%200h190l60%20120-80%20100H40L0%20120z%22/></svg>',
+    texture: 'radial-gradient(circle at 18% 18%, rgba(255, 77, 184, 0.22), transparent 62%)'
+  },
+  miki: {
+    label: 'Miki',
+    aliases: ['miki-rivers', 'miki-show'],
+    vars: {
+      '--brand-h': '195',
+      '--brand-s': '100%',
+      '--brand-l': '58%',
+      '--bg': '#04141f',
+      '--surface': '#0a1f2b',
+      '--surface-2': '#0f2936',
+      '--text': '#f2f9ff',
+      '--muted': '#8eb5d0',
+      '--border': '#103347'
+    },
+    accentSvg: 'data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20260%20200%22><defs><linearGradient%20id=%22g%22%20x1=%2220%%22%20y1=%220%%22%20x2=%22100%%22%20y2=%2280%%22><stop%20offset=%220%%22%20stop-color=%22%2325d6ff%22/><stop%20offset=%22100%%22%20stop-color=%22%238c4dff%22/></linearGradient></defs><path%20fill=%22url(%23g)%22%20d=%22M0%2040%20120%200l140%2080-80%20120H40z%22/><circle%20cx=%2270%22%20cy=%22110%22%20r=%2226%22%20fill=%22rgba(255,255,255,0.45)%22/><circle%20cx=%22170%22%20cy=%2270%22%20r=%2218%22%20fill=%22rgba(255,255,255,0.36)%22/></svg>',
+    texture: 'radial-gradient(circle at 75% 20%, rgba(37, 214, 255, 0.18), transparent 58%)'
+  },
+  jax: {
+    label: 'Jax',
+    aliases: ['jax-drive', 'jax-miki'],
+    vars: {
+      '--brand-h': '25',
+      '--brand-s': '100%',
+      '--brand-l': '64%',
+      '--bg': '#18090f',
+      '--surface': '#201016',
+      '--surface-2': '#2b151d',
+      '--text': '#fff6f9',
+      '--muted': '#d1a1ac',
+      '--border': '#3c1d27'
+    },
+    accentSvg: 'data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20260%20200%22><defs><linearGradient%20id=%22g%22%20x1=%220%%22%20y1=%220%%22%20x2=%22100%%22%20y2=%22100%%22><stop%20offset=%220%%22%20stop-color=%22%23ffd166%22/><stop%20offset=%22100%%22%20stop-color=%22%23ff006e%22/></linearGradient></defs><path%20fill=%22url(%23g)%22%20d=%22M30%2020h170l60%2090-120%2090L0%20140z%22/><path%20fill=%22rgba(255,255,255,0.35)%22%20d=%22m80%2040%20120%2040-50%2080-130-40z%22/></svg>',
+    texture: 'radial-gradient(circle at 82% 22%, rgba(255, 0, 110, 0.18), transparent 60%)'
+  },
+  sam: {
+    label: 'Sam',
+    aliases: ['sam-carter', 'midnight-flow'],
+    vars: {
+      '--brand-h': '250',
+      '--brand-s': '88%',
+      '--brand-l': '60%',
+      '--bg': '#060716',
+      '--surface': '#0b0d1f',
+      '--surface-2': '#101329',
+      '--text': '#eef1ff',
+      '--muted': '#9aa2cc',
+      '--border': '#171c3a'
+    },
+    accentSvg: 'data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20260%20200%22><defs><linearGradient%20id=%22g%22%20x1=%2220%%22%20y1=%220%%22%20x2=%22100%%22%20y2=%22100%%22><stop%20offset=%220%%22%20stop-color=%22%233a86ff%22/><stop%20offset=%22100%%22%20stop-color=%22%238338ec%22/></linearGradient></defs><path%20fill=%22url(%23g)%22%20d=%22M0%2060%20140%200l120%20120-100%2080H40z%22/><path%20fill=%22rgba(255,255,255,0.4)%22%20d=%22M40%20120c40-30%2090-40%20140-10l-40%2060z%22/></svg>',
+    texture: 'radial-gradient(circle at 20% 30%, rgba(58, 134, 255, 0.18), transparent 55%)'
+  },
+  live: {
+    label: 'Live',
+    aliases: ['live', 'special-guest', 'guest'],
+    vars: {
+      '--brand-h': '335',
+      '--brand-s': '100%',
+      '--brand-l': '58%',
+      '--bg': '#160510',
+      '--surface': '#220614',
+      '--surface-2': '#2c0819',
+      '--text': '#ffe8f2',
+      '--muted': '#f28cb6',
+      '--border': '#3d0c23'
+    },
+    accentSvg: 'data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20260%20200%22><defs><radialGradient%20id=%22g%22%20cx=%2250%%22%20cy=%2240%%22%20r=%2275%%22><stop%20offset=%220%%22%20stop-color=%22%23ff006e%22/><stop%20offset=%22100%%22%20stop-color=%22%23f72585%22/></radialGradient></defs><path%20fill=%22url(%23g)%22%20d=%22M20%200h200l40%20120-120%2080L0%20140z%22/><circle%20cx=%2290%22%20cy=%2280%22%20r=%2224%22%20fill=%22rgba(255,255,255,0.35)%22/></svg>',
+    texture: 'radial-gradient(circle at 12% 25%, rgba(247, 37, 133, 0.22), transparent 60%)'
+  }
+};
+
+const HOST_THEME_STORAGE_KEY = 'amped-active-host';
+const DEFAULT_HOST_SLUG = 'autodj';
+
 const STATION_TZ = CONFIG.timeZone || 'Pacific/Auckland';
 const UP_NEXT_LIMIT = 4;
 const MINUTE_MS = 60 * 1000;
@@ -1018,6 +1138,121 @@ const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const setText = (el, txt) => { if (el) el.textContent = txt; };
 const show   = (el, display = "") => { if (el) el.style.display = display; };
 const hide   = el => { if (el) el.style.display = "none"; };
+const debounce = (fn, wait = 120) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(undefined, args), wait);
+  };
+};
+
+/* --------------------------- HOST TAKEOVERS --------------------------- */
+const slugifyHost = (value = '') => {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    || DEFAULT_HOST_SLUG;
+};
+
+const resolveHostThemeSlug = (hostName, { asSlug = false } = {}) => {
+  if (!hostName) return DEFAULT_HOST_SLUG;
+  if (asSlug) return HOST_THEMES[hostName] ? hostName : DEFAULT_HOST_SLUG;
+
+  const slug = slugifyHost(hostName);
+  if (HOST_THEMES[slug]) return slug;
+
+  for (const [key, theme] of Object.entries(HOST_THEMES)) {
+    if (key === slug) return key;
+    const aliases = theme.aliases || [];
+    if (aliases.includes(slug)) return key;
+    if (slug.includes(key)) return key;
+    if (aliases.some(alias => slug.includes(alias))) return key;
+  }
+
+  for (const part of slug.split('-')) {
+    if (HOST_THEMES[part]) return part;
+  }
+
+  return DEFAULT_HOST_SLUG;
+};
+
+const applyHostSkin = (() => {
+  let lastSlug = '';
+
+  const setRootVars = (vars = {}) => {
+    const rootStyle = document.documentElement.style;
+    const merged = { ...(HOST_THEMES[DEFAULT_HOST_SLUG]?.vars || {}), ...vars };
+    for (const [prop, value] of Object.entries(merged)) {
+      if (value == null) rootStyle.removeProperty(prop);
+      else rootStyle.setProperty(prop, value);
+    }
+  };
+
+  const setAccentAssets = (slug, { accentSvg, texture }) => {
+    const accentEl = document.getElementById('hostAccent');
+    const promoCard = document.querySelector('.promo-card');
+
+    document.documentElement.dataset.hostTheme = slug;
+
+    const textureValue = texture || HOST_THEMES[DEFAULT_HOST_SLUG]?.texture || 'none';
+    document.documentElement.style.setProperty('--promo-texture', textureValue || 'none');
+
+    if (promoCard) promoCard.setAttribute('data-host', slug);
+    if (!accentEl) return;
+
+    if (accentSvg) {
+      accentEl.src = accentSvg;
+      accentEl.hidden = false;
+    } else {
+      accentEl.hidden = true;
+      accentEl.removeAttribute('src');
+    }
+  };
+
+  return (hostName, opts = {}) => {
+    const slug = resolveHostThemeSlug(hostName, { asSlug: opts.asSlug });
+    if (!slug) return;
+    if (slug === lastSlug && !opts.force) return;
+
+    const theme = HOST_THEMES[slug] || HOST_THEMES[DEFAULT_HOST_SLUG];
+    setRootVars(theme?.vars);
+    setAccentAssets(slug, {
+      accentSvg: theme?.accentSvg ?? HOST_THEMES[DEFAULT_HOST_SLUG]?.accentSvg,
+      texture: theme?.texture ?? HOST_THEMES[DEFAULT_HOST_SLUG]?.texture
+    });
+
+    lastSlug = slug;
+
+    if (!opts.skipPersist) {
+      try {
+        localStorage.setItem(HOST_THEME_STORAGE_KEY, slug);
+      } catch (err) {
+        console.warn('Unable to persist host theme', err);
+      }
+    }
+  };
+})();
+
+const applyHostSkinDebounced = debounce((host) => applyHostSkin(host), 180);
+
+function hydrateHostSkinFromStorage() {
+  let stored;
+  try {
+    stored = localStorage.getItem(HOST_THEME_STORAGE_KEY);
+  } catch (err) {
+    console.warn('Unable to read stored host theme', err);
+  }
+
+  if (stored && HOST_THEMES[stored]) {
+    applyHostSkin(stored, { asSlug: true, skipPersist: true, force: true });
+    return;
+  }
+
+  applyHostSkin(DEFAULT_HOST_SLUG, { asSlug: true, skipPersist: true, force: true });
+}
+
+hydrateHostSkinFromStorage();
 
 const toDate = (value) => {
   if (!value && value !== 0) return null;
@@ -1634,6 +1869,8 @@ function initNowPlaying() {
       const isLive = (data.live && data.live.is_live) || false;
       const host   = isLive ? (data.live.streamer_name || 'Live') : (data.playing_next?.artist || 'AutoDJ');
 
+      applyHostSkinDebounced(host || 'AutoDJ');
+
       setText(titleEl, song.title || 'Unknown Title');
 
       // Build meta safely (no HTML injection)
@@ -1693,6 +1930,7 @@ function initNowPlaying() {
         host: dummy.host,
         artwork: ''
       });
+      applyHostSkinDebounced(dummy.host);
       elapsed = 0; duration = dummy.seconds;
       updateProgress();
     }
