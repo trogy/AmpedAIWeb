@@ -286,17 +286,86 @@
 		flex-wrap: wrap;
 	  }
 
-	  .promo-card {
-		background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 85%, transparent), var(--surface));
-		border: 1px solid var(--border);
-		border-radius: var(--r-lg);
-		padding: 18px;
-		box-shadow: var(--shadow);
-	  }
+          .promo-card {
+                background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 85%, transparent), var(--surface));
+                border: 1px solid var(--border);
+                border-radius: var(--r-lg);
+                padding: 18px;
+                box-shadow: var(--shadow);
+          }
 
-	  .promo-card h3 {
-		margin: .4rem 0;
-	  }
+          .promo-card h3 {
+                margin: .4rem 0;
+          }
+
+          .up-next-card {
+                margin-top: 18px;
+          }
+
+          .up-next-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: .6rem;
+          }
+
+          .up-next-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: grid;
+                gap: 10px;
+                counter-reset: upnext;
+          }
+
+          .up-next-item {
+                counter-increment: upnext;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 12px;
+                border: 1px solid var(--border);
+                border-radius: var(--r-md);
+                background: var(--surface-2);
+          }
+
+          .up-next-item::before {
+                content: counter(upnext);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 30px;
+                height: 30px;
+                border-radius: 999px;
+                background: linear-gradient(135deg, var(--brand-300), var(--brand));
+                color: #000;
+                font-weight: 700;
+                font-variant-numeric: tabular-nums;
+                box-shadow: 0 0 0 1px rgba(0, 0, 0, .12);
+                flex-shrink: 0;
+          }
+
+          .up-next-text {
+                display: grid;
+                gap: 4px;
+          }
+
+          .up-next-title {
+                margin: 0;
+                font-size: .98rem;
+          }
+
+          .up-next-meta {
+                color: var(--muted);
+                font-size: .82rem;
+          }
+
+          .up-next-chip {
+                background: var(--surface);
+                border-color: color-mix(in srgb, var(--border) 70%, transparent);
+                color: var(--text);
+                font-weight: 600;
+          }
 
 	  .now {
 		display: grid;
@@ -664,6 +733,17 @@
         </div>
         <audio id="player" preload="none" crossorigin="anonymous"></audio>
       </aside>
+      <div class="card up-next-card" id="upNextCard" aria-live="polite">
+        <div class="body">
+          <div class="up-next-head">
+            <span class="chip">Up Next</span>
+            <span class="meta" id="upNextTzLabel"></span>
+          </div>
+          <ol id="upNextList" class="up-next-list">
+            <li class="meta">Loading schedule…</li>
+          </ol>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -790,12 +870,184 @@ const SHOWS = [
   { title: "Midnight Flow with Sam Carter", time: "Nightly 11 PM–2 AM", image: "MFSC.png", imageText: "SAM", desc: "Late-night downtempo and calm talk." }
 ];
 
+const STATION_TZ = CONFIG.timeZone || 'Pacific/Auckland';
+const UP_NEXT_LIMIT = 4;
+const MINUTE_MS = 60 * 1000;
+const DAY_MS = 24 * 60 * MINUTE_MS;
+
+const WEEKDAY_SHELL_SLOTS = [
+  { title: 'Amped Mornings with Miki',      startMinutes:  5 * 60,      endMinutes:  9 * 60 },
+  { title: 'Amped AI with Jax & Miki',      startMinutes:  9 * 60,      endMinutes: 16 * 60 + 45 },
+  { title: 'The Amped Drive Home with Jax', startMinutes: 16 * 60 + 45, endMinutes: 22 * 60 },
+  { title: 'Midnight Flow with Sam Carter', startMinutes: 22 * 60,      endMinutes: 29 * 60 }
+];
+
 /* ------------------------------ HELPERS -------------------------------- */
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const setText = (el, txt) => { if (el) el.textContent = txt; };
 const show   = (el, display = "") => { if (el) el.style.display = display; };
 const hide   = el => { if (el) el.style.display = "none"; };
+
+const toDate = (value) => {
+  if (!value && value !== 0) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  if (typeof value === 'number') {
+    const ms = value > 1e12 ? value : value * 1000;
+    const d = new Date(ms);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+
+const getTimeZoneShortName = (tz) => {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' })
+    .formatToParts(new Date());
+  return parts.find(p => p.type === 'timeZoneName')?.value || tz;
+};
+
+const getOffsetPart = (date, tz) => {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'shortOffset' }).formatToParts(date);
+  const value = parts.find(p => p.type === 'timeZoneName')?.value || 'GMT+00';
+  const match = value.match(/GMT([+\-])(\d{1,2})(?::?(\d{2}))?/);
+  return match ? `${match[1]}${match[2].padStart(2, '0')}:${(match[3] || '00').padStart(2, '0')}` : '+00:00';
+};
+
+const getOffsetInfo = (date, tz) => {
+  const offset = getOffsetPart(date, tz);
+  const match = offset.match(/([+\-])(\d{2}):(\d{2})/);
+  const sign = (match?.[1] === '-') ? -1 : 1;
+  const minutes = match ? sign * ((Number(match[2]) || 0) * 60 + (Number(match[3]) || 0)) : 0;
+  return { offset, minutes };
+};
+
+const getStationStartOfDay = (tz, referenceDate = new Date()) => {
+  const dayParts = new Intl.DateTimeFormat('en-GB', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' })
+    .formatToParts(referenceDate)
+    .reduce((acc, part) => (acc[part.type] = part.value, acc), {});
+  const baseUTC = Date.UTC(Number(dayParts.year), Number(dayParts.month) - 1, Number(dayParts.day));
+  const midnightUTC = new Date(baseUTC);
+  const offset = getOffsetInfo(midnightUTC, tz);
+  const startLocal = new Date(baseUTC - offset.minutes * MINUTE_MS);
+  return { startLocal, parts: dayParts, offset };
+};
+
+const formatZonedISO = (date, tz) => {
+  const { offset } = getOffsetInfo(date, tz);
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: tz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).formatToParts(date).reduce((acc, part) => (acc[part.type] = part.value, acc), {});
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second || '00'}${offset}`;
+};
+
+const updateUpNextTimeZoneLabel = (tz) => {
+  const label = $('#upNextTzLabel');
+  if (label) label.textContent = `Station time • ${getTimeZoneShortName(tz)}`;
+};
+
+const renderUpNextList = (items, tz) => {
+  const list = $('#upNextList');
+  if (!list) return false;
+
+  updateUpNextTimeZoneLabel(tz);
+
+  if (!Array.isArray(items) || !items.length) {
+    list.innerHTML = '<li class="meta">Schedule unavailable.</li>';
+    return false;
+  }
+
+  list.innerHTML = '';
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.className = 'up-next-item';
+
+    const badge = document.createElement('span');
+    badge.className = 'chip up-next-chip';
+    badge.textContent = `${fmt.dayShort(item.start, tz)} ${fmt.hm(item.start, tz)}`;
+
+    const textWrap = document.createElement('div');
+    textWrap.className = 'up-next-text';
+
+    const title = document.createElement('p');
+    title.className = 'up-next-title';
+    title.textContent = item.title;
+
+    const meta = document.createElement('span');
+    meta.className = 'up-next-meta';
+    meta.textContent = `${fmt.hm(item.start, tz)} – ${fmt.hm(item.end, tz)}`;
+
+    textWrap.append(title, meta);
+    li.append(badge, textWrap);
+    list.appendChild(li);
+  }
+  return true;
+};
+
+const getUpcomingEventsFromSchedule = (events, tz, limit = UP_NEXT_LIMIT) => {
+  const now = Date.now();
+  const upcoming = [];
+
+  for (const ev of events || []) {
+    const startDate = toDate(ev?.start ?? ev?.start_at ?? ev?.start_timestamp ?? ev?.start_time ?? ev?.startDate);
+    if (!startDate) continue;
+
+    let endDate = toDate(ev?.end ?? ev?.end_at ?? ev?.end_timestamp ?? ev?.end_time ?? ev?.endDate);
+    if (!endDate || endDate <= startDate) {
+      const duration = Number(ev?.duration ?? ev?.length ?? ev?.length_seconds ?? ev?.playout_duration ?? 0);
+      const fallback = Number.isFinite(duration) && duration > 0 ? duration * 1000 : 60 * MINUTE_MS;
+      endDate = new Date(startDate.getTime() + fallback);
+    }
+
+    if (startDate.getTime() <= now) continue;
+
+    upcoming.push({
+      title: String(ev?.title || ev?.name || 'Show'),
+      start: startDate,
+      end: endDate
+    });
+  }
+
+  upcoming.sort((a, b) => a.start - b.start);
+  return upcoming.slice(0, limit);
+};
+
+const buildShellFallbackEvents = (tz, limit = UP_NEXT_LIMIT) => {
+  const { startLocal } = getStationStartOfDay(tz);
+  const now = Date.now();
+  const events = [];
+
+  for (let day = 0; day < 5 && events.length < limit * 2; day++) {
+    for (const slot of WEEKDAY_SHELL_SLOTS) {
+      const start = new Date(startLocal.getTime() + day * DAY_MS + slot.startMinutes * MINUTE_MS);
+      const end = new Date(startLocal.getTime() + day * DAY_MS + slot.endMinutes * MINUTE_MS);
+      if (start.getTime() > now) {
+        events.push({ title: slot.title, start, end });
+      }
+    }
+  }
+
+  events.sort((a, b) => a.start - b.start);
+  return events.slice(0, limit);
+};
+
+const updateUpNextFromSchedule = (events, tz) => {
+  const upcoming = getUpcomingEventsFromSchedule(events, tz);
+  if (!upcoming.length) return false;
+  return renderUpNextList(upcoming, tz);
+};
+
+const renderUpNextFallback = (tz) => {
+  const fallbackEvents = buildShellFallbackEvents(tz);
+  renderUpNextList(fallbackEvents, tz);
+};
 
 /** Format helpers with target TZ */
 const fmt = {
@@ -916,49 +1168,26 @@ function renderScheduleShell() {
 }
 
 async function tryPopulateScheduleFromScheduleAPI() {
-  const tz = CONFIG.timeZone || 'Pacific/Auckland';
+  const tz = STATION_TZ;
   const daysOrder = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-  const offsetPart = (d) => {
-    const p = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'shortOffset' }).formatToParts(d);
-    const v = p.find(x => x.type === 'timeZoneName')?.value || 'GMT+00';
-    const m = v.match(/GMT([+\-])(\d{1,2})(?::?(\d{2}))?/);
-    return m ? `${m[1]}${m[2].padStart(2,'0')}:${(m[3]||'00').padStart(2,'0')}` : '+00:00';
-  };
-  const offsetInfo = (d) => {
-    const offset = offsetPart(d);
-    const m = offset.match(/([+\-])(\d{2}):(\d{2})/);
-    const sign = (m?.[1] === '-') ? -1 : 1;
-    const minutes = m ? sign * ((Number(m[2]) || 0) * 60 + (Number(m[3]) || 0)) : 0;
-    return { offset, minutes };
-  };
-
-  // Build a 7-day window starting today in target TZ
-  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' })
-    .formatToParts(new Date()).reduce((o,p)=>(o[p.type]=p.value,o),{});
-  const baseUTC = Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day));
-  const startInfo = offsetInfo(new Date(baseUTC));
-  const startLocal = new Date(baseUTC - startInfo.minutes * 60 * 1000);
-  const endLocal   = new Date(startLocal.getTime() + 7*24*60*60*1000);
-
-  const fmtISO = (d) => {
-    const { offset } = offsetInfo(d);
-    const p = new Intl.DateTimeFormat('en-GB', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false })
-      .formatToParts(d).reduce((o,p)=>(o[p.type]=p.value,o),{});
-    return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second || '00'}${offset}`;
-  };
+  const { startLocal } = getStationStartOfDay(tz);
+  const endLocal = new Date(startLocal.getTime() + 7 * DAY_MS);
 
   const url = `${CONFIG.apiBase}/station/${CONFIG.stationId}/schedule`
-    + `?start=${encodeURIComponent(fmtISO(startLocal))}`
-    + `&end=${encodeURIComponent(fmtISO(endLocal))}`
+    + `?start=${encodeURIComponent(formatZonedISO(startLocal, tz))}`
+    + `&end=${encodeURIComponent(formatZonedISO(endLocal, tz))}`
     + `&timeZone=${encodeURIComponent(tz)}`;
 
   try {
     const res = await fetch(url);
-    if (!res.ok) return;
+    if (!res.ok) throw new Error(`Schedule request failed: ${res.status}`);
 
     const items = await res.json();
-    if (!Array.isArray(items) || !items.length) return;
+    if (!Array.isArray(items) || !items.length) {
+      console.warn('schedule API returned no items');
+      return [];
+    }
 
     const buckets = new Map(); // key: "title__HH:MM–HH:MM" -> { title, time, days:Set }
     for (const ev of items) {
@@ -1005,8 +1234,10 @@ async function tryPopulateScheduleFromScheduleAPI() {
 
     if (rowsWeekday.length) $('#weekdayPanel').innerHTML = mkTable(rowsWeekday);
     if (rowsWeekend.length) $('#weekendPanel').innerHTML  = mkTable(rowsWeekend);
+    return items;
   } catch (e) {
     console.warn('schedule fetch failed', e);
+    throw e;
   }
 }
 
@@ -1186,7 +1417,15 @@ function init() {
   initHeaderUI();
   renderShows();
   renderScheduleShell();
-  tryPopulateScheduleFromScheduleAPI();
+  const tz = STATION_TZ;
+  updateUpNextTimeZoneLabel(tz);
+  tryPopulateScheduleFromScheduleAPI()
+    .then(items => {
+      if (!Array.isArray(items) || !items.length || !updateUpNextFromSchedule(items, tz)) {
+        renderUpNextFallback(tz);
+      }
+    })
+    .catch(() => renderUpNextFallback(tz));
   initPlayer();
   initNowPlaying();
 }
