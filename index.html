@@ -71,6 +71,21 @@
                 --layer-glass: color-mix(in oklab, var(--surface) 82%, transparent);
                 --layer-hover-bg: color-mix(in oklab, var(--surface-2) 88%, transparent);
                 --layer-chip-bg: color-mix(in oklab, var(--surface) 75%, transparent);
+                --hero-motion-opacity: 0;
+                --hero-motion-transform: translateY(20px);
+                --hero-motion-animation: heroFadeUp .8s ease forwards;
+                --live-dot-motion-animation: livePulse 1.8s ease-in-out infinite;
+                --live-dot-shadow: 0 0 0 0 rgba(255, 77, 154, .28), 0 0 10px rgba(255, 77, 154, .32);
+                --neon-shadow: 0 0 10px hsl(var(--brand-h) 100% 60% / .6), 0 0 24px hsl(var(--brand-h) 100% 60% / .35);
+                --button-primary-shadow: 0 0 18px hsl(var(--brand-h) 100% 60% / .55), 0 12px 24px hsl(var(--brand-h) 90% 50% / .25);
+                --progress-bar-bg: linear-gradient(90deg, var(--brand-300), var(--brand));
+                --progress-bar-shadow: 0 0 12px hsl(var(--brand-h) 100% 60% / .5) inset;
+                --progress-bar-transition: width 0.9s linear;
+                --card-motion-transition: transform .25s ease, box-shadow .3s ease;
+                --card-motion-transform: translateY(-6px);
+                --card-motion-shadow: var(--card-shadow, var(--shadow)), 0 20px 40px hsl(var(--brand-h) 95% 55% / .25);
+                --card-image-transition: transform .25s ease;
+                --card-image-transform: scale(1.03);
           }
 
           @keyframes heroFadeUp {
@@ -179,13 +194,11 @@
                 animation: spin 1s linear infinite;
           }
 
-	  .btn-primary {
-		background: linear-gradient(135deg, var(--brand), var(--brand-700));
-		color: #fff;
-		box-shadow:
-		  0 0 18px hsl(var(--brand-h) 100% 60% / .55),
-		  0 12px 24px hsl(var(--brand-h) 90% 50% / .25);
-	  }
+          .btn-primary {
+                background: linear-gradient(135deg, var(--brand), var(--brand-700));
+                color: #fff;
+                box-shadow: var(--button-primary-shadow);
+          }
 
 	  .btn-ghost {
 		background: transparent;
@@ -208,11 +221,9 @@
 		font-size: .81rem;
 	  }
 
-	  .neon {
-		text-shadow:
-		  0 0 10px hsl(var(--brand-h) 100% 60% / .6),
-		  0 0 24px hsl(var(--brand-h) 100% 60% / .35);
-	  }
+          .neon {
+                text-shadow: var(--neon-shadow);
+          }
 
 	  .header {
 		position: sticky;
@@ -332,9 +343,9 @@
           .hero .cta,
           .promo-card,
           .up-next-card {
-                opacity: 0;
-                transform: translateY(20px);
-                animation: heroFadeUp .8s ease forwards;
+                opacity: var(--hero-motion-opacity);
+                transform: var(--hero-motion-transform);
+                animation: var(--hero-motion-animation);
           }
 
           .eyebrow {
@@ -893,19 +904,48 @@
                 height: 10px;
                 border-radius: 50%;
                 background: #ff4d9a;
-                box-shadow: 0 0 0 0 rgba(255, 77, 154, .28), 0 0 10px rgba(255, 77, 154, .32);
+                box-shadow: var(--live-dot-shadow);
                 display: inline-block;
-                animation: livePulse 1.8s ease-in-out infinite;
+                animation: var(--live-dot-motion-animation);
                 will-change: transform, opacity;
           }
 
           @media (prefers-reduced-motion: reduce) {
-                .live-dot {
-                      animation: none;
-                      transform: none;
-                      opacity: 1;
-                      box-shadow: 0 0 0 6px rgba(255, 77, 154, .12);
+                :root {
+                      --hero-motion-opacity: 1;
+                      --hero-motion-transform: none;
+                      --hero-motion-animation: none;
+                      --live-dot-motion-animation: none;
+                      --live-dot-shadow: 0 0 0 6px rgba(255, 77, 154, .12);
+                      --neon-shadow: 0 1px 0 rgba(0, 0, 0, .45);
+                      --button-primary-shadow: var(--shadow);
+                      --progress-bar-bg: var(--brand-700);
+                      --progress-bar-shadow: none;
+                      --progress-bar-transition: none;
+                      --card-motion-transition: none;
+                      --card-motion-transform: none;
+                      --card-motion-shadow: var(--card-shadow, var(--shadow));
+                      --card-image-transition: none;
+                      --card-image-transform: none;
                 }
+          }
+
+          html[data-reduce-motion="true"] {
+                --hero-motion-opacity: 1;
+                --hero-motion-transform: none;
+                --hero-motion-animation: none;
+                --live-dot-motion-animation: none;
+                --live-dot-shadow: 0 0 0 6px rgba(255, 77, 154, .12);
+                --neon-shadow: 0 1px 0 rgba(0, 0, 0, .45);
+                --button-primary-shadow: var(--shadow);
+                --progress-bar-bg: var(--brand-700);
+                --progress-bar-shadow: none;
+                --progress-bar-transition: none;
+                --card-motion-transition: none;
+                --card-motion-transform: none;
+                --card-motion-shadow: var(--card-shadow, var(--shadow));
+                --card-image-transition: none;
+                --card-image-transform: none;
           }
 
 	  .progress {
@@ -916,12 +956,13 @@
 		margin-top: .6rem;
 	  }
 
-	  .bar {
-		height: 100%;
-		width: 0%;
-		background: linear-gradient(90deg, var(--brand-300), var(--brand));
-		box-shadow: 0 0 12px hsl(var(--brand-h) 100% 60% / .5) inset;
-	  }
+          .bar {
+                height: 100%;
+                width: 0%;
+                background: var(--progress-bar-bg);
+                box-shadow: var(--progress-bar-shadow);
+                transition: var(--progress-bar-transition);
+          }
 
 	  section {
 		padding: 34px 0;
@@ -1191,15 +1232,13 @@
                 overflow: clip;
                 display: flex;
                 flex-direction: column;
-                transition: transform .25s ease, box-shadow .3s ease;
+                transition: var(--card-motion-transition);
           }
 
           .card:hover,
           .card:focus-within {
-                transform: translateY(-6px);
-                box-shadow:
-                  var(--card-shadow, var(--shadow)),
-                  0 20px 40px hsl(var(--brand-h) 95% 55% / .25);
+                transform: var(--card-motion-transform);
+                box-shadow: var(--card-motion-shadow);
           }
 
 	  /* Square thumbnail area */
@@ -1220,13 +1259,13 @@
           }
 
 	  /* Image + placeholder */
-	  .card .media img {
-		width: 100%;
-		height: 100%;
-		display: block;
-		object-fit: cover;
-		transition: transform .25s ease;
-	  }
+          .card .media img {
+                width: 100%;
+                height: 100%;
+                display: block;
+                object-fit: cover;
+                transition: var(--card-image-transition);
+          }
 
 	  .card .media .placeholder {
 		width: 100%;
@@ -1242,25 +1281,7 @@
 
           /* Hover polish */
           .card:hover .media img {
-                transform: scale(1.03);
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-                .card {
-                      transition: none;
-                }
-
-                .card:hover,
-                .card:focus-within {
-                      transform: none;
-                      box-shadow: var(--shadow);
-                }
-
-                .card .media img { transition: none; }
-
-                .card:hover .media img {
-                      transform: none;
-                }
+                transform: var(--card-image-transform);
           }
 	</style>
 </head>
@@ -1700,6 +1721,61 @@ const debounce = (fn, wait = 120) => {
     timer = setTimeout(() => fn.apply(undefined, args), wait);
   };
 };
+
+/* ----------------------- REDUCED MOTION STATE ----------------------- */
+const HTML_ROOT = document.documentElement;
+const supportsMatchMedia = typeof window.matchMedia === 'function';
+const reducedMotionQuery = supportsMatchMedia
+  ? window.matchMedia('(prefers-reduced-motion: reduce)')
+  : { matches: false };
+const reducedMotionSubscribers = new Set();
+
+const notifyReducedMotionSubscribers = (matches) => {
+  reducedMotionSubscribers.forEach((fn) => {
+    try {
+      fn(matches);
+    } catch (err) {
+      /* ignore subscriber errors */
+    }
+  });
+};
+
+const setReducedMotionPreference = (matches) => {
+  if (!HTML_ROOT) return;
+  HTML_ROOT.classList.toggle('reduced-motion', matches);
+  if (matches) HTML_ROOT.setAttribute('data-reduce-motion', 'true');
+  else HTML_ROOT.removeAttribute('data-reduce-motion');
+  notifyReducedMotionSubscribers(matches);
+};
+
+const onReducedMotionChange = (handler, { immediate = false } = {}) => {
+  if (typeof handler !== 'function') return () => {};
+  reducedMotionSubscribers.add(handler);
+  if (immediate) {
+    try {
+      handler(reducedMotionQuery.matches);
+    } catch (err) {
+      /* ignore subscriber errors */
+    }
+  }
+  return () => reducedMotionSubscribers.delete(handler);
+};
+
+const handleReducedMotionMediaChange = (event) => {
+  setReducedMotionPreference(Boolean(event?.matches));
+};
+
+if (supportsMatchMedia) {
+  if (typeof reducedMotionQuery.addEventListener === 'function') {
+    reducedMotionQuery.addEventListener('change', handleReducedMotionMediaChange);
+  } else if (typeof reducedMotionQuery.addListener === 'function') {
+    reducedMotionQuery.addListener(handleReducedMotionMediaChange);
+  }
+}
+
+setReducedMotionPreference(Boolean(reducedMotionQuery.matches));
+
+const isReducedMotion = () => Boolean(reducedMotionQuery.matches);
 
 /* --------------------------- HOST TAKEOVERS --------------------------- */
 const slugifyHost = (value = '') => {
@@ -2191,7 +2267,7 @@ function initHeaderUI() {
     const el = document.getElementById(id);
     if (el) {
       e.preventDefault();
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const reduce = isReducedMotion();
       el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
       nav?.classList.remove('open');
       menuBtn?.setAttribute('aria-expanded', 'false');
@@ -2735,8 +2811,11 @@ function initNowPlaying() {
   if (!titleEl || !metaEl || !barEl) return;
 
   // Smooth progress (respect reduced motion)
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!reduce) barEl.style.transition = 'width 0.9s linear';
+  const applyProgressMotionPreference = (matches) => {
+    barEl.style.transition = matches ? 'none' : 'width 0.9s linear';
+  };
+  applyProgressMotionPreference(isReducedMotion());
+  onReducedMotionChange(applyProgressMotionPreference);
 
   let elapsed = 0, duration = 1;
 
