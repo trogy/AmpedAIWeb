@@ -2100,6 +2100,9 @@ function initNowPlaying() {
       const song   = np.song || {};
       const isLive = (data.live && data.live.is_live) || false;
       const host   = isLive ? (data.live.streamer_name || 'Live') : (data.playing_next?.artist || 'AutoDJ');
+      const hostSlug = resolveHostThemeSlug(host, { asSlug: true });
+      const isAutomation = hostSlug === DEFAULT_HOST_SLUG;
+      const liveChip = liveLabelEl?.closest('.chip');
 
       applyHostSkinDebounced(host || 'AutoDJ');
 
@@ -2109,13 +2112,18 @@ function initNowPlaying() {
       metaEl.replaceChildren();
       const artistSpan = document.createElement('span');
       artistSpan.textContent = song.artist || 'Unknown Artist';
-      const sep = document.createTextNode(' • ');
-      const withText = document.createTextNode(isLive ? 'live with ' : 'with ');
-      const hostStrong = document.createElement('strong');
-      hostStrong.textContent = host;
-      metaEl.append(artistSpan, sep, withText, hostStrong);
+      metaEl.append(artistSpan);
+      if (!isAutomation) {
+        const sep = document.createTextNode(' • ');
+        const withText = document.createTextNode(isLive ? 'live with ' : 'with ');
+        const hostStrong = document.createElement('strong');
+        hostStrong.textContent = host;
+        metaEl.append(sep, withText, hostStrong);
+      }
 
-      setText(liveLabelEl, isLive ? CONFIG.liveLabel : 'Auto');
+      const showLiveChip = isLive && !isAutomation;
+      if (liveChip) liveChip.hidden = !showLiveChip;
+      setText(liveLabelEl, showLiveChip ? CONFIG.liveLabel : '');
 
       // Artwork
       const artUrl = song.art || song.artwork || '';
@@ -2150,12 +2158,23 @@ function initNowPlaying() {
         { title: 'Neon City',   artist: 'Amped AI', host: 'AutoDJ', seconds: 200 }
       ][Math.floor(Math.random() * 2)];
 
+      const hostSlug = resolveHostThemeSlug(dummy.host, { asSlug: true });
+      const isAutomation = hostSlug === DEFAULT_HOST_SLUG;
+      const liveChip = liveLabelEl?.closest('.chip');
+      const isLive = false;
+
       setText(titleEl, dummy.title);
-      metaEl.replaceChildren(
-        document.createTextNode(dummy.artist),
-        document.createTextNode(' • with '),
-        Object.assign(document.createElement('strong'), { textContent: dummy.host })
-      );
+      metaEl.replaceChildren();
+      metaEl.append(document.createTextNode(dummy.artist));
+      if (!isAutomation) {
+        metaEl.append(
+          document.createTextNode(' • with '),
+          Object.assign(document.createElement('strong'), { textContent: dummy.host })
+        );
+      }
+      const showLiveChip = isLive && !isAutomation;
+      if (liveChip) liveChip.hidden = !showLiveChip;
+      setText(liveLabelEl, showLiveChip ? CONFIG.liveLabel : '');
       pushMediaSessionMetadata({
         title: dummy.title,
         artist: dummy.artist,
