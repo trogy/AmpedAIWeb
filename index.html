@@ -1160,21 +1160,27 @@
                 }
 
                 .up-next-item {
-                  flex-direction: column;
-                  align-items: flex-start;
-                  gap: 12px;
+                  display: grid;
+                  grid-template-columns: auto 1fr;
+                  gap: 10px 12px;
+                  align-items: start;
+                  padding: 14px 16px;
                 }
 
                 .up-next-item::before {
-                  margin-bottom: 4px;
+                  margin: 0;
+                  align-self: start;
                 }
 
                 .up-next-chip {
                   font-size: .78rem;
+                  justify-self: start;
                 }
 
                 .up-next-text {
+                  grid-column: 1 / -1;
                   width: 100%;
+                  min-width: 0;
                 }
 
                 .current-show {
