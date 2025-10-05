@@ -444,6 +444,108 @@
                 height: 36px;
           }
 
+          .mini-player {
+                position: fixed;
+                left: 50%;
+                bottom: 18px;
+                transform: translate(-50%, calc(100% + 32px));
+                width: min(560px, calc(100% - 26px));
+                padding: 14px 16px;
+                border-radius: var(--r-lg);
+                border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+                background: color-mix(in oklab, var(--surface) 88%, transparent);
+                box-shadow: 0 22px 48px color-mix(in srgb, #000 40%, transparent);
+                backdrop-filter: blur(18px) saturate(1.15);
+                display: grid;
+                gap: 12px;
+                opacity: 0;
+                pointer-events: none;
+                z-index: 40;
+                transition: opacity .28s ease, transform .3s ease;
+          }
+
+          .mini-player--visible {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translate(-50%, 0);
+          }
+
+          .mini-player__inner {
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                align-items: center;
+                gap: 12px;
+          }
+
+          .mini-player__play {
+                display: inline-flex;
+                align-items: center;
+                gap: .5rem;
+                white-space: nowrap;
+          }
+
+          .mini-player__play svg {
+                width: 18px;
+                height: 18px;
+          }
+
+          .mini-player__meta {
+                min-width: 0;
+          }
+
+          .mini-player__meta p {
+                margin: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+          }
+
+          .mini-player__title {
+                font-weight: 600;
+                font-size: .98rem;
+                color: var(--text);
+          }
+
+          .mini-player__details {
+                font-size: .85rem;
+                color: var(--muted);
+          }
+
+          .mini-player__status {
+                display: flex;
+                justify-content: flex-end;
+          }
+
+          .mini-player__chip {
+                display: inline-flex;
+                align-items: center;
+                gap: .4rem;
+                padding: .35rem .7rem;
+                font-size: .72rem;
+                font-weight: 600;
+          }
+
+          .mini-player__controls {
+                display: flex;
+                align-items: center;
+                gap: .6rem;
+          }
+
+          .mini-player__controls input[type="range"] {
+                width: 160px;
+                accent-color: var(--brand);
+                background: transparent;
+          }
+
+          .mini-player__controls input[type="range"][disabled] {
+                cursor: not-allowed;
+          }
+
+          .mini-player__controls .icon-btn {
+                width: 36px;
+                height: 36px;
+          }
+
           .promo-card .player-volume {
                 margin-top: 1.2rem;
                 width: 100%;
@@ -1138,6 +1240,31 @@
           }
 
           @media (max-width: 600px) {
+                .mini-player {
+                  width: calc(100% - 20px);
+                  left: 50%;
+                  bottom: 14px;
+                }
+
+                .mini-player__inner {
+                  grid-template-columns: 1fr;
+                  gap: 10px;
+                }
+
+                .mini-player__status {
+                  justify-content: flex-start;
+                }
+
+                .mini-player__controls {
+                  flex-wrap: wrap;
+                  width: 100%;
+                }
+
+                .mini-player__controls input[type="range"] {
+                  flex: 1 1 100%;
+                  width: 100%;
+                }
+
                 .player-controls {
                   width: 100%;
                 }
@@ -1516,6 +1643,33 @@
         </div>
       </div>
     </section>
+
+    <div id="miniPlayer" class="mini-player" hidden aria-hidden="true">
+      <div class="mini-player__inner">
+        <button id="miniPlayBtn" class="btn btn-primary mini-player__play" aria-pressed="false">
+          <svg id="miniPlayIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"></svg>
+          <span id="miniPlayLabel">Play Stream</span>
+        </button>
+        <div class="mini-player__meta" aria-live="polite" aria-atomic="true">
+          <p id="miniTrackTitle" class="mini-player__title">Track Title</p>
+          <p id="miniTrackMeta" class="mini-player__details">Artist • with Host</p>
+        </div>
+        <div class="mini-player__status">
+          <span id="miniLiveChip" class="chip mini-player__chip" hidden>
+            <span class="live-dot" aria-hidden="true"></span>
+            <span id="miniLiveLabel">Live</span>
+          </span>
+        </div>
+      </div>
+      <div class="mini-player__controls" role="group" aria-label="Mini player controls">
+        <button type="button" id="miniMuteBtn" class="icon-btn" aria-pressed="false" aria-label="Mute audio" title="Mute audio">
+          <svg id="miniMuteIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"></svg>
+          <span id="miniMuteText" class="sr-only">Mute audio</span>
+        </button>
+        <label class="sr-only" for="miniVolumeControl">Volume</label>
+        <input id="miniVolumeControl" name="miniVolume" type="range" min="0" max="100" step="1" value="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-valuetext="100% volume" />
+      </div>
+    </div>
 
   </main>
 
@@ -2460,6 +2614,14 @@ function initPlayer() {
   const muteBtn      = $('#muteBtn');
   const muteIcon     = $('#muteIcon');
   const muteText     = $('#muteText');
+  const miniPlayerEl = $('#miniPlayer');
+  const miniPlayBtn  = $('#miniPlayBtn');
+  const miniPlayIcon = $('#miniPlayIcon');
+  const miniPlayLabel = $('#miniPlayLabel');
+  const miniVolumeSlider = $('#miniVolumeControl');
+  const miniMuteBtn  = $('#miniMuteBtn');
+  const miniMuteIcon = $('#miniMuteIcon');
+  const miniMuteText = $('#miniMuteText');
   const upNextCard   = $('#upNextCard');
   const carModeUpNext = $('#carModeUpNext');
   const carModeHint  = $('#carModeHint');
@@ -2475,12 +2637,31 @@ function initPlayer() {
   })();
   let carModeAutoPlaySuppressed = false;
 
-  if (!player || !playBtn || !playIcon || !playLabel) return;
+  const playControls = [];
+  if (playBtn && playIcon && playLabel) {
+    playControls.push({ button: playBtn, iconEl: playIcon, labelEl: playLabel });
+  }
+  if (miniPlayBtn && miniPlayIcon && miniPlayLabel) {
+    playControls.push({ button: miniPlayBtn, iconEl: miniPlayIcon, labelEl: miniPlayLabel });
+  }
 
-  const ICON_PLAY  = '<path d="m8 5 12 7-12 7V5Z"/>';
-  const ICON_PAUSE = '<path d="M7 5h5v14H7V5Zm7 0h5v14h-5V5Z"/>';
+  const muteControls = [];
+  if (muteBtn && muteIcon) {
+    muteControls.push({ button: muteBtn, iconEl: muteIcon, textEl: muteText });
+  }
+  if (miniMuteBtn && miniMuteIcon) {
+    muteControls.push({ button: miniMuteBtn, iconEl: miniMuteIcon, textEl: miniMuteText });
+  }
+
+  const volumeSliders = [volumeSlider, miniVolumeSlider].filter(Boolean);
+
+  if (!player || !playControls.length) return;
+
+  const ICON_PLAY   = '<path d="m8 5 12 7-12 7V5Z"/>';
+  const ICON_PAUSE  = '<path d="M7 5h5v14H7V5Zm7 0h5v14h-5V5Z"/>';
   const ICON_VOLUME = '<path d="M4 9v6h4l5 5V4L8 9H4Z"/><path d="M16 12a4 4 0 0 0-2.3-3.6l.8-1.8A6 6 0 0 1 18 12a6 6 0 0 1-3.5 5.4l-.8-1.8A4 4 0 0 0 16 12Z"/>';
   const ICON_MUTED  = '<path d="M4 9v6h4l5 5V4L8 9H4Z"/><path d="m19 9-1.4-1.4-2.1 2.1-2.1-2.1-1.4 1.4 2.1 2.1-2.1 2.1 1.4 1.4 2.1-2.1 2.1 2.1 1.4-1.4-2.1-2.1L19 9Z"/>';
+  const ICON_SPINNER = '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 4a8 8 0 1 1-5.657 13.657"/>';
 
   const VOLUME_STORAGE_KEY = 'amped-volume';
   const MUTE_STORAGE_KEY   = 'amped-muted';
@@ -2498,38 +2679,110 @@ function initPlayer() {
 
   player.muted = localStorage.getItem(MUTE_STORAGE_KEY) === 'true';
 
-  const applyVolumeUI = () => {
-    const volPercent = Math.round(player.volume * 100);
-    if (volumeSlider) {
-      volumeSlider.value = String(volPercent);
-      volumeSlider.setAttribute('aria-valuenow', String(volPercent));
-      const valueText = player.muted ? `Muted, ${volPercent}% volume` : `${volPercent}% volume`;
-      volumeSlider.setAttribute('aria-valuetext', valueText);
-      if (player.muted) {
-        volumeSlider.disabled = true;
-        volumeSlider.setAttribute('aria-disabled', 'true');
+  let heroInView = true;
+  let miniVisible = false;
+  let miniHideTimer = null;
+
+  const setMiniVisibility = (visible) => {
+    if (!miniPlayerEl) return;
+    if (miniVisible === visible) return;
+    miniVisible = visible;
+    if (visible) {
+      if (miniHideTimer) {
+        clearTimeout(miniHideTimer);
+        miniHideTimer = null;
+      }
+      miniPlayerEl.removeAttribute('hidden');
+      miniPlayerEl.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => miniPlayerEl.classList.add('mini-player--visible'));
+    } else {
+      miniPlayerEl.classList.remove('mini-player--visible');
+      miniPlayerEl.setAttribute('aria-hidden', 'true');
+      miniHideTimer = window.setTimeout(() => {
+        if (!miniVisible) miniPlayerEl.setAttribute('hidden', '');
+        miniHideTimer = null;
+      }, 280);
+    }
+  };
+
+  const updateMiniVisibility = () => {
+    if (!miniPlayerEl) return;
+    const shouldShow = !heroInView && !isCarModeActive();
+    setMiniVisibility(shouldShow);
+  };
+
+  if (miniPlayerEl) {
+    const heroSection = document.querySelector('#listen');
+    const applyHeroVisibility = (inView) => {
+      heroInView = inView;
+      updateMiniVisibility();
+    };
+    if (heroSection) {
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const entry = entries[0];
+          if (!entry) return;
+          applyHeroVisibility(entry.isIntersecting);
+        }, { threshold: 0.35 });
+        observer.observe(heroSection);
       } else {
-        volumeSlider.disabled = false;
-        volumeSlider.removeAttribute('aria-disabled');
+        const checkHeroInView = () => {
+          const rect = heroSection.getBoundingClientRect();
+          const inView = rect.bottom > 0 && rect.top < window.innerHeight;
+          applyHeroVisibility(inView);
+        };
+        window.addEventListener('scroll', checkHeroInView, { passive: true });
+        window.addEventListener('resize', checkHeroInView);
+        checkHeroInView();
       }
     }
+    miniPlayerEl.setAttribute('aria-hidden', 'true');
+    setMiniVisibility(false);
+  }
+
+  const applyVolumeUI = () => {
+    const volPercent = Math.round(player.volume * 100);
+    volumeSliders.forEach((slider) => {
+      slider.value = String(volPercent);
+      slider.setAttribute('aria-valuenow', String(volPercent));
+      const valueText = player.muted ? `Muted, ${volPercent}% volume` : `${volPercent}% volume`;
+      slider.setAttribute('aria-valuetext', valueText);
+      if (player.muted) {
+        slider.disabled = true;
+        slider.setAttribute('aria-disabled', 'true');
+      } else {
+        slider.disabled = false;
+        slider.removeAttribute('aria-disabled');
+      }
+    });
 
     const label = player.muted ? 'Unmute audio' : 'Mute audio';
-    muteBtn?.setAttribute('aria-pressed', player.muted ? 'true' : 'false');
-    muteBtn?.setAttribute('aria-label', label);
-    muteBtn?.setAttribute('title', label);
-    if (muteText) muteText.textContent = label;
-    if (muteIcon) muteIcon.innerHTML = player.muted ? ICON_MUTED : ICON_VOLUME;
+    muteControls.forEach(({ button, iconEl, textEl }) => {
+      button.setAttribute('aria-pressed', player.muted ? 'true' : 'false');
+      button.setAttribute('aria-label', label);
+      button.setAttribute('title', label);
+      if (textEl) textEl.textContent = label;
+      if (iconEl) iconEl.innerHTML = player.muted ? ICON_MUTED : ICON_VOLUME;
+    });
   };
 
   applyVolumeUI();
 
-  volumeSlider?.addEventListener('input', () => {
-    const value = clamp(Number(volumeSlider.value) / 100, 0, 1);
+  const handleVolumeInput = (event) => {
+    const slider = event.currentTarget;
+    if (!slider) return;
+    const value = clamp(Number(slider.value) / 100, 0, 1);
+    if (player.muted && value > 0) {
+      player.muted = false;
+    }
     player.volume = value;
+  };
+
+  volumeSliders.forEach((slider) => {
+    slider.addEventListener('input', handleVolumeInput);
   });
 
-  muteBtn?.addEventListener('click', () => {
+  const handleMuteToggle = () => {
     const shouldMute = !player.muted;
     if (shouldMute) {
       if (player.volume > 0) {
@@ -2543,6 +2796,10 @@ function initPlayer() {
       }
       player.muted = false;
     }
+  };
+
+  muteControls.forEach(({ button }) => {
+    button.addEventListener('click', handleMuteToggle);
   });
 
   player.addEventListener('volumechange', () => {
@@ -2559,42 +2816,41 @@ function initPlayer() {
   });
 
   const setLiveSrc = () => {
-    player.src = `${CONFIG.streamURL}?ts=${Date.now()}`; // cache-bust to avoid old buffer
+    player.src = `${CONFIG.streamURL}?ts=${Date.now()}`;
     player.load();
   };
-  const ICON_SPINNER = '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 4a8 8 0 1 1-5.657 13.657"/>';
 
-  const resetPlayBtn = (label) => {
-    playBtn.disabled = false;
-    playBtn.removeAttribute('aria-busy');
-    playBtn.removeAttribute('aria-disabled');
-    playBtn.setAttribute('title', label);
-    playBtn.setAttribute('aria-label', label);
-    playLabel.textContent = label;
+  const updatePlayControls = ({ label, iconMarkup, pressed, busy }) => {
+    playControls.forEach(({ button, iconEl, labelEl }) => {
+      button.disabled = Boolean(busy);
+      if (busy) {
+        button.setAttribute('aria-busy', 'true');
+        button.setAttribute('aria-disabled', 'true');
+      } else {
+        button.removeAttribute('aria-busy');
+        button.removeAttribute('aria-disabled');
+      }
+      button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+      button.setAttribute('title', label);
+      button.setAttribute('aria-label', label);
+      if (labelEl) labelEl.textContent = label;
+      if (iconEl) iconEl.innerHTML = iconMarkup;
+    });
   };
 
   const toPlayUI = () => {
-    resetPlayBtn('Play Stream');
-    playBtn.setAttribute('aria-pressed', 'false');
-    playIcon.innerHTML = ICON_PLAY;
+    updatePlayControls({ label: 'Play Stream', iconMarkup: ICON_PLAY, pressed: false, busy: false });
   };
 
   const toPauseUI = () => {
-    resetPlayBtn('Pause Stream');
-    playBtn.setAttribute('aria-pressed', 'true');
-    playIcon.innerHTML = ICON_PAUSE;
+    updatePlayControls({ label: 'Pause Stream', iconMarkup: ICON_PAUSE, pressed: true, busy: false });
   };
 
   const toConnectingUI = () => {
-    playBtn.setAttribute('aria-pressed', 'false');
-    playBtn.setAttribute('aria-busy', 'true');
-    playBtn.setAttribute('aria-disabled', 'true');
-    playBtn.disabled = true;
-    playBtn.setAttribute('title', 'Connecting…');
-    playBtn.setAttribute('aria-label', 'Connecting…');
-    playLabel.textContent = 'Connecting…';
-    playIcon.innerHTML = ICON_SPINNER;
+    updatePlayControls({ label: 'Connecting…', iconMarkup: ICON_SPINNER, pressed: false, busy: true });
   };
+
+  toPlayUI();
 
   const mediaSession = ('mediaSession' in navigator) ? navigator.mediaSession : null;
   const setMediaSessionPlaybackState = (state) => {
@@ -2654,12 +2910,16 @@ function initPlayer() {
     void startPlayback({ showAlert: false });
   };
 
-  playBtn.addEventListener('click', async () => {
+  const handlePlayToggle = async () => {
     if (player.paused || !player.src) {
       await startPlayback();
     } else {
       stopPlayback({ manual: true });
     }
+  };
+
+  playControls.forEach(({ button }) => {
+    button.addEventListener('click', handlePlayToggle);
   });
 
   if (mediaSession) {
@@ -2756,7 +3016,7 @@ function initPlayer() {
   };
 
   const applyCarModeAccessibility = (active, { focusControl = false } = {}) => {
-    const controls = [playBtn, volumeSlider, muteBtn];
+    const controls = [playBtn, volumeSlider, muteBtn, miniPlayBtn, miniVolumeSlider, miniMuteBtn].filter(Boolean);
     controls.forEach(ctrl => {
       if (!ctrl) return;
       if (active && carModeHintId) {
@@ -2776,11 +3036,11 @@ function initPlayer() {
         /* ignore */
       }
     }
+    updateMiniVisibility();
   };
 
   document.addEventListener('car-mode-change', (event) => {
     const active = Boolean(event?.detail?.active);
-    setCarModeUpNextVisibility(active);
     applyCarModeAccessibility(active, { focusControl: true });
     if (active) {
       attemptCarModeAutoStart(active, { requireOptIn: false });
@@ -2788,12 +3048,13 @@ function initPlayer() {
   });
 
   const initialCarMode = document.documentElement.getAttribute('data-car-mode') === 'true';
-  setCarModeUpNextVisibility(initialCarMode);
   applyCarModeAccessibility(initialCarMode);
   if (initialCarMode && carModeAutoPlayOptIn) {
     attemptCarModeAutoStart(initialCarMode, { requireOptIn: true });
   }
+  updateMiniVisibility();
 }
+
 
 /* ----------------------- NOW PLAYING / RECENTS ------------------------- */
 function initNowPlaying() {
@@ -2804,6 +3065,10 @@ function initNowPlaying() {
   const artFallback = $('#artFallback');
   const recentList  = $('#recentList');
   const liveLabelEl = $('#liveLabel');
+  const miniTitleEl = $('#miniTrackTitle');
+  const miniMetaEl  = $('#miniTrackMeta');
+  const miniLiveLabel = $('#miniLiveLabel');
+  const miniLiveChip  = $('#miniLiveChip');
 
   const NOW_PLAYING_CACHE_KEY = 'amped-now-playing';
   const NOW_PLAYING_CACHE_TTL = 60 * 1000;
@@ -2933,10 +3198,23 @@ function initNowPlaying() {
       metaEl.append(sep, withText, hostStrong);
     }
 
+    if (miniTitleEl) {
+      const titleText = state.title || 'Unknown Title';
+      miniTitleEl.textContent = titleText;
+      miniTitleEl.setAttribute('title', titleText);
+    }
+    if (miniMetaEl) {
+      const metaText = metaEl.textContent || '';
+      miniMetaEl.textContent = metaText;
+      miniMetaEl.setAttribute('title', metaText);
+    }
+
     const liveChip = liveLabelEl?.closest('.chip');
     const showLiveChip = isLive && !isAutomation;
     if (liveChip) liveChip.hidden = !showLiveChip;
     setText(liveLabelEl, showLiveChip ? CONFIG.liveLabel : '');
+    if (miniLiveChip) miniLiveChip.hidden = !showLiveChip;
+    if (miniLiveLabel) setText(miniLiveLabel, showLiveChip ? CONFIG.liveLabel : '');
 
     if (artUrl) {
       artImg.src = artUrl;
