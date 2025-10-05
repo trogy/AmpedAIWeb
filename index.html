@@ -2332,15 +2332,27 @@ function renderShows() {
 }
 
 /* ------------------------------ SCHEDULE ------------------------------- */
+const getScheduleTimeCaptionText = (tz) => {
+  const shortName = getTimeZoneShortName(tz);
+  const label = shortName && shortName !== tz ? `${shortName} (${tz})` : shortName || tz;
+  return `All times in ${label}`;
+};
+
+const getScheduleTimeCaptionHtml = (tz) => `<caption class="meta">${getScheduleTimeCaptionText(tz)}</caption>`;
+
 function renderScheduleShell() {
   const weekdayPanel = document.getElementById('weekdayPanel');
   const weekendPanel = document.getElementById('weekendPanel');
   const weekdayTab   = $('#weekdayTab');
   const weekendTab   = $('#weekendTab');
+  const tz = STATION_TZ;
+  const captionHtml = getScheduleTimeCaptionHtml(tz);
+  const captionText = getScheduleTimeCaptionText(tz);
 
   if (weekdayPanel) {
     weekdayPanel.innerHTML = `
       <table>
+        ${captionHtml}
         <thead><tr><th>Day</th><th style="width:180px">Time</th><th>Program</th></tr></thead>
         <tbody>
           <tr><td>Mon–Fri</td><td>05:00–09:00</td><td>Amped Mornings with Miki</td></tr>
@@ -2350,7 +2362,7 @@ function renderScheduleShell() {
         </tbody>
       </table>`;
   }
-  if (weekendPanel) weekendPanel.innerHTML = `<div class="meta">Weekend view loads from API.</div>`;
+  if (weekendPanel) weekendPanel.innerHTML = `<div class="meta">Weekend view loads from API.</div><p class="meta">${captionText}</p>`;
 
   function setTab(isWeekend) {
     weekdayTab?.setAttribute('aria-selected', String(!isWeekend));
@@ -2422,14 +2434,15 @@ async function tryPopulateScheduleFromScheduleAPI() {
       if (hasWeekend) rowsWeekend.push(row);
     }
 
-    const mkTable = (rows) => `
+    const mkTable = (rows, tzString) => `
       <table>
+        ${getScheduleTimeCaptionHtml(tzString)}
         <thead><tr><th>Day</th><th style="width:180px">Time</th><th>Program</th></tr></thead>
         <tbody>${rows.sort().join('')}</tbody>
       </table>`;
 
-    if (rowsWeekday.length) $('#weekdayPanel').innerHTML = mkTable(rowsWeekday);
-    if (rowsWeekend.length) $('#weekendPanel').innerHTML  = mkTable(rowsWeekend);
+    if (rowsWeekday.length) $('#weekdayPanel').innerHTML = mkTable(rowsWeekday, tz);
+    if (rowsWeekend.length) $('#weekendPanel').innerHTML  = mkTable(rowsWeekend, tz);
     return items;
   } catch (e) {
     console.warn('schedule fetch failed', e);
