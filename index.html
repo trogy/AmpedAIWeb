@@ -446,10 +446,10 @@
 
           .mini-player {
                 position: fixed;
-                left: 50%;
+                right: 18px;
                 bottom: 18px;
-                transform: translate(-50%, calc(100% + 32px));
-                width: min(560px, calc(100% - 26px));
+                transform: translateY(calc(100% + 32px));
+                width: min(560px, calc(100% - 36px));
                 padding: 14px 16px;
                 border-radius: var(--r-lg);
                 border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
@@ -467,7 +467,7 @@
           .mini-player--visible {
                 opacity: 1;
                 pointer-events: auto;
-                transform: translate(-50%, 0);
+                transform: translateY(0);
           }
 
           .mini-player__inner {
@@ -1243,7 +1243,13 @@
                 .mini-player {
                   width: calc(100% - 20px);
                   left: 50%;
+                  right: auto;
                   bottom: 14px;
+                  transform: translate(-50%, calc(100% + 32px));
+                }
+
+                .mini-player--visible {
+                  transform: translate(-50%, 0);
                 }
 
                 .mini-player__inner {
