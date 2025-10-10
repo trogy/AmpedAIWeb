@@ -65,6 +65,8 @@
                 --focus-ring: hsl(var(--brand-h) 92% 68%);
                 --focus-ring-width: 2px;
                 --focus-ring-offset: 2px;
+                --car-mode-transition-duration: .45s;
+                --car-mode-transition-ease: cubic-bezier(.4, 0, .2, 1);
                 --layer-card-bg: linear-gradient(145deg,
                       color-mix(in oklab, var(--surface-2) 92%, transparent),
                       color-mix(in oklab, var(--surface) 88%, transparent)
@@ -153,17 +155,23 @@
 		padding-inline: 20px;
 	  }
 
-	  .btn {
-		display: inline-flex;
-		align-items: center;
-		gap: .6rem;
-		border-radius: 999px;
-		padding: .7rem 1.05rem;
-		font-weight: 600;
-		text-decoration: none;
-		border: 1px solid transparent;
-		transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
-	  }
+          .btn {
+                display: inline-flex;
+                align-items: center;
+                gap: .6rem;
+                border-radius: 999px;
+                padding: .7rem 1.05rem;
+                font-weight: 600;
+                text-decoration: none;
+                border: 1px solid transparent;
+                transition:
+                  transform .08s ease,
+                  box-shadow .2s ease,
+                  background .2s ease,
+                  padding var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                  font-size var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                  gap var(--car-mode-transition-duration) var(--car-mode-transition-ease);
+          }
 
           .btn:focus-visible {
                 outline: var(--focus-ring-width) solid var(--focus-ring);
@@ -258,11 +266,12 @@
 		letter-spacing: .2px;
 	  }
 
-	  .logo-img {
-		width: 160px;
-		height: auto;
-		filter: drop-shadow(0 0 18px hsl(var(--brand-h) 100% 60% / .55));
-	  }
+          .logo-img {
+                width: 160px;
+                height: auto;
+                filter: drop-shadow(0 0 18px hsl(var(--brand-h) 100% 60% / .55));
+                transition: width var(--car-mode-transition-duration) var(--car-mode-transition-ease);
+          }
 
 	  nav ul {
 		list-style: none;
@@ -286,10 +295,24 @@
                 text-decoration: none;
           }
 
+          #site-nav {
+                max-width: 100%;
+                transition: opacity var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          max-width var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          transform var(--car-mode-transition-duration) var(--car-mode-transition-ease);
+                overflow: hidden;
+                min-width: 0;
+          }
+
           .header-actions {
                 display: flex;
                 align-items: center;
                 gap: .6rem;
+                transition: opacity var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          max-width var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          transform var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          gap var(--car-mode-transition-duration) var(--car-mode-transition-ease);
+                min-width: 0;
           }
 
 	  .icon-btn {
@@ -325,7 +348,20 @@
 
           [data-car-mode="true"] #site-nav,
           [data-car-mode="true"] .header-actions {
-                display: none;
+                opacity: 0;
+                max-width: 0;
+                transform: translateY(-8px);
+                pointer-events: none;
+                flex-basis: 0;
+          }
+
+          [data-car-mode="true"] #site-nav {
+                overflow: hidden;
+          }
+
+          [data-car-mode="true"] .header-actions {
+                gap: 0;
+                overflow: hidden;
           }
 
           [data-car-mode="true"] .header .row {
@@ -396,11 +432,31 @@
                 animation-delay: .4s;
           }
 
+          .hero .eyebrow,
+          .hero h1,
+          .hero p {
+                transition: opacity var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          transform var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          max-height var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          margin var(--car-mode-transition-duration) var(--car-mode-transition-ease);
+          }
+
+          .hero .eyebrow {
+                max-height: 120px;
+          }
+
+          .hero h1,
+          .hero p {
+                max-height: 420px;
+          }
+
           .player-controls {
                 display: inline-flex;
                 align-items: center;
                 gap: .6rem;
                 flex-wrap: wrap;
+                transition: gap var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          max-width var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           .player-volume {
@@ -412,12 +468,16 @@
                 border-radius: var(--r-md);
                 background: var(--surface-2);
                 flex-wrap: wrap;
+                transition: gap var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          padding var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          font-size var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           .player-volume label {
                 font-size: .82rem;
                 font-weight: 600;
                 color: var(--muted);
+                transition: font-size var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           .player-volume-controls {
@@ -425,6 +485,7 @@
                 align-items: center;
                 gap: .5rem;
                 flex: 1;
+                transition: gap var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           .player-volume input[type="range"] {
@@ -432,6 +493,7 @@
                 min-width: 120px;
                 accent-color: var(--brand);
                 background: transparent;
+                transition: width var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           .player-volume input[type="range"][disabled] {
@@ -442,6 +504,8 @@
           .player-volume .icon-btn {
                 width: 36px;
                 height: 36px;
+                transition: width var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          height var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           .mini-player {
@@ -558,7 +622,12 @@
           [data-car-mode="true"] .hero .eyebrow,
           [data-car-mode="true"] .hero h1,
           [data-car-mode="true"] .hero p {
-                display: none;
+                opacity: 0;
+                transform: translateY(-12px);
+                max-height: 0;
+                margin: 0;
+                pointer-events: none;
+                overflow: hidden;
           }
 
           [data-car-mode="true"] .player-controls {
@@ -583,6 +652,8 @@
           #carModeToggle svg {
                 width: 20px;
                 height: 20px;
+                transition: width var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          height var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           [data-car-mode="true"] #carModeToggle {
@@ -636,7 +707,26 @@
           }
 
           #carModeUpNext {
-                display: none;
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+                padding: 0;
+                border-radius: var(--r-lg);
+                border: 1px solid transparent;
+                background: var(--surface-2);
+                box-shadow: none;
+                opacity: 0;
+                transform: translateY(16px);
+                max-height: 0;
+                pointer-events: none;
+                overflow: hidden;
+                transition: opacity var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          transform var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          max-height var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          padding var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          gap var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          border-color var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          box-shadow var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           #carModeUpNext .car-mode-section {
@@ -661,48 +751,65 @@
                 color: var(--text);
           }
 
-          [data-car-mode="true"] #carModeUpNext {
-                display: flex;
-                flex-direction: column;
-                gap: 2.25rem;
+          #carModeUpNext.car-mode-up-next--visible {
+                opacity: 1;
+                transform: translateY(0);
+                max-height: 1600px;
                 padding: 2.4rem;
-                border-radius: var(--r-lg);
-                border: 1px solid var(--border);
-                background: var(--surface-2);
+                gap: 2.25rem;
+                border-color: var(--border);
                 box-shadow: var(--shadow);
+                pointer-events: auto;
           }
 
-          [data-car-mode="true"] #carModeUpNext .car-mode-chip {
+          #carModeUpNext.car-mode-up-next--visible .car-mode-chip {
                 font-size: 1.05rem;
                 padding: .45rem .95rem;
           }
 
-          [data-car-mode="true"] #carModeUpNext h2,
-          [data-car-mode="true"] #carModeUpNext h3 {
+          #carModeUpNext.car-mode-up-next--visible h2,
+          #carModeUpNext.car-mode-up-next--visible h3 {
                 margin: 0;
           }
 
-          [data-car-mode="true"] #carModeUpNext h2 {
+          #carModeUpNext.car-mode-up-next--visible h2 {
                 font-size: clamp(2rem, 1.6rem + 3vw, 3.1rem);
                 line-height: 1.1;
           }
 
-          [data-car-mode="true"] #carModeUpNext h3 {
+          #carModeUpNext.car-mode-up-next--visible h3 {
                 font-size: clamp(1.6rem, 1.2rem + 2vw, 2.4rem);
                 line-height: 1.15;
           }
 
-          [data-car-mode="true"] #carModeUpNext .car-mode-time {
+          #carModeUpNext.car-mode-up-next--visible .car-mode-time {
                 font-size: clamp(1.3rem, 1.1rem + 1vw, 1.8rem);
           }
 
-          [data-car-mode="true"] #carModeUpNext .car-mode-countdown {
+          #carModeUpNext.car-mode-up-next--visible .car-mode-countdown {
                 font-size: clamp(1.2rem, 1rem + .8vw, 1.6rem);
                 letter-spacing: .02em;
           }
 
           [data-car-mode="true"] #upNextCard {
-                display: none;
+                opacity: 0;
+                transform: translateY(16px);
+                max-height: 0;
+                margin-top: 0;
+                padding: 0;
+                border-color: transparent;
+                box-shadow: none;
+                pointer-events: none;
+                overflow: hidden;
+          }
+
+          [data-car-mode="true"] #upNextCard::before {
+                opacity: 0;
+          }
+
+          [data-car-mode="true"] #upNextCard .body {
+                padding: 0;
+                opacity: 0;
           }
 
           .promo-card {
@@ -745,6 +852,14 @@
                 margin: .4rem 0;
           }
 
+          .promo-card h3#trackTitle {
+                transition: font-size var(--car-mode-transition-duration) var(--car-mode-transition-ease);
+          }
+
+          #trackMeta {
+                transition: font-size var(--car-mode-transition-duration) var(--car-mode-transition-ease);
+          }
+
           .up-next-card {
                 --card-bg: var(--layer-card-bg);
                 --card-border: var(--layer-border);
@@ -757,6 +872,14 @@
                 position: relative;
                 isolation: isolate;
                 animation-delay: .35s;
+                max-height: 9999px;
+                transition: opacity var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          transform var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          max-height var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          margin var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          padding var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          border-color var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          box-shadow var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           .up-next-card::before {
@@ -774,6 +897,8 @@
                 position: relative;
                 z-index: 1;
                 display: grid;
+                transition: opacity var(--car-mode-transition-duration) var(--car-mode-transition-ease),
+                          padding var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
           .current-show {
@@ -1037,13 +1162,14 @@
                 }
           }
 
-	  .progress {
-		height: 6px;
-		background: var(--surface-2);
-		border-radius: 999px;
-		overflow: hidden;
-		margin-top: .6rem;
-	  }
+          .progress {
+                height: 6px;
+                background: var(--surface-2);
+                border-radius: 999px;
+                overflow: hidden;
+                margin-top: .6rem;
+                transition: height var(--car-mode-transition-duration) var(--car-mode-transition-ease);
+          }
 
 	  .bar {
 		height: 100%;
@@ -1444,6 +1570,29 @@
 
                 .card:hover .media img {
                       transform: none;
+                }
+
+                .logo-img,
+                #site-nav,
+                .header-actions,
+                .hero .eyebrow,
+                .hero h1,
+                .hero p,
+                .player-controls,
+                .btn,
+                #carModeToggle svg,
+                .player-volume,
+                .player-volume label,
+                .player-volume-controls,
+                .player-volume input[type="range"],
+                .player-volume .icon-btn,
+                .promo-card h3#trackTitle,
+                #trackMeta,
+                .progress,
+                #carModeUpNext,
+                .up-next-card,
+                .up-next-card .body {
+                      transition: none !important;
                 }
           }
 	</style>
@@ -2662,6 +2811,16 @@ function initPlayer() {
   const carModeUpNext = $('#carModeUpNext');
   const carModeHint  = $('#carModeHint');
   const carModeHintId = carModeHint?.id || null;
+  const CAR_MODE_TRANSITION_MS = 450;
+  let carModeUpNextTimer = null;
+  let carModeUpNextFrame = null;
+  const reduceMotion = (() => {
+    try {
+      return matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (err) {
+      return false;
+    }
+  })();
   const CAR_MODE_AUTOPLAY_KEY = 'amped-car-mode-autoplay';
   const isCarModeActive = () => document.documentElement.getAttribute('data-car-mode') === 'true';
   let carModeAutoPlayOptIn = (() => {
@@ -3044,10 +3203,30 @@ function initPlayer() {
   const setCarModeUpNextVisibility = (active) => {
     if (!carModeUpNext) return;
     carModeUpNext.setAttribute('aria-hidden', active ? 'false' : 'true');
+    clearTimeout(carModeUpNextTimer);
+    carModeUpNextTimer = null;
+    if (carModeUpNextFrame !== null) {
+      cancelAnimationFrame(carModeUpNextFrame);
+      carModeUpNextFrame = null;
+    }
     if (active) {
       carModeUpNext.removeAttribute('hidden');
+      carModeUpNext.classList.remove('car-mode-up-next--visible');
+      void carModeUpNext.offsetWidth;
+      carModeUpNextFrame = requestAnimationFrame(() => {
+        carModeUpNext.classList.add('car-mode-up-next--visible');
+        carModeUpNextFrame = null;
+      });
     } else {
-      carModeUpNext.setAttribute('hidden', '');
+      carModeUpNext.classList.remove('car-mode-up-next--visible');
+      if (reduceMotion) {
+        carModeUpNext.setAttribute('hidden', '');
+      } else if (!carModeUpNext.hasAttribute('hidden')) {
+        carModeUpNextTimer = setTimeout(() => {
+          carModeUpNext.setAttribute('hidden', '');
+          carModeUpNextTimer = null;
+        }, CAR_MODE_TRANSITION_MS);
+      }
     }
   };
 
