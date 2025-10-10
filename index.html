@@ -2605,8 +2605,54 @@ function initCarModeToggle() {
   const root = document.documentElement;
   if (!toggleBtn || !root) return;
 
+  const heroSection = document.querySelector('.hero');
+  const CAR_MODE_TRANSITION_MS = 450;
+  const reduceMotion = (() => {
+    try {
+      return matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (err) {
+      return false;
+    }
+  })();
+  const runAfterFrame = typeof requestAnimationFrame === 'function'
+    ? (fn) => requestAnimationFrame(fn)
+    : (fn) => setTimeout(fn, 16);
+
   const STORAGE_KEY = 'amped-car-mode';
   const textSpan = toggleBtn.querySelector('span');
+
+  const animateHeroHeightChange = (beforeHeight, afterHeight) => {
+    if (!heroSection) return;
+    if (!Number.isFinite(beforeHeight) || !Number.isFinite(afterHeight)) return;
+    if (Math.abs(afterHeight - beforeHeight) < 1) return;
+
+    heroSection.style.height = `${beforeHeight}px`;
+    heroSection.style.overflow = 'hidden';
+    heroSection.offsetHeight;
+    heroSection.style.transition = `height var(--car-mode-transition-duration) var(--car-mode-transition-ease)`;
+    heroSection.style.height = `${afterHeight}px`;
+
+    const cleanup = () => {
+      heroSection.style.height = '';
+      heroSection.style.transition = '';
+      heroSection.style.overflow = '';
+    };
+
+    heroSection.addEventListener('transitionend', cleanup, { once: true });
+    heroSection.addEventListener('transitioncancel', cleanup, { once: true });
+    setTimeout(cleanup, CAR_MODE_TRANSITION_MS + 150);
+  };
+
+  const maintainTogglePosition = (beforeRect, afterRect, scrollBefore) => {
+    if (!beforeRect || !afterRect) return;
+    const delta = afterRect.top - beforeRect.top;
+    if (Math.abs(delta) < 1) return;
+    try {
+      window.scrollTo({ top: scrollBefore + delta });
+    } catch (err) {
+      window.scrollTo(0, scrollBefore + delta);
+    }
+  };
 
   const setState = (active, { emit = true } = {}) => {
     const next = active ? 'true' : 'false';
@@ -2628,9 +2674,31 @@ function initCarModeToggle() {
     }
   };
 
+  const setStateSmooth = (active) => {
+    const currentActive = root.getAttribute('data-car-mode') === 'true';
+    if (currentActive === active) return;
+
+    const heroHeightBefore = heroSection?.getBoundingClientRect?.().height ?? 0;
+    const toggleRectBefore = toggleBtn.getBoundingClientRect();
+    const scrollBefore = window.scrollY;
+
+    setState(active);
+
+    runAfterFrame(() => {
+      const heroHeightAfter = heroSection?.getBoundingClientRect?.().height ?? 0;
+      const toggleRectAfter = toggleBtn.getBoundingClientRect();
+
+      if (!reduceMotion) {
+        animateHeroHeightChange(heroHeightBefore, heroHeightAfter);
+      }
+
+      maintainTogglePosition(toggleRectBefore, toggleRectAfter, scrollBefore);
+    });
+  };
+
   toggleBtn.addEventListener('click', () => {
     const current = root.getAttribute('data-car-mode') === 'true';
-    setState(!current);
+    setStateSmooth(!current);
   });
 
   const stored = (() => {
