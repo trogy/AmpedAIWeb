@@ -124,6 +124,7 @@
 
           body {
                 margin: 0;
+                padding-bottom: calc(var(--mini-player-safe-area, 0px) + env(safe-area-inset-bottom, 0px));
                 font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
                   "Apple Color Emoji", "Segoe UI Emoji";
                 color: var(--text);
@@ -2719,6 +2720,17 @@ function initPlayer() {
   let miniVisible = false;
   let miniHideTimer = null;
 
+  const updateMiniSafeArea = () => {
+    if (!miniPlayerEl || !miniVisible) {
+      document.body.style.removeProperty('--mini-player-safe-area');
+      return;
+    }
+
+    const rect = miniPlayerEl.getBoundingClientRect();
+    const padding = Math.ceil(rect.height + 24);
+    document.body.style.setProperty('--mini-player-safe-area', `${padding}px`);
+  };
+
   const setMiniVisibility = (visible) => {
     if (!miniPlayerEl) return;
     if (miniVisible === visible) return;
@@ -2730,10 +2742,14 @@ function initPlayer() {
       }
       miniPlayerEl.removeAttribute('hidden');
       miniPlayerEl.setAttribute('aria-hidden', 'false');
-      requestAnimationFrame(() => miniPlayerEl.classList.add('mini-player--visible'));
+      requestAnimationFrame(() => {
+        miniPlayerEl.classList.add('mini-player--visible');
+        requestAnimationFrame(updateMiniSafeArea);
+      });
     } else {
       miniPlayerEl.classList.remove('mini-player--visible');
       miniPlayerEl.setAttribute('aria-hidden', 'true');
+      updateMiniSafeArea();
       miniHideTimer = window.setTimeout(() => {
         if (!miniVisible) miniPlayerEl.setAttribute('hidden', '');
         miniHideTimer = null;
@@ -2749,6 +2765,9 @@ function initPlayer() {
 
   if (miniPlayerEl) {
     const heroSection = document.querySelector('#listen');
+    window.addEventListener('resize', () => {
+      if (miniVisible) updateMiniSafeArea();
+    });
     const applyHeroVisibility = (inView) => {
       heroInView = inView;
       updateMiniVisibility();
