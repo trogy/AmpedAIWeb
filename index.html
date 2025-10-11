@@ -4981,33 +4981,79 @@ function initConsoleEasterEgg() {
     'font-size: 16px',
     'font-weight: 700',
     'padding: 6px 12px',
-    'border-radius: 8px'
+    'border-radius: 8px',
+    'box-shadow: 0 0 22px rgba(123, 93, 255, .45)'
   ].join('; ');
 
-  const bodyStyle = 'color: #aab4c8; font-size: 13px; line-height: 1.45;';
-  const accentStyle = 'color: #ff4db8; font-weight: 700;';
+  const bodyStyle = 'color: #aab4c8; font-size: 13px; line-height: 1.5;';
+  const accentStyle = 'color: #ff4db8; font-weight: 700; text-shadow: 0 0 12px rgba(255, 77, 184, .6);';
+  const eqStyle = 'color: #51f0ff; font-family: "Fira Code", monospace; line-height: 1.35; text-shadow: 0 0 14px rgba(81, 240, 255, .7);';
 
   window.console.log('%cAmped AI // Secret Console Booth', bannerStyle);
   window.console.log(
-    '%cWelcome to the late-night engineering deck.\nType %campedWave()%c to send a neon cheer and watch the meters dance.\nHint: tap the version label in the footer for another surprise.',
+    '%cWelcome to the after-hours mix room.\nType %campedWave()%c for a resonance burst or %centerBooth()%c to run the full secret booth sequence.\nHint: tap the version label in the footer for another surprise.',
     bodyStyle,
     accentStyle,
-    bodyStyle
+    bodyStyle,
+    accentStyle
   );
 
   if (typeof window.ampedWave !== 'function') {
     window.ampedWave = () => {
-      const wave = [
-        '📡 Amped Wave Transmission',
-        '┌────────────────────────────┐',
-        '│  ~~~   ~~~~    ~~~   ~~~~  │',
-        '│ ~~~~  ~~~~ ~~  ~~~~  ~~~~  │',
-        '│  ~~~~   ~~~~    ~~~~   ~~  │',
-        '└────────────────────────────┘'
+      const pulseFrame = [
+        '╔═══════════════════════════════╗',
+        '║  /\\/\\  AMPED WAVE  /\\/\\    ║',
+        '║  █▁  █▃  █▆  █▇  █▆  █▃  █▁   ║',
+        '║  Resonance locked — sending.  ║',
+        '╚═══════════════════════════════╝'
       ].join('\n');
 
-      window.console.log('%c' + wave, 'color: #ff4db8; font-family: "Fira Code", monospace; line-height: 1.3;');
-      return 'Signal boosted — keep the beat going!';
+      const transmissions = [
+        'Signal boosted — keep the beat going!',
+        'Transmission acknowledged — decks glowing neon.',
+        'Wave launched — frequencies riding high.'
+      ];
+
+      window.console.log('%c' + pulseFrame, 'color: #ff4db8; font-family: "Fira Code", monospace; line-height: 1.35; text-shadow: 0 0 16px rgba(255, 77, 184, .7);');
+      return transmissions[Math.floor(Math.random() * transmissions.length)];
+    };
+  }
+
+  if (typeof window.enterBooth !== 'function') {
+    window.enterBooth = () => {
+      const sequence = [
+        { text: '🎚️  Sliding faders into place…', style: accentStyle },
+        { text: '🔒  Unlocking encrypted aux bus…', style: bodyStyle },
+        { text: '🌌  Routing celestial reverb tail…', style: bodyStyle },
+        { text: '⚡  Charging neon buffer…', style: accentStyle },
+        { text: '🎧  Booth link live. Hold for visuals…', style: bodyStyle }
+      ];
+
+      sequence.forEach((step, index) => {
+        window.setTimeout(() => window.console.log('%c' + step.text, step.style), index * 320);
+      });
+
+      const visualDelay = sequence.length * 320 + 180;
+      window.setTimeout(() => {
+        const frames = [
+          '▁ ▃ ▅ ▇ █ ▇ ▅ ▃ ▁',
+          '▃ ▆ █ ▆ ▃ ▁ ▃ ▆ █',
+          '█ ▇ ▆ ▅ ▃ ▁ ▃ ▅ ▆',
+          '▃ ▁ ▃ ▅ ▆ ▇ █ ▇ ▆'
+        ];
+
+        let frameIndex = 0;
+        const timer = window.setInterval(() => {
+          window.console.log('%c' + frames[frameIndex % frames.length], eqStyle);
+          frameIndex += 1;
+          if (frameIndex === frames.length * 2) {
+            window.clearInterval(timer);
+            window.console.log('%cSecret booth channel open — drop ampedWave() to broadcast your cheer.', accentStyle);
+          }
+        }, 220);
+      }, visualDelay);
+
+      return 'Boot sequence engaged — watch the console glow.';
     };
   }
 }
