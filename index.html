@@ -1781,9 +1781,40 @@
                 100% { transform: translate3d(-6px, -28px, 0) scale(1.1); }
           }
 
+          @keyframes halloweenBatGlide {
+                0% { transform: translate3d(var(--h-start-x, -140px), var(--h-start-y, 12px), 0) scale(.82) rotate(-4deg); opacity: 0; }
+                12% { opacity: .92; }
+                50% { transform: translate3d(var(--h-mid-x, 40px), var(--h-mid-y, -36px), 0) scale(1.05) rotate(2deg); opacity: 1; }
+                86% { opacity: .9; }
+                100% { transform: translate3d(var(--h-end-x, 210px), var(--h-end-y, -64px), 0) scale(.9) rotate(-3deg); opacity: 0; }
+          }
+
+          @keyframes halloweenLanternFloat {
+                0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+                50% { transform: translate3d(0, -12px, 0) scale(1.06); }
+          }
+
+          @keyframes halloweenLanternGlow {
+                0%, 100% { filter: drop-shadow(0 0 12px rgba(255, 156, 64, .45)); opacity: .88; }
+                50% { filter: drop-shadow(0 0 24px rgba(255, 204, 130, .8)); opacity: 1; }
+          }
+
           @keyframes seasonalFlicker {
-                0%, 18%, 22%, 100% { opacity: 1; }
-                20%, 24% { opacity: .45; }
+                0%, 7%, 12%, 18%, 26%, 44%, 52%, 66%, 74%, 82%, 100% { opacity: 1; }
+                8% { opacity: .55; }
+                10% { opacity: .9; }
+                20% { opacity: .38; }
+                22% { opacity: .92; }
+                30% { opacity: .5; }
+                32% { opacity: 1; }
+                36% { opacity: .42; }
+                38% { opacity: .86; }
+                48% { opacity: .58; }
+                58% { opacity: .95; }
+                70% { opacity: .47; }
+                72% { opacity: .88; }
+                84% { opacity: .6; }
+                88% { opacity: .94; }
           }
 
           @keyframes listenLivePulse {
@@ -1986,23 +2017,52 @@
 
           body[data-seasonal-theme="halloween"] #seasonalLayer::before {
                 background:
+                  radial-gradient(320px 320px at 22% 24%, rgba(126, 62, 255, .28), transparent 72%),
                   radial-gradient(320px 320px at 78% 16%, rgba(255, 210, 140, .32), transparent 70%),
                   radial-gradient(260px 260px at 72% 22%, rgba(255, 240, 190, .18), transparent 75%),
-                  linear-gradient(180deg, rgba(20, 8, 32, .96), rgba(6, 2, 18, .94));
+                  linear-gradient(180deg, rgba(18, 6, 30, .96), rgba(4, 2, 14, .94));
           }
 
           body[data-seasonal-theme="halloween"] #seasonalLayer::after {
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="240" viewBox="0 0 360 240" fill="none"><rect width="360" height="240" fill="url(%23grad-night)"/><defs><linearGradient id="grad-night" x1="180" y1="0" x2="180" y2="240" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="%23080b20" stop-opacity="0"/><stop offset="1" stop-color="%23080b20" stop-opacity="0.85"/></linearGradient><radialGradient id="moon" cx="0" cy="0" r="1" gradientTransform="matrix(0 -38 38 0 276 54)" gradientUnits="userSpaceOnUse"><stop stop-color="%23fff2d1"/><stop offset="1" stop-color="%23ffd27a" stop-opacity="0.2"/></radialGradient><linearGradient id="grad-ground" x1="0" y1="204" x2="0" y2="240" gradientUnits="userSpaceOnUse"><stop stop-color="%23140822" stop-opacity="0.92"/><stop offset="1" stop-color="%23090214" stop-opacity="0.96"/></linearGradient></defs><circle cx="276" cy="54" r="34" fill="url(%23moon)"/><g opacity="0.82" fill="%23ff8b2b"><path d="M92 204c-18-26 6-46 26-44 24 2 28 36 12 50-16 14-44 8-38-6Z"/><path d="M128 198c-6-10-6-22 6-26 18-6 28 10 28 22 0 16-20 26-34 18-10-6-10-10 0-14Z"/><path d="M54 210c-6-12 4-24 20-24 20 0 24 18 18 28-8 10-30 12-38 2Z"/></g><g fill="%23210c2a" opacity="0.9"><path d="M66 176c10-10 26-10 36 0-6 2-20 4-36 0Z"/><path d="M108 168c8-6 22-4 28 2-8 2-18 2-28-2Z"/><path d="M150 182c6-8 20-10 30-4-10 4-20 6-30 4Z"/></g><g fill="%230b0915" opacity="0.75"><path d="M210 118c-10-10 6-22 18-20 10 2 16 10 14 20-16-6-22-6-32 0Z"/><path d="M252 124c-8-12 8-26 22-22 10 2 14 10 12 20-12-4-20-4-34 2Z"/><path d="M192 94c-6-10 6-20 18-18 8 2 12 8 10 16-12-4-16-2-28 2Z"/></g><rect x="0" y="204" width="360" height="36" fill="url(%23grad-ground)"/></svg>');
-                background-size: 420px;
+                background-image:
+                  radial-gradient(120px 120px at 18% 28%, rgba(114, 72, 255, .18), transparent 70%),
+                  url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="240" viewBox="0 0 360 240" fill="none"><rect width="360" height="240" fill="url(%23grad-night)"/><defs><linearGradient id="grad-night" x1="180" y1="0" x2="180" y2="240" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="%23080b20" stop-opacity="0"/><stop offset="1" stop-color="%23080b20" stop-opacity="0.85"/></linearGradient><radialGradient id="moon" cx="0" cy="0" r="1" gradientTransform="matrix(0 -38 38 0 276 54)" gradientUnits="userSpaceOnUse"><stop stop-color="%23fff2d1"/><stop offset="1" stop-color="%23ffd27a" stop-opacity="0.2"/></radialGradient><linearGradient id="grad-ground" x1="0" y1="204" x2="0" y2="240" gradientUnits="userSpaceOnUse"><stop stop-color="%23140822" stop-opacity="0.92"/><stop offset="1" stop-color="%23090214" stop-opacity="0.96"/></linearGradient></defs><circle cx="276" cy="54" r="34" fill="url(%23moon)"/><g opacity="0.82" fill="%23ff8b2b"><path d="M92 204c-18-26 6-46 26-44 24 2 28 36 12 50-16 14-44 8-38-6Z"/><path d="M128 198c-6-10-6-22 6-26 18-6 28 10 28 22 0 16-20 26-34 18-10-6-10-10 0-14Z"/><path d="M54 210c-6-12 4-24 20-24 20 0 24 18 18 28-8 10-30 12-38 2Z"/></g><g fill="%23210c2a" opacity="0.9"><path d="M66 176c10-10 26-10 36 0-6 2-20 4-36 0Z"/><path d="M108 168c8-6 22-4 28 2-8 2-18 2-28-2Z"/><path d="M150 182c6-8 20-10 30-4-10 4-20 6-30 4Z"/></g><g fill="%230b0915" opacity="0.75"><path d="M210 118c-10-10 6-22 18-20 10 2 16 10 14 20-16-6-22-6-32 0Z"/><path d="M252 124c-8-12 8-26 22-22 10 2 14 10 12 20-12-4-20-4-34 2Z"/><path d="M192 94c-6-10 6-20 18-18 8 2 12 8 10 16-12-4-16-2-28 2Z"/></g><rect x="0" y="204" width="360" height="36" fill="url(%23grad-ground)"/></svg>');
+                background-size: 280px, 420px;
                 background-repeat: no-repeat;
-                background-position: center bottom;
+                background-position: 20% 16%, center bottom;
                 animation: halloweenFlight 36s linear infinite;
                 opacity: .55;
           }
 
+          body[data-seasonal-theme="halloween"] .seasonal-layer .halloween-bat {
+                width: 72px;
+                height: 28px;
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="72" height="28" viewBox="0 0 72 28" fill="none"><path fill="%23110b1d" d="M36 6c2-4 6-6 10-6 8 0 14 6 18 10-3-1-6 0-8 2 3 0 6 2 8 6-4-2-8-2-12 0-4 2-6 6-6 10-2-2-4-4-10-4s-8 2-10 4c0-4-2-8-6-10-4-2-8-2-12 0 2-4 5-6 8-6-2-2-5-3-8-2 4-4 10-10 18-10 4 0 8 2 10 6Z"/><circle cx="31" cy="10" r="1.6" fill="%23ffac33"/><circle cx="41" cy="10" r="1.6" fill="%23ffac33"/></svg>');
+                background-size: contain;
+                background-repeat: no-repeat;
+                transform-origin: center;
+                animation: halloweenBatGlide var(--h-duration, 24s) linear infinite;
+                animation-delay: var(--h-delay, 0s);
+                opacity: .9;
+          }
+
+          body[data-seasonal-theme="halloween"] .seasonal-layer .halloween-lantern {
+                width: 44px;
+                height: 48px;
+                bottom: -10px;
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="44" height="48" viewBox="0 0 44 48" fill="none"><path d="M18 4c0-2 2-4 4-4s4 2 4 4" stroke="%23f6bf5b" stroke-width="2" stroke-linecap="round"/><path d="M22 8c-2-2-6-2-10 0s-6 6-6 12c0 14 8 20 16 20s16-6 16-20c0-6-2-10-6-12s-8-2-10 0Z" fill="url(%23pumpkin)"/><path d="M22 8c-2-2-6-2-10 0s-6 6-6 12c0 14 8 20 16 20s16-6 16-20c0-6-2-10-6-12s-8-2-10 0Z" stroke="%23a3481c" stroke-width="2" stroke-linejoin="round"/><path d="M16 18c0 2 2 4 6 4s6-2 6-4" stroke="%23a3481c" stroke-width="2" stroke-linecap="round"/><ellipse cx="16" cy="22" rx="4" ry="6" fill="%23ff9448" opacity="0.6"/><ellipse cx="28" cy="22" rx="4" ry="6" fill="%23ff9448" opacity="0.6"/><defs><radialGradient id="pumpkin" cx="0" cy="0" r="1" gradientTransform="matrix(0 28 -26 0 22 22)" gradientUnits="userSpaceOnUse"><stop stop-color="%23ffbd63"/><stop offset="1" stop-color="%23ff6d1f"/></radialGradient></defs></svg>');
+                background-size: contain;
+                background-repeat: no-repeat;
+                transform-origin: center bottom;
+                animation:
+                  halloweenLanternFloat var(--lantern-duration, 7s) ease-in-out infinite,
+                  halloweenLanternGlow var(--lantern-glow-duration, 4.5s) ease-in-out infinite;
+                animation-delay: var(--lantern-delay, 0s);
+          }
+
           body[data-seasonal-theme="halloween"] .header {
                 box-shadow: 0 0 18px rgba(255, 128, 0, .35);
-                animation: seasonalFlicker 3.2s steps(4) infinite;
+                animation: seasonalFlicker 5.4s linear infinite;
           }
 
           body[data-seasonal-theme="halloween"] .card:hover {
@@ -2767,13 +2827,56 @@ const SEASONAL_THEMES = [
       '--layer-card-overlay': 'radial-gradient(120% 120% at 26% 18%, rgba(255, 132, 30, .4), transparent 70%)',
       '--promo-texture': 'radial-gradient(circle at 82% 24%, rgba(255, 136, 34, .28), transparent 65%)'
     },
-    setup: () => {
+    setup: ({ layer }) => {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return () => {};
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const createdElements = [];
       let audioCtx = null;
 
+      if (layer) {
+        const frag = document.createDocumentFragment();
+
+        const spawnBat = () => {
+          const bat = document.createElement('span');
+          bat.className = 'seasonal-particle halloween-bat';
+          bat.style.top = `${8 + Math.random() * 52}%`;
+          bat.style.left = `${Math.random() * 80}%`;
+          bat.style.setProperty('--h-start-x', `${-80 - Math.random() * 80}px`);
+          bat.style.setProperty('--h-start-y', `${Math.random() * 24 - 12}px`);
+          bat.style.setProperty('--h-mid-x', `${Math.random() * 120 - 20}px`);
+          bat.style.setProperty('--h-mid-y', `${-20 - Math.random() * 40}px`);
+          bat.style.setProperty('--h-end-x', `${140 + Math.random() * 120}px`);
+          bat.style.setProperty('--h-end-y', `${-20 - Math.random() * 60}px`);
+          bat.style.setProperty('--h-duration', `${20 + Math.random() * 10}s`);
+          bat.style.setProperty('--h-delay', `${Math.random() * -18}s`);
+          frag.appendChild(bat);
+          createdElements.push(bat);
+        };
+
+        const spawnLantern = (leftPercent) => {
+          const lantern = document.createElement('span');
+          lantern.className = 'seasonal-particle halloween-lantern';
+          lantern.style.left = `${leftPercent}%`;
+          lantern.style.setProperty('--lantern-duration', `${6 + Math.random() * 3}s`);
+          lantern.style.setProperty('--lantern-glow-duration', `${4 + Math.random() * 2}s`);
+          lantern.style.setProperty('--lantern-delay', `${Math.random() * -5}s`);
+          frag.appendChild(lantern);
+          createdElements.push(lantern);
+        };
+
+        for (let i = 0; i < 6; i += 1) {
+          spawnBat();
+        }
+
+        spawnLantern(12);
+        spawnLantern(46);
+        spawnLantern(78);
+
+        layer.appendChild(frag);
+      }
+
       const ensureContext = () => {
+        if (!AudioCtx) return null;
         if (!audioCtx) audioCtx = new AudioCtx();
         if (audioCtx?.state === 'suspended') {
           audioCtx.resume().catch(() => {});
@@ -2809,6 +2912,9 @@ const SEASONAL_THEMES = [
       targets.forEach((el) => el.addEventListener('mouseenter', handler));
       return () => {
         targets.forEach((el) => el.removeEventListener('mouseenter', handler));
+        if (layer) {
+          createdElements.forEach((el) => el.remove());
+        }
         if (audioCtx) {
           try { audioCtx.close(); } catch (err) { /* ignore */ }
           audioCtx = null;
