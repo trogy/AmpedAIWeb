@@ -240,6 +240,17 @@
                 text-shadow: 0 0 18px rgba(255, 77, 184, .52);
           }
 
+          .secret-booth-overlay__story {
+                margin: .35rem 0 0;
+                padding-top: .35rem;
+                border-top: 1px solid color-mix(in oklab, var(--brand-300) 35%, transparent);
+                text-transform: none;
+                letter-spacing: .06em;
+                font-size: .75rem;
+                line-height: 1.4;
+                color: color-mix(in oklab, var(--text) 82%, var(--brand-300) 12%);
+          }
+
           body.secret-booth-active .secret-booth-overlay {
                 opacity: 1;
           }
@@ -5102,35 +5113,90 @@ function initConsoleEasterEgg() {
 
   window.console.log('%cAmped AI // Maintenance Console', bannerStyle);
   window.console.log(
-    '%cAfter-hours diagnostics online.\n%cOperators who coax the right waveforms might wake the booth.\n%cKeep the volume low — discovery favours the patient.',
+    '%cDiagnostics console online. This maintenance console watches the late-night backup booth.',
+    bodyStyle
+  );
+  window.console.log(
+    '%cTo test the line, run %campedWave()%c twice in a row. Each call sends a quick signal to wake the booth.',
     bodyStyle,
     accentStyle,
     bodyStyle
   );
+  window.console.log(
+    '%cOnce both signals land, call %centerBooth()%c and finish with one more %campedWave()%c to close the check.',
+    bodyStyle,
+    accentStyle,
+    bodyStyle,
+    accentStyle,
+    bodyStyle
+  );
+  setSecretBoothOverlayStory('Late shift booth idle. Quick line checks keep the backup channel ready.');
 
   if (typeof window.ampedWave !== 'function') {
     window.ampedWave = () => {
+      const state = getSecretBoothState();
+      const styles = state.styles || {};
       const transmissions = [
-        'Resonance ping acknowledged — meters glow faintly.',
-        'Signal noted. Booth stays in low-light mode.',
-        'Quiet confirmation received — keep the channel steady.'
+        'Test tone acknowledged.',
+        'Signal received. Levels remain steady.',
+        'Status unchanged. Booth stays in standby.'
       ];
 
-      window.console.log('%cResonance monitors hum softly.', accentStyle);
+      const before = state.progress;
       registerSecretBoothStep('wave');
+      const after = state.progress;
+
+      window.console.log('%cLine check signal sent.', styles.accent || '');
+
+      if (after === 1 && before <= 1) {
+        window.console.log('%cFirst signal logged. Run ampedWave() again to verify the return path.', styles.body || '');
+        setSecretBoothOverlayStory('First signal stored. Send another ampedWave() to confirm the line.');
+        return 'First signal recorded — repeat ampedWave() to confirm.';
+      }
+
+      if (after === 2 && before <= 2) {
+        window.console.log('%cSecond signal confirmed. enterBooth() will open the monitor feed.', styles.body || '');
+        setSecretBoothOverlayStory('Line confirmed. Call enterBooth() to open the monitor feed.');
+        return 'Second signal accepted — run enterBooth() next.';
+      }
+
+      if (before === 2 && after === 1) {
+        window.console.log('%cThe booth expected enterBooth() before another signal. Request access, then finish the loop.', styles.body || '');
+        setSecretBoothOverlayStory('Monitor request pending. Run enterBooth() before sending more signals.');
+        return 'Sequence paused — call enterBooth() before continuing.';
+      }
+
+      if (after === 0 && before > 0) {
+        window.console.log('%cSequence lost. Start again with ampedWave().', styles.body || '');
+        setSecretBoothOverlayStory('Sequence reset. Begin again with a fresh signal check.');
+        return transmissions[Math.floor(Math.random() * transmissions.length)];
+      }
+
       return transmissions[Math.floor(Math.random() * transmissions.length)];
     };
   }
 
   if (typeof window.enterBooth !== 'function') {
     window.enterBooth = () => {
+      const state = getSecretBoothState();
+      const styles = state.styles || {};
+      const before = state.progress;
+
       registerSecretBoothStep('enter');
+      const after = state.progress;
+
+      if (!(after > before)) {
+        window.console.log('%cTwo ampedWave() calls need to land before enterBooth() will respond.', styles.body || '');
+        setSecretBoothOverlayStory('Monitor request logged early. Run ampedWave() twice before trying again.');
+        return 'Request deferred — send two ampedWave() calls first.';
+      }
+
       const sequence = [
-        { text: 'Maintenance override accepted.', style: accentStyle },
-        { text: 'Aux bus unlocked in whisper mode.', style: bodyStyle },
-        { text: 'Room tone stabilised.', style: bodyStyle },
-        { text: 'Diagnostics channel warming quietly.', style: accentStyle },
-        { text: 'Hold position for status lights…', style: bodyStyle }
+        { text: 'Maintenance override accepted.', style: styles.accent || '' },
+        { text: 'Monitor bus set to low gain.', style: styles.body || '' },
+        { text: 'Room tone measured — levels in range.', style: styles.body || '' },
+        { text: 'Diagnostics channel standing by.', style: styles.accent || '' },
+        { text: 'Awaiting final confirmation…', style: styles.body || '' }
       ];
 
       sequence.forEach((step, index) => {
@@ -5140,23 +5206,24 @@ function initConsoleEasterEgg() {
       const visualDelay = sequence.length * 320 + 180;
       window.setTimeout(() => {
         const statusUpdates = [
-          'Meters glow steady.',
-          'Sidechain hush engaged.',
-          'Channel quiet but ready.'
+          'Meters steady.',
+          'Talkback return clean.',
+          'Channel ready.'
         ];
 
         let index = 0;
         const timer = window.setInterval(() => {
-          window.console.log('%c' + statusUpdates[index % statusUpdates.length], bodyStyle);
+          window.console.log('%c' + statusUpdates[index % statusUpdates.length], styles.body || '');
           index += 1;
           if (index === statusUpdates.length * 2) {
             window.clearInterval(timer);
-            window.console.log('%cQuiet link open — keep transmissions discreet.', accentStyle);
+            window.console.log('%cLink open. Send one more ampedWave() to close out the check.', styles.accent || '');
           }
         }, 420);
       }, visualDelay);
 
-      return 'Booth link warming — observe quietly.';
+      setSecretBoothOverlayStory('Access granted. Finish with one more ampedWave() to wrap the test.');
+      return 'Maintenance channel listening — complete the loop with ampedWave().';
     };
   }
 }
@@ -5225,13 +5292,43 @@ function activateSecretBoothScene() {
   document.body.classList.add('secret-booth-active');
 
   if (state.styles && window.console && typeof window.console.log === 'function') {
-    window.console.log('%cChannel link confirmed — booth lighting sweep engaged.', state.styles.accent);
-    window.console.log('%cThe studio wash ripples across the deck for a short while.', state.styles.body);
+    window.console.log('%cBackup booth link confirmed. Running indicator sweep.', state.styles.accent);
+    window.console.log('%cAmbient lighting will fade after a short cycle.', state.styles.body);
+    window.console.log('%cCheck logged for the overnight report.', state.styles.body);
   }
+
+  setSecretBoothOverlayStory('Secret Booth active. Backup booth check logged for the overnight report.');
 
   state.resetTimer = window.setTimeout(() => {
     document.body.classList.remove('secret-booth-active');
   }, 16000);
+}
+
+function setSecretBoothOverlayStory(text) {
+  const state = getSecretBoothState();
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  let overlay = state.overlay && document.body && document.body.contains(state.overlay)
+    ? state.overlay
+    : null;
+
+  if (!overlay) {
+    overlay = ensureSecretBoothOverlay();
+  }
+
+  if (!overlay) {
+    if (typeof document !== 'undefined') {
+      document.addEventListener('DOMContentLoaded', () => setSecretBoothOverlayStory(text), { once: true });
+    }
+    return;
+  }
+
+  const storyEl = overlay.querySelector('.secret-booth-overlay__story');
+  if (storyEl) {
+    storyEl.textContent = text;
+  }
 }
 
 function ensureSecretBoothOverlay() {
@@ -5253,6 +5350,7 @@ function ensureSecretBoothOverlay() {
     <div class="secret-booth-overlay__badge">
       <span class="secret-booth-overlay__label">maintenance link</span>
       <span class="secret-booth-overlay__status">channel live</span>
+      <p class="secret-booth-overlay__story">Late shift booth idle. Calibration pings keep the mix aligned for tomorrow.</p>
     </div>
   `;
 
