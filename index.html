@@ -95,6 +95,38 @@
                 to   { transform: rotate(360deg); }
           }
 
+          @keyframes secretBoothPulse {
+                0% {
+                  transform: rotate(0deg) scale(1);
+                  opacity: .55;
+                }
+
+                50% {
+                  opacity: .85;
+                }
+
+                100% {
+                  transform: rotate(360deg) scale(1.08);
+                  opacity: .55;
+                }
+          }
+
+          @keyframes secretBoothScan {
+                0% {
+                  transform: translateY(-100%);
+                  opacity: 0;
+                }
+
+                35% {
+                  opacity: .4;
+                }
+
+                100% {
+                  transform: translateY(120%);
+                  opacity: 0;
+                }
+          }
+
           [data-theme="light"] {
                 --bg: #fbf4fb;
                 --surface: #fff0f8;
@@ -138,6 +170,83 @@
                 line-height: 1.55;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
+          }
+
+          body.secret-booth-active {
+                background-image:
+                  radial-gradient(1400px 680px at 18% -10%, hsl(var(--brand-h) 92% 30% / .52), transparent 70%),
+                  radial-gradient(1200px 560px at 92% -18%, hsl(var(--brand-h) 98% 32% / .45), transparent 68%),
+                  radial-gradient(1600px 880px at 50% 120%, hsl(var(--brand-h) 85% 22% / .4), transparent 78%);
+                transition: background-image .6s ease;
+          }
+
+          .secret-booth-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                pointer-events: none;
+                display: grid;
+                place-items: center;
+                mix-blend-mode: screen;
+                opacity: 0;
+                transition: opacity .6s ease;
+          }
+
+          .secret-booth-overlay::before {
+                content: '';
+                position: absolute;
+                inset: -12%;
+                background:
+                  radial-gradient(circle at 40% 20%, hsl(var(--brand-h) 95% 80% / .4), transparent 62%),
+                  conic-gradient(from 180deg, hsl(var(--brand-h) 100% 70% / .22), transparent 240deg, hsl(var(--brand-h) 85% 60% / .28) 300deg, transparent);
+                filter: blur(12px) saturate(130%);
+                animation: secretBoothPulse 18s linear infinite;
+          }
+
+          .secret-booth-overlay::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(0deg, transparent 35%, hsl(var(--brand-h) 95% 82% / .22) 48%, transparent 65%);
+                mix-blend-mode: screen;
+                opacity: 0;
+          }
+
+          .secret-booth-overlay__badge {
+                position: relative;
+                padding: 1.6rem 2.3rem;
+                border-radius: 28px;
+                border: 1px solid color-mix(in oklab, var(--brand-300) 50%, transparent);
+                box-shadow: 0 0 40px rgba(255, 77, 184, .35);
+                backdrop-filter: blur(18px) saturate(160%);
+                background: color-mix(in oklab, var(--surface-2) 65%, transparent);
+                display: grid;
+                gap: .35rem;
+                text-align: center;
+                text-transform: uppercase;
+                letter-spacing: .24em;
+                font-weight: 600;
+          }
+
+          .secret-booth-overlay__label {
+                font-size: .78rem;
+                color: color-mix(in oklab, var(--text) 78%, white 12%);
+                opacity: .9;
+          }
+
+          .secret-booth-overlay__status {
+                font-size: 1.08rem;
+                color: color-mix(in oklab, var(--brand-300) 85%, white 10%);
+                text-shadow: 0 0 18px rgba(255, 77, 184, .52);
+          }
+
+          body.secret-booth-active .secret-booth-overlay {
+                opacity: 1;
+          }
+
+          body.secret-booth-active .secret-booth-overlay::after {
+                opacity: 1;
+                animation: secretBoothScan 3.4s ease-in-out infinite;
           }
 
 	  a {
@@ -2462,7 +2571,7 @@
       <div class="footer-brand">
         <img src="AmpedMediaLogo.png" alt="Amped Media logo" class="footer-logo" width="220" height="80" loading="lazy">
         <span>© <span id="year"></span> Amped Media a TGNZ Networks Project • <button id="footerVersionToggle" class="footer-easter-trigger" type="button" aria-expanded="false" aria-controls="footerSecretNote">V0.4</button></span>
-        <p id="footerSecretNote" class="footer-easter-note" hidden aria-hidden="true">🎛️ Midnight maintenance tip: queue up <code>ampedWave()</code> in the console to light up the virtual soundboard.</p>
+        <p id="footerSecretNote" class="footer-easter-note" hidden aria-hidden="true">🎛️ Midnight maintenance note: the console favours deliberate operators when the station is quiet.</p>
       </div>
       <div class="socials" aria-label="Social links">
         <a class="icon-btn" href="#" aria-label="X / Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h3l6.5 8.2L18.5 3H21l-7.4 9.5L21 21h-3l-6.8-8.6L6 21H3l8-10.3L3 3Z"/></svg></a>
@@ -4975,6 +5084,7 @@ function initConsoleEasterEgg() {
     return;
   }
 
+  const secretBoothState = getSecretBoothState();
   const bannerStyle = [
     'background: linear-gradient(90deg, #ff4db8, #7b5dff)',
     'color: #08090d',
@@ -4987,46 +5097,40 @@ function initConsoleEasterEgg() {
 
   const bodyStyle = 'color: #aab4c8; font-size: 13px; line-height: 1.5;';
   const accentStyle = 'color: #ff4db8; font-weight: 700; text-shadow: 0 0 12px rgba(255, 77, 184, .6);';
-  const eqStyle = 'color: #51f0ff; font-family: "Fira Code", monospace; line-height: 1.35; text-shadow: 0 0 14px rgba(81, 240, 255, .7);';
 
-  window.console.log('%cAmped AI // Secret Console Booth', bannerStyle);
+  secretBoothState.styles = { body: bodyStyle, accent: accentStyle };
+
+  window.console.log('%cAmped AI // Maintenance Console', bannerStyle);
   window.console.log(
-    '%cWelcome to the after-hours mix room.\nType %campedWave()%c for a resonance burst or %centerBooth()%c to run the full secret booth sequence.\nHint: tap the version label in the footer for another surprise.',
+    '%cAfter-hours diagnostics online.\n%cOperators who coax the right waveforms might wake the booth.\n%cKeep the volume low — discovery favours the patient.',
     bodyStyle,
     accentStyle,
-    bodyStyle,
-    accentStyle
+    bodyStyle
   );
 
   if (typeof window.ampedWave !== 'function') {
     window.ampedWave = () => {
-      const pulseFrame = [
-        '╔═══════════════════════════════╗',
-        '║  /\\/\\  AMPED WAVE  /\\/\\    ║',
-        '║  █▁  █▃  █▆  █▇  █▆  █▃  █▁   ║',
-        '║  Resonance locked — sending.  ║',
-        '╚═══════════════════════════════╝'
-      ].join('\n');
-
       const transmissions = [
-        'Signal boosted — keep the beat going!',
-        'Transmission acknowledged — decks glowing neon.',
-        'Wave launched — frequencies riding high.'
+        'Resonance ping acknowledged — meters glow faintly.',
+        'Signal noted. Booth stays in low-light mode.',
+        'Quiet confirmation received — keep the channel steady.'
       ];
 
-      window.console.log('%c' + pulseFrame, 'color: #ff4db8; font-family: "Fira Code", monospace; line-height: 1.35; text-shadow: 0 0 16px rgba(255, 77, 184, .7);');
+      window.console.log('%cResonance monitors hum softly.', accentStyle);
+      registerSecretBoothStep('wave');
       return transmissions[Math.floor(Math.random() * transmissions.length)];
     };
   }
 
   if (typeof window.enterBooth !== 'function') {
     window.enterBooth = () => {
+      registerSecretBoothStep('enter');
       const sequence = [
-        { text: '🎚️  Sliding faders into place…', style: accentStyle },
-        { text: '🔒  Unlocking encrypted aux bus…', style: bodyStyle },
-        { text: '🌌  Routing celestial reverb tail…', style: bodyStyle },
-        { text: '⚡  Charging neon buffer…', style: accentStyle },
-        { text: '🎧  Booth link live. Hold for visuals…', style: bodyStyle }
+        { text: 'Maintenance override accepted.', style: accentStyle },
+        { text: 'Aux bus unlocked in whisper mode.', style: bodyStyle },
+        { text: 'Room tone stabilised.', style: bodyStyle },
+        { text: 'Diagnostics channel warming quietly.', style: accentStyle },
+        { text: 'Hold position for status lights…', style: bodyStyle }
       ];
 
       sequence.forEach((step, index) => {
@@ -5035,27 +5139,126 @@ function initConsoleEasterEgg() {
 
       const visualDelay = sequence.length * 320 + 180;
       window.setTimeout(() => {
-        const frames = [
-          '▁ ▃ ▅ ▇ █ ▇ ▅ ▃ ▁',
-          '▃ ▆ █ ▆ ▃ ▁ ▃ ▆ █',
-          '█ ▇ ▆ ▅ ▃ ▁ ▃ ▅ ▆',
-          '▃ ▁ ▃ ▅ ▆ ▇ █ ▇ ▆'
+        const statusUpdates = [
+          'Meters glow steady.',
+          'Sidechain hush engaged.',
+          'Channel quiet but ready.'
         ];
 
-        let frameIndex = 0;
+        let index = 0;
         const timer = window.setInterval(() => {
-          window.console.log('%c' + frames[frameIndex % frames.length], eqStyle);
-          frameIndex += 1;
-          if (frameIndex === frames.length * 2) {
+          window.console.log('%c' + statusUpdates[index % statusUpdates.length], bodyStyle);
+          index += 1;
+          if (index === statusUpdates.length * 2) {
             window.clearInterval(timer);
-            window.console.log('%cSecret booth channel open — drop ampedWave() to broadcast your cheer.', accentStyle);
+            window.console.log('%cQuiet link open — keep transmissions discreet.', accentStyle);
           }
-        }, 220);
+        }, 420);
       }, visualDelay);
 
-      return 'Boot sequence engaged — watch the console glow.';
+      return 'Booth link warming — observe quietly.';
     };
   }
+}
+
+const secretBoothSequence = ['wave', 'wave', 'enter', 'wave'];
+
+function getSecretBoothState() {
+  if (typeof window === 'undefined') {
+    return {
+      expected: secretBoothSequence,
+      progress: 0,
+      overlay: null,
+      resetTimer: null,
+      styles: null
+    };
+  }
+
+  if (!window.__ampedSecretBoothState) {
+    window.__ampedSecretBoothState = {
+      expected: secretBoothSequence,
+      progress: 0,
+      overlay: null,
+      resetTimer: null,
+      styles: null
+    };
+  }
+
+  return window.__ampedSecretBoothState;
+}
+
+function registerSecretBoothStep(step) {
+  const state = getSecretBoothState();
+  const expected = state.expected;
+
+  if (!Array.isArray(expected) || expected.length === 0) {
+    return;
+  }
+
+  if (step === expected[state.progress]) {
+    state.progress += 1;
+  } else if (step === expected[0]) {
+    state.progress = 1;
+  } else {
+    state.progress = 0;
+  }
+
+  if (state.progress >= expected.length) {
+    state.progress = 0;
+    activateSecretBoothScene();
+  }
+}
+
+function activateSecretBoothScene() {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return;
+  }
+
+  const state = getSecretBoothState();
+  const overlay = ensureSecretBoothOverlay();
+
+  if (!overlay || !document.body) {
+    return;
+  }
+
+  window.clearTimeout(state.resetTimer);
+  document.body.classList.add('secret-booth-active');
+
+  if (state.styles && window.console && typeof window.console.log === 'function') {
+    window.console.log('%cChannel link confirmed — booth lighting sweep engaged.', state.styles.accent);
+    window.console.log('%cThe studio wash ripples across the deck for a short while.', state.styles.body);
+  }
+
+  state.resetTimer = window.setTimeout(() => {
+    document.body.classList.remove('secret-booth-active');
+  }, 16000);
+}
+
+function ensureSecretBoothOverlay() {
+  const state = getSecretBoothState();
+
+  if (state.overlay && document.body.contains(state.overlay)) {
+    return state.overlay;
+  }
+
+  if (!document.body) {
+    document.addEventListener('DOMContentLoaded', ensureSecretBoothOverlay, { once: true });
+    return null;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'secret-booth-overlay';
+  overlay.setAttribute('aria-hidden', 'true');
+  overlay.innerHTML = `
+    <div class="secret-booth-overlay__badge">
+      <span class="secret-booth-overlay__label">maintenance link</span>
+      <span class="secret-booth-overlay__status">channel live</span>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  state.overlay = overlay;
+  return overlay;
 }
 
 function initFooterEasterEgg() {
