@@ -259,13 +259,14 @@
                 padding: .7rem 0;
           }
 
-	  .logo {
-		display: inline-flex;
-		align-items: center;
-		gap: .6rem;
-		font-weight: 800;
-		letter-spacing: .2px;
-	  }
+          .logo {
+                display: inline-flex;
+                align-items: center;
+                gap: .6rem;
+                font-weight: 800;
+                letter-spacing: .2px;
+                position: relative;
+          }
 
           .logo-img {
                 width: 160px;
@@ -274,19 +275,23 @@
                 transition: width var(--car-mode-transition-duration) var(--car-mode-transition-ease);
           }
 
-	  nav ul {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: flex;
-		gap: 1rem;
-	  }
+          nav {
+                position: relative;
+          }
 
-	  nav a {
-		color: var(--muted);
-		padding: .55rem .75rem;
-		border-radius: 999px;
-	  }
+          nav ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                gap: 1rem;
+          }
+
+          nav a {
+                color: var(--muted);
+                padding: .55rem .75rem;
+                border-radius: 999px;
+          }
 
           nav a:hover,
           nav a:focus-visible,
@@ -373,15 +378,20 @@
                 width: 190px;
           }
 
-	  .hero {
-		padding: 48px 0 26px;
-	  }
+          .hero {
+                padding: 48px 0 26px;
+                position: relative;
+                z-index: 0;
+                overflow: hidden;
+          }
 
           .hero .wrap {
                 display: grid;
                 grid-template-columns: 1.2fr .8fr;
                 gap: 28px;
                 align-items: center;
+                position: relative;
+                z-index: 2;
           }
 
           .hero .eyebrow,
@@ -393,6 +403,8 @@
                 opacity: 0;
                 transform: translateY(20px);
                 animation: heroFadeUp .8s ease forwards;
+                position: relative;
+                z-index: 2;
           }
 
           .eyebrow {
@@ -1596,6 +1608,493 @@
                       transition: none !important;
                 }
           }
+
+          /* --------------------------- Seasonal Theming --------------------------- */
+          #seasonalLayer {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                overflow: hidden;
+                z-index: 1;
+                opacity: 0;
+                transition: opacity .6s ease;
+          }
+
+          body[data-seasonal-theme] #seasonalLayer {
+                opacity: 1;
+          }
+
+          #seasonalLayer::before,
+          #seasonalLayer::after {
+                content: "";
+                position: absolute;
+                inset: -15%;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity .6s ease, transform 12s ease;
+          }
+
+          body[data-seasonal-theme] #seasonalLayer::before,
+          body[data-seasonal-theme] #seasonalLayer::after {
+                opacity: 1;
+          }
+
+          .seasonal-countdown {
+                position: absolute;
+                top: clamp(14px, 3vw, 32px);
+                right: clamp(16px, 6vw, 56px);
+                background: color-mix(in oklab, var(--surface-2) 82%, rgba(0, 0, 0, .45));
+                border: 1px solid color-mix(in oklab, var(--border) 60%, rgba(255, 255, 255, .1));
+                border-radius: 12px;
+                padding: .45rem .9rem;
+                font-family: 'Roboto Mono', 'SFMono-Regular', ui-monospace, monospace;
+                font-weight: 700;
+                font-variant-numeric: tabular-nums;
+                letter-spacing: .08em;
+                text-transform: uppercase;
+                color: var(--text);
+                box-shadow: 0 12px 28px rgba(0, 0, 0, .28);
+                z-index: 3;
+                backdrop-filter: blur(8px) saturate(1.2);
+                display: inline-flex;
+                align-items: center;
+                gap: .6rem;
+          }
+
+          .seasonal-countdown[hidden] {
+                display: none;
+          }
+
+          .seasonal-tagline {
+                margin-top: .9rem;
+                font-weight: 600;
+                letter-spacing: .05em;
+                text-transform: uppercase;
+                color: var(--brand-300);
+                display: inline-flex;
+                align-items: center;
+                gap: .4rem;
+                font-size: .9rem;
+          }
+
+          .seasonal-tagline::before {
+                content: "✶";
+                font-size: 1.05rem;
+                opacity: .75;
+          }
+
+          .seasonal-tagline[hidden] {
+                display: none;
+          }
+
+          .seasonal-layer .seasonal-particle {
+                position: absolute;
+                pointer-events: none;
+                will-change: transform, opacity;
+          }
+
+          .seasonal-particle--confetti {
+                width: 10px;
+                height: 18px;
+                border-radius: 3px;
+                background: var(--confetti-color, #fff);
+                top: -24px;
+                left: 0;
+                opacity: 0;
+                animation: seasonalConfetti 7.5s linear infinite;
+          }
+
+          .seasonal-particle--sparkle {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(255, 255, 255, .85) 0%, rgba(255, 255, 255, 0) 70%);
+                animation: seasonalSparkle .65s ease-out forwards;
+                opacity: 0;
+          }
+
+          .seasonal-layer .seasonal-bubble {
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, 0) 70%);
+                bottom: -18px;
+                left: 0;
+                opacity: .7;
+                animation: seasonalBubble 16s ease-in infinite;
+          }
+
+          @keyframes seasonalConfetti {
+                0% { transform: translate3d(var(--confetti-drift, 0px), -110%, 0) rotate(0deg); opacity: 0; }
+                8% { opacity: 1; }
+                100% { transform: translate3d(var(--confetti-drift, 0px), 220%, 0) rotate(540deg); opacity: 0; }
+          }
+
+          @keyframes seasonalSparkle {
+                0% { transform: scale(.4); opacity: 0; }
+                20% { opacity: 1; }
+                100% { transform: scale(1.7); opacity: 0; }
+          }
+
+          @keyframes seasonalBubble {
+                0% { transform: translate3d(var(--bubble-drift, 0px), 120%, 0) scale(.6); opacity: 0; }
+                20% { opacity: .6; }
+                100% { transform: translate3d(var(--bubble-drift, 0px), -160%, 0) scale(1.1); opacity: 0; }
+          }
+
+          @keyframes seasonalGlowPulse {
+                0%, 100% { opacity: .32; }
+                50% { opacity: .55; }
+          }
+
+          @keyframes valentineHearts {
+                0% { transform: translate3d(0, 40px, 0) scale(1); opacity: .35; }
+                50% { opacity: .55; }
+                100% { transform: translate3d(0, -60px, 0) scale(1.05); opacity: .35; }
+          }
+
+          @keyframes easterBubbles {
+                0% { transform: translate3d(0, 0, 0); }
+                50% { transform: translate3d(-10px, -30px, 0); }
+                100% { transform: translate3d(10px, -60px, 0); }
+          }
+
+          @keyframes easterBounce {
+                0% { transform: translateY(-3px) scale(1.05); }
+                100% { transform: translateY(-7px) scale(1.04) rotate(-1deg); }
+          }
+
+          @keyframes seasonalPetalsFall {
+                0% { transform: translate(-20px, -10%) rotate(0deg); opacity: 0; }
+                10% { opacity: .35; }
+                100% { transform: translate(20px, 110%) rotate(18deg); opacity: 0; }
+          }
+
+          @keyframes seasonalTwinkle {
+                0%, 100% { opacity: .45; }
+                50% { opacity: .95; }
+          }
+
+          @keyframes halloweenFlight {
+                0% { transform: translate3d(-10px, 10px, 0) scale(1); }
+                50% { transform: translate3d(12px, -14px, 0) scale(1.05); }
+                100% { transform: translate3d(-6px, -28px, 0) scale(1.1); }
+          }
+
+          @keyframes seasonalFlicker {
+                0%, 18%, 22%, 100% { opacity: 1; }
+                20%, 24% { opacity: .45; }
+          }
+
+          @keyframes listenLivePulse {
+                0%, 100% { transform: translateY(-1px) scale(1); box-shadow: 0 0 16px rgba(105, 200, 255, .6), 0 0 34px rgba(255, 76, 230, .35); }
+                45% { transform: translateY(-3px) scale(1.04); box-shadow: 0 0 22px rgba(118, 210, 255, .75), 0 0 44px rgba(255, 210, 120, .55); }
+          }
+
+          @keyframes fairyLights {
+                0% { background-position: 0 0; }
+                100% { background-position: -120px 0; }
+          }
+
+          @keyframes logoSparkle {
+                0%, 100% { filter: drop-shadow(0 0 18px rgba(255, 214, 140, .55)); }
+                50% { filter: drop-shadow(0 0 28px rgba(255, 255, 210, .75)); }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+                #seasonalLayer,
+                #seasonalLayer::before,
+                #seasonalLayer::after,
+                .seasonal-layer .seasonal-particle,
+                .seasonal-layer .seasonal-bubble,
+                .seasonal-countdown,
+                .seasonal-tagline {
+                      animation: none !important;
+                      transition-duration: 0.01ms !important;
+                }
+
+                body[data-seasonal-theme] .btn.btn-primary.neon {
+                      animation: none !important;
+                }
+          }
+
+          body[data-seasonal-theme="new-year"] #seasonalLayer::before {
+                background:
+                  radial-gradient(circle at 18% 24%, rgba(90, 220, 255, .4), transparent 62%),
+                  radial-gradient(circle at 82% 20%, rgba(255, 210, 92, .35), transparent 65%),
+                  linear-gradient(160deg, rgba(4, 9, 32, .95), rgba(10, 16, 45, .92));
+          }
+
+          body[data-seasonal-theme="new-year"] #seasonalLayer::after {
+                background-image:
+                  repeating-linear-gradient(135deg, rgba(0, 255, 247, .12) 0 16px, transparent 16px 32px),
+                  repeating-linear-gradient(-135deg, rgba(255, 0, 170, .12) 0 18px, transparent 18px 36px);
+                mix-blend-mode: screen;
+                animation: seasonalGlowPulse 6s ease-in-out infinite;
+                opacity: .45;
+          }
+
+          body[data-seasonal-theme="new-year"] .btn.btn-primary.neon {
+                box-shadow: 0 0 16px rgba(105, 200, 255, .6), 0 0 34px rgba(255, 76, 230, .35);
+                animation: listenLivePulse 1.7s ease-in-out infinite;
+          }
+
+          body[data-seasonal-theme="new-year"] .seasonal-countdown {
+                background: color-mix(in oklab, #041132 78%, rgba(0, 0, 0, .35));
+                border-color: rgba(102, 204, 255, .35);
+                text-shadow: 0 0 12px rgba(98, 185, 255, .6);
+          }
+
+          body[data-seasonal-theme="new-year"] .neon {
+                text-shadow:
+                  0 0 18px rgba(94, 200, 255, .6),
+                  0 0 42px rgba(255, 0, 204, .35);
+          }
+
+          body[data-seasonal-theme="waitangi"] #seasonalLayer::before {
+                background:
+                  radial-gradient(circle at 30% 80%, rgba(255, 255, 255, .08), transparent 62%),
+                  linear-gradient(180deg, rgba(3, 12, 28, .94), rgba(2, 8, 20, .96));
+          }
+
+          body[data-seasonal-theme="waitangi"] #seasonalLayer::after {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" fill="none"><path d="M0 260c90-120 220-120 310 0-90 120-220 120-310 0Z" fill="url(%23grad)" opacity="0.32"/><defs><linearGradient id="grad" x1="0" y1="260" x2="310" y2="260" gradientUnits="userSpaceOnUse"><stop stop-color="%2302142d"/><stop offset="0.5" stop-color="%230b2a52"/><stop offset="1" stop-color="%23fffcfc" stop-opacity="0.22"/></linearGradient></defs></svg>');
+                background-size: 520px;
+                animation: waitangiWave 48s ease-in-out infinite alternate;
+                opacity: .32;
+          }
+
+          @keyframes waitangiWave {
+                0% { transform: translate3d(0, 0, 0); }
+                50% { transform: translate3d(-24px, -18px, 0) scale(1.03); }
+                100% { transform: translate3d(-58px, 12px, 0) scale(1); }
+          }
+
+          body[data-seasonal-theme="waitangi"] .header {
+                background: color-mix(in oklab, rgba(2, 14, 32, .92) 72%, transparent);
+          }
+
+          body[data-seasonal-theme="valentines"] #seasonalLayer::before {
+                background:
+                  radial-gradient(circle at 24% 20%, rgba(255, 126, 197, .45), transparent 64%),
+                  radial-gradient(circle at 80% 15%, rgba(166, 118, 255, .35), transparent 62%),
+                  linear-gradient(160deg, rgba(24, 4, 32, .94), rgba(43, 6, 58, .92));
+          }
+
+          body[data-seasonal-theme="valentines"] #seasonalLayer::after {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none"><g opacity="0.35"><path d="M52 68c0-14 12-22 24-22 9 0 16 6 21 12 5-6 12-12 21-12 12 0 24 8 24 22 0 32-45 48-45 48S52 100 52 68Z" fill="url(%23a)"/></g><defs><linearGradient id="a" x1="51" y1="46" x2="121" y2="126" gradientUnits="userSpaceOnUse"><stop stop-color="%23ff7bc0"/><stop offset="1" stop-color="%23a179ff"/></linearGradient></defs></svg>');
+                background-size: 240px;
+                animation: valentineHearts 26s linear infinite;
+          }
+
+          body[data-seasonal-theme="valentines"] .btn {
+                box-shadow: 0 0 12px rgba(255, 140, 220, .35);
+          }
+
+          body[data-seasonal-theme="valentines"] .btn:hover {
+                filter: drop-shadow(0 0 16px rgba(255, 150, 230, .55));
+          }
+
+          body[data-seasonal-theme="valentines"] .seasonal-particle--sparkle {
+                background: radial-gradient(circle, rgba(255, 188, 232, .9) 0%, rgba(255, 188, 232, 0) 70%);
+          }
+
+          body[data-seasonal-theme="easter"] #seasonalLayer::before {
+                background:
+                  radial-gradient(circle at 15% 85%, rgba(171, 232, 199, .45), transparent 60%),
+                  radial-gradient(circle at 75% 18%, rgba(255, 229, 173, .42), transparent 60%),
+                  linear-gradient(180deg, rgba(14, 21, 33, .92), rgba(20, 28, 39, .9));
+          }
+
+          body[data-seasonal-theme="easter"] #seasonalLayer::after {
+                background-image:
+                  radial-gradient(8px 12px at 30% 40%, rgba(246, 196, 255, .28), transparent 60%),
+                  radial-gradient(6px 6px at 72% 70%, rgba(164, 224, 255, .32), transparent 60%),
+                  radial-gradient(10px 10px at 50% 20%, rgba(255, 214, 153, .3), transparent 65%);
+                animation: easterBubbles 32s linear infinite;
+          }
+
+          body[data-seasonal-theme="easter"] .btn:hover {
+                transform: translateY(-3px) scale(1.05);
+                animation: easterBounce .75s ease-in-out infinite alternate;
+          }
+
+          body[data-seasonal-theme="easter"] .seasonal-layer .seasonal-bubble {
+                background: radial-gradient(circle, rgba(255, 255, 255, .65) 0%, rgba(255, 255, 255, 0) 70%);
+          }
+
+          body[data-seasonal-theme="anzac"] #seasonalLayer::before {
+                background: linear-gradient(165deg, rgba(22, 22, 18, .95), rgba(28, 30, 22, .9));
+          }
+
+          body[data-seasonal-theme="anzac"] #seasonalLayer::after {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none"><g opacity="0.3"><path d="M130 0c40 70-20 90 40 170-70-20-90 40-170-40 70 20 90-40 170 40-40-70 20-90-40-170Z" fill="%23d44a57"/></g></svg>');
+                background-size: 320px;
+                animation: seasonalPetalsFall 32s linear infinite;
+                opacity: .25;
+          }
+
+          body[data-seasonal-theme="anzac"] .logo {
+                padding-right: 32px;
+          }
+
+          body[data-seasonal-theme="anzac"] .logo::after {
+                content: "";
+                position: absolute;
+                right: -20px;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: radial-gradient(circle, #f2505b 0%, #7e161f 70%, #31070b 85%);
+                box-shadow: 0 0 14px rgba(163, 20, 31, .35);
+          }
+
+          body[data-seasonal-theme="anzac"] .header {
+                animation: none;
+                box-shadow: none;
+                background: color-mix(in oklab, rgba(18, 18, 14, .92) 82%, transparent);
+          }
+
+          body[data-seasonal-theme="anzac"] .card:hover,
+          body[data-seasonal-theme="anzac"] .card:focus-within,
+          body[data-seasonal-theme="anzac"] .btn:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+          }
+
+          body[data-seasonal-theme="matariki"] #seasonalLayer::before {
+                background:
+                  radial-gradient(circle at 22% 24%, rgba(120, 162, 255, .3), transparent 65%),
+                  radial-gradient(circle at 70% 70%, rgba(255, 214, 144, .2), transparent 60%),
+                  linear-gradient(180deg, rgba(5, 8, 22, .95), rgba(9, 14, 30, .92));
+          }
+
+          body[data-seasonal-theme="matariki"] #seasonalLayer::after {
+                background-image:
+                  radial-gradient(2px 2px at 12% 18%, rgba(255, 255, 255, .95), transparent 65%),
+                  radial-gradient(1.5px 1.5px at 32% 58%, rgba(255, 225, 165, .9), transparent 60%),
+                  radial-gradient(2px 2px at 68% 32%, rgba(255, 255, 255, .8), transparent 70%),
+                  radial-gradient(1.5px 1.5px at 82% 68%, rgba(255, 220, 140, .85), transparent 65%);
+                animation: seasonalTwinkle 7s ease-in-out infinite alternate;
+                opacity: .65;
+          }
+
+          body[data-seasonal-theme="matariki"] .card:hover,
+          body[data-seasonal-theme="matariki"] .btn:hover {
+                box-shadow: 0 0 18px rgba(248, 220, 156, .45);
+          }
+
+          body[data-seasonal-theme="halloween"] #seasonalLayer::before {
+                background: linear-gradient(180deg, rgba(24, 5, 38, .94), rgba(10, 2, 22, .94));
+          }
+
+          body[data-seasonal-theme="halloween"] #seasonalLayer::after {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none"><g opacity="0.45"><path d="M36 80c20-40 60-40 80 0-20 40-60 40-80 0Z" fill="%23ff8800"/><path d="M130 70c18-20 40-20 58 4-8 22-30 30-58-4Z" fill="%23555bff" fill-opacity="0.45"/><path d="M70 150c15-30 45-30 60 0-15 30-45 30-60 0Z" fill="%23ff6600" fill-opacity="0.6"/></g></svg>');
+                background-size: 260px;
+                animation: halloweenFlight 32s linear infinite;
+                opacity: .4;
+          }
+
+          body[data-seasonal-theme="halloween"] .header {
+                box-shadow: 0 0 18px rgba(255, 128, 0, .35);
+                animation: seasonalFlicker 3.2s steps(4) infinite;
+          }
+
+          body[data-seasonal-theme="halloween"] .card:hover {
+                transform: rotate(-1.4deg) translateY(-6px) scale(1.02);
+                box-shadow: var(--shadow), 0 26px 44px rgba(255, 120, 0, .22);
+          }
+
+          body[data-seasonal-theme="halloween"] .btn.btn-primary {
+                box-shadow: 0 0 18px rgba(255, 128, 0, .35);
+          }
+
+          body[data-seasonal-theme="labour-weekend"] #seasonalLayer::before {
+                background:
+                  radial-gradient(circle at 25% 80%, rgba(0, 161, 197, .35), transparent 65%),
+                  radial-gradient(circle at 75% 20%, rgba(255, 188, 140, .25), transparent 60%),
+                  linear-gradient(180deg, rgba(4, 28, 36, .94), rgba(12, 48, 58, .9));
+          }
+
+          body[data-seasonal-theme="labour-weekend"] #seasonalLayer::after {
+                background-image:
+                  linear-gradient(180deg, rgba(255, 224, 168, .16), rgba(0, 0, 0, 0)),
+                  url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none"><path d="M40 150c35-35 70-35 105 0" stroke="%23f6d9a8" stroke-width="6" stroke-linecap="round"/><path d="m70 70 26 46" stroke="%23ff9a82" stroke-width="10" stroke-linecap="round"/><path d="m122 90-30 52" stroke="%238be1f6" stroke-width="8" stroke-linecap="round"/></svg>');
+                background-size: 100% 120%, 360px;
+                background-repeat: repeat, no-repeat;
+                background-position: 0 100%, 80% 90%;
+                animation: labourWave 28s ease-in-out infinite alternate;
+          }
+
+          @keyframes labourWave {
+                0% { transform: translate3d(0, 0, 0); }
+                100% { transform: translate3d(-30px, -20px, 0); }
+          }
+
+          body[data-seasonal-theme="labour-weekend"] .btn.btn-primary {
+                box-shadow: 0 0 16px rgba(139, 225, 246, .35);
+          }
+
+          body[data-seasonal-theme="christmas"] #seasonalLayer::before {
+                background:
+                  radial-gradient(circle at 20% 30%, rgba(240, 70, 90, .28), transparent 70%),
+                  radial-gradient(circle at 80% 20%, rgba(255, 212, 128, .3), transparent 60%),
+                  linear-gradient(180deg, rgba(8, 28, 34, .95), rgba(10, 38, 46, .9));
+          }
+
+          body[data-seasonal-theme="christmas"] #seasonalLayer::after {
+                background-image:
+                  radial-gradient(2px 2px at 10% 30%, rgba(255, 255, 255, .9), transparent 70%),
+                  radial-gradient(3px 3px at 60% 70%, rgba(214, 240, 255, .85), transparent 70%),
+                  radial-gradient(1.5px 1.5px at 85% 40%, rgba(255, 255, 255, .6), transparent 65%);
+                animation: christmasSparkle 20s linear infinite;
+                opacity: .55;
+          }
+
+          body[data-seasonal-theme="christmas"] nav::after {
+                content: "";
+                position: absolute;
+                left: 6%;
+                right: 6%;
+                bottom: -6px;
+                height: 16px;
+                background-image: radial-gradient(circle at 8% 50%, rgba(255, 214, 102, .9) 0%, rgba(255, 214, 102, 0) 60%), radial-gradient(circle at 28% 50%, rgba(255, 116, 116, .9) 0%, rgba(255, 116, 116, 0) 60%), radial-gradient(circle at 48% 50%, rgba(128, 216, 255, .9) 0%, rgba(128, 216, 255, 0) 60%), radial-gradient(circle at 68% 50%, rgba(255, 214, 102, .9) 0%, rgba(255, 214, 102, 0) 60%), radial-gradient(circle at 88% 50%, rgba(255, 116, 116, .9) 0%, rgba(255, 116, 116, 0) 60%);
+                background-size: 120px 16px;
+                background-repeat: repeat-x;
+                animation: fairyLights 2.4s linear infinite;
+                pointer-events: none;
+                filter: drop-shadow(0 0 8px rgba(255, 220, 150, .6));
+          }
+
+          body[data-seasonal-theme="christmas"] .logo-img {
+                filter: drop-shadow(0 0 18px rgba(255, 214, 140, .55));
+                animation: logoSparkle 6s ease-in-out infinite;
+          }
+
+          body[data-seasonal-theme="boxing-bridge"] #seasonalLayer::before {
+                background:
+                  radial-gradient(circle at 22% 18%, rgba(255, 128, 150, .35), transparent 65%),
+                  radial-gradient(circle at 82% 22%, rgba(120, 210, 255, .3), transparent 60%),
+                  linear-gradient(180deg, rgba(8, 18, 36, .95), rgba(12, 28, 48, .92));
+          }
+
+          body[data-seasonal-theme="boxing-bridge"] #seasonalLayer::after {
+                background-image:
+                  radial-gradient(2px 6px at 20% 20%, rgba(255, 214, 160, .35), transparent 60%),
+                  radial-gradient(2px 4px at 60% 60%, rgba(125, 220, 255, .3), transparent 60%),
+                  radial-gradient(2px 5px at 80% 40%, rgba(255, 140, 173, .28), transparent 65%);
+                animation: bridgeConfetti 28s linear infinite;
+                opacity: .45;
+          }
+
+          @keyframes bridgeConfetti {
+                0% { transform: translate3d(0, 0, 0); }
+                100% { transform: translate3d(-20px, 60px, 0); }
+          }
+
+          body[data-seasonal-theme="boxing-bridge"] .btn.btn-primary {
+                box-shadow: 0 0 18px rgba(255, 199, 140, .35);
+          }
 	</style>
 </head>
 <body>
@@ -1629,6 +2128,8 @@
 
   <main id="main">
     <section class="hero" id="listen">
+      <div id="seasonalLayer" class="seasonal-layer" aria-hidden="true"></div>
+      <div id="seasonalCountdown" class="seasonal-countdown" role="status" aria-live="polite" hidden></div>
       <div class="container">
         <div class="wrap">
           <div>
@@ -1643,6 +2144,8 @@
               A new kind of station: AI-generated music, shows, and voices.
               Streaming non-stop with real programming, real hosts, and zero humans behind the mic.
             </p>
+
+            <div id="seasonalTagline" class="seasonal-tagline" hidden></div>
 
             <div class="cta">
               <div class="player-controls" role="group" aria-label="Player controls">
@@ -1888,6 +2391,677 @@ const CONFIG = {
   liveLabel: "Live"
 };
 
+/* ----------------------------- SEASONAL THEMES ----------------------------- */
+const MS_IN_MINUTE = 60 * 1000;
+const MS_IN_HOUR   = 60 * MS_IN_MINUTE;
+const MS_IN_DAY    = 24 * MS_IN_HOUR;
+
+const getLocalDateParts = (date, tz) => {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: tz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+
+  const parts = { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate() };
+  for (const part of formatter.formatToParts(date)) {
+    if (part.type === 'year')  parts.year  = Number(part.value);
+    if (part.type === 'month') parts.month = Number(part.value);
+    if (part.type === 'day')   parts.day   = Number(part.value);
+  }
+  return parts;
+};
+
+const getDateValue = (year, month, day) => Date.UTC(year, month - 1, day);
+
+const getLocalDateValue = (date, tz) => {
+  const parts = getLocalDateParts(date, tz);
+  return getDateValue(parts.year, parts.month, parts.day);
+};
+
+const makeZonedDate = (year, month, day, hour = 0, minute = 0, tz = 'UTC') => {
+  const base = Date.UTC(year, month - 1, day, hour, minute);
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    timeZoneName: 'shortOffset',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+
+  const parts = formatter.formatToParts(new Date(base));
+  const tzPart = parts.find((p) => p.type === 'timeZoneName')?.value || 'GMT+0';
+  const match = tzPart.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+
+  let offsetMinutes = 0;
+  if (match) {
+    const sign = match[1] === '-' ? -1 : 1;
+    const hours = Number(match[2] || 0);
+    const minutes = Number(match[3] || 0);
+    offsetMinutes = sign * (hours * 60 + minutes);
+  }
+
+  return new Date(base - offsetMinutes * MS_IN_MINUTE);
+};
+
+const calcEasterSunday = (year) => {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return { month, day };
+};
+
+const MATARIKI_DATES = {
+  2023: { month: 7, day: 14 },
+  2024: { month: 6, day: 28 },
+  2025: { month: 6, day: 20 },
+  2026: { month: 7, day: 10 },
+  2027: { month: 6, day: 25 },
+  2028: { month: 7, day: 14 },
+  2029: { month: 7, day: 6 },
+  2030: { month: 6, day: 28 }
+};
+
+const getLastWeekdayOfMonth = (year, monthIndex, weekday) => {
+  const date = new Date(Date.UTC(year, monthIndex + 1, 0));
+  const diff = (date.getUTCDay() - weekday + 7) % 7;
+  date.setUTCDate(date.getUTCDate() - diff);
+  return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate() };
+};
+
+const msUntilNextMidnight = (date, tz) => {
+  const parts = getLocalDateParts(date, tz);
+  const next = makeZonedDate(parts.year, parts.month, parts.day + 1, 0, 1, tz);
+  return Math.max(0, next.getTime() - date.getTime());
+};
+
+const SEASONAL_THEMES = [
+  {
+    slug: 'new-year',
+    label: "New Year’s Celebration",
+    priority: 120,
+    getRanges: ({ year }) => [
+      { start: getDateValue(year - 1, 12, 30), end: getDateValue(year, 1, 5), data: { targetYear: year } },
+      { start: getDateValue(year, 12, 30), end: getDateValue(year + 1, 1, 5), data: { targetYear: year + 1 } }
+    ],
+    vars: {
+      '--brand-h': '285',
+      '--brand-s': '100%',
+      '--brand-l': '62%',
+      '--bg': '#030816',
+      '--surface': '#07102a',
+      '--surface-2': '#0c1840',
+      '--text': '#f4f7ff',
+      '--muted': '#9cc6ff',
+      '--border': '#1c2f59',
+      '--focus-ring': 'hsl(285 88% 72%)',
+      '--layer-card-bg': 'linear-gradient(145deg, rgba(12, 22, 52, 0.92), rgba(6, 14, 32, 0.88))',
+      '--layer-card-overlay': 'radial-gradient(110% 110% at 26% 18%, rgba(117, 196, 255, .4), transparent 68%)',
+      '--layer-border': 'rgba(70, 120, 196, .28)',
+      '--layer-hover-bg': 'color-mix(in oklab, #0d1738 82%, transparent)',
+      '--layer-glass': 'color-mix(in oklab, #0d1738 80%, transparent)',
+      '--promo-texture': 'radial-gradient(circle at 20% 15%, rgba(76, 201, 255, 0.28), transparent 65%)'
+    },
+    setup: ({ layer, countdownEl, tz, theme }) => {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let timer = null;
+
+      if (layer && !reduce) {
+        const colors = ['#67a9ff', '#ff6bda', '#ffd166', '#8ab6ff'];
+        const total = 36;
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < total; i += 1) {
+          const piece = document.createElement('span');
+          piece.className = 'seasonal-particle seasonal-particle--confetti';
+          piece.style.left = `${Math.random() * 100}%`;
+          piece.style.animationDuration = `${6 + Math.random() * 4}s`;
+          piece.style.animationDelay = `${Math.random() * -7}s`;
+          piece.style.setProperty('--confetti-drift', `${(Math.random() * 60 - 30).toFixed(2)}px`);
+          piece.style.setProperty('--confetti-color', colors[i % colors.length]);
+          frag.appendChild(piece);
+        }
+        layer.appendChild(frag);
+      }
+
+      if (countdownEl) {
+        const nowParts = getLocalDateParts(new Date(), tz);
+        const targetYear = theme?.data?.targetYear || (nowParts.month >= 7 ? nowParts.year + 1 : nowParts.year);
+        const target = makeZonedDate(targetYear, 1, 1, 0, 0, tz);
+
+        const updateCountdown = () => {
+          const diff = target.getTime() - Date.now();
+          if (diff <= 0) {
+            countdownEl.hidden = true;
+            countdownEl.textContent = '';
+            clearInterval(timer);
+            timer = null;
+            return;
+          }
+
+          const totalSeconds = Math.floor(diff / 1000);
+          const hours = Math.floor(totalSeconds / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
+          countdownEl.hidden = false;
+          countdownEl.textContent = `NYE Countdown ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        };
+
+        updateCountdown();
+        timer = setInterval(updateCountdown, 1000);
+      }
+
+      return () => {
+        if (layer) layer.innerHTML = '';
+        if (timer) clearInterval(timer);
+        if (countdownEl) {
+          countdownEl.hidden = true;
+          countdownEl.textContent = '';
+        }
+      };
+    }
+  },
+  {
+    slug: 'waitangi',
+    label: 'Waitangi Day',
+    priority: 30,
+    getRanges: ({ year }) => [
+      { start: getDateValue(year, 2, 3), end: getDateValue(year, 2, 8) }
+    ],
+    vars: {
+      '--brand-h': '210',
+      '--brand-s': '88%',
+      '--brand-l': '52%',
+      '--bg': '#050b1c',
+      '--surface': '#081226',
+      '--surface-2': '#0c1a32',
+      '--text': '#f0f5ff',
+      '--muted': '#b0c6e2',
+      '--border': '#163052',
+      '--focus-ring': 'hsl(210 90% 68%)',
+      '--layer-card-bg': 'linear-gradient(150deg, rgba(10, 22, 44, 0.9), rgba(5, 12, 28, 0.9))',
+      '--layer-card-overlay': 'radial-gradient(120% 120% at 16% 14%, rgba(255,255,255,.12), transparent 70%)',
+      '--promo-texture': 'radial-gradient(circle at 28% 72%, rgba(255,255,255,.08), transparent 65%)'
+    }
+  },
+  {
+    slug: 'valentines',
+    label: 'Valentine’s Day',
+    priority: 35,
+    getRanges: ({ year }) => [
+      { start: getDateValue(year, 2, 12), end: getDateValue(year, 2, 15) }
+    ],
+    vars: {
+      '--brand-h': '315',
+      '--brand-s': '96%',
+      '--brand-l': '64%',
+      '--bg': '#1a0524',
+      '--surface': '#250a34',
+      '--surface-2': '#301046',
+      '--text': '#ffeefd',
+      '--muted': '#f1b7f0',
+      '--border': '#3c1b54',
+      '--focus-ring': 'hsl(315 88% 72%)',
+      '--layer-card-bg': 'linear-gradient(150deg, rgba(40, 8, 60, 0.94), rgba(26, 5, 40, 0.9))',
+      '--layer-card-overlay': 'radial-gradient(120% 120% at 26% 18%, rgba(255, 145, 214, .4), transparent 70%)',
+      '--layer-border': 'rgba(255, 123, 220, .25)',
+      '--promo-texture': 'radial-gradient(circle at 24% 24%, rgba(255, 140, 214, .28), transparent 70%)'
+    },
+    setup: ({ layer }) => {
+      if (!layer) return () => {};
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return () => {};
+
+      let lastSpawn = 0;
+      const spawnSparkle = (event) => {
+        const now = performance.now();
+        if (now - lastSpawn < 40) return;
+        lastSpawn = now;
+        const rect = layer.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) {
+          return;
+        }
+        const sparkle = document.createElement('span');
+        sparkle.className = 'seasonal-particle seasonal-particle--sparkle';
+        sparkle.style.left = `${event.clientX - rect.left}px`;
+        sparkle.style.top = `${event.clientY - rect.top}px`;
+        layer.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 650);
+      };
+
+      document.addEventListener('pointermove', spawnSparkle);
+      return () => {
+        document.removeEventListener('pointermove', spawnSparkle);
+        layer.innerHTML = '';
+      };
+    }
+  },
+  {
+    slug: 'easter',
+    label: 'Easter Weekend',
+    priority: 45,
+    getRanges: ({ year }) => {
+      const easter = calcEasterSunday(year);
+      const easterValue = getDateValue(year, easter.month, easter.day);
+      return [
+        { start: easterValue - 2 * MS_IN_DAY, end: easterValue + MS_IN_DAY }
+      ];
+    },
+    vars: {
+      '--brand-h': '140',
+      '--brand-s': '60%',
+      '--brand-l': '58%',
+      '--bg': '#101826',
+      '--surface': '#162032',
+      '--surface-2': '#1e2c3f',
+      '--text': '#f7fbff',
+      '--muted': '#c8e4de',
+      '--border': '#2f455c',
+      '--focus-ring': 'hsl(140 68% 68%)',
+      '--layer-card-bg': 'linear-gradient(160deg, rgba(24, 36, 54, 0.92), rgba(18, 30, 48, 0.9))',
+      '--layer-card-overlay': 'radial-gradient(120% 120% at 28% 18%, rgba(180, 232, 210, .35), transparent 72%)',
+      '--promo-texture': 'radial-gradient(circle at 32% 22%, rgba(196, 246, 255, .2), transparent 68%)'
+    }
+  },
+  {
+    slug: 'anzac',
+    label: 'ANZAC Day',
+    priority: 50,
+    getRanges: ({ year }) => [
+      { start: getDateValue(year, 4, 22), end: getDateValue(year, 4, 26) }
+    ],
+    vars: {
+      '--brand-h': '2',
+      '--brand-s': '72%',
+      '--brand-l': '45%',
+      '--bg': '#11120f',
+      '--surface': '#1a1c16',
+      '--surface-2': '#23241d',
+      '--text': '#f5f2eb',
+      '--muted': '#cabfa5',
+      '--border': '#3a3b30',
+      '--focus-ring': 'hsl(2 70% 48%)',
+      '--layer-card-bg': 'linear-gradient(150deg, rgba(32, 33, 27, 0.92), rgba(22, 22, 18, 0.9))',
+      '--layer-card-overlay': 'radial-gradient(120% 120% at 22% 16%, rgba(178, 42, 54, .32), transparent 70%)',
+      '--promo-texture': 'radial-gradient(circle at 80% 20%, rgba(178, 42, 54, .18), transparent 70%)'
+    }
+  },
+  {
+    slug: 'matariki',
+    label: 'Matariki',
+    priority: 60,
+    tagline: 'Ngā whetū o Matariki shine bright tonight',
+    getRanges: ({ year }) => {
+      const ranges = [];
+      const addRange = (y) => {
+        const info = MATARIKI_DATES[y];
+        if (!info) return;
+        const center = getDateValue(y, info.month, info.day);
+        ranges.push({
+          start: center - 3 * MS_IN_DAY,
+          end: center + 3 * MS_IN_DAY,
+          data: { anchorYear: y, anchorMonth: info.month, anchorDay: info.day }
+        });
+      };
+      addRange(year);
+      addRange(year - 1);
+      addRange(year + 1);
+      return ranges;
+    },
+    vars: {
+      '--brand-h': '220',
+      '--brand-s': '75%',
+      '--brand-l': '58%',
+      '--bg': '#06091a',
+      '--surface': '#0b1028',
+      '--surface-2': '#11183a',
+      '--text': '#f4f7ff',
+      '--muted': '#c6d2f5',
+      '--border': '#202b5b',
+      '--focus-ring': 'hsl(220 82% 66%)',
+      '--layer-card-bg': 'linear-gradient(150deg, rgba(12, 18, 40, 0.94), rgba(6, 10, 28, 0.92))',
+      '--layer-card-overlay': 'radial-gradient(120% 120% at 30% 18%, rgba(210, 198, 134, .35), transparent 70%)',
+      '--promo-texture': 'radial-gradient(circle at 60% 18%, rgba(255, 214, 144, .25), transparent 65%)'
+    }
+  },
+  {
+    slug: 'halloween',
+    label: 'Halloween',
+    priority: 70,
+    getRanges: ({ year }) => [
+      { start: getDateValue(year, 10, 25), end: getDateValue(year, 10, 31) }
+    ],
+    vars: {
+      '--brand-h': '290',
+      '--brand-s': '80%',
+      '--brand-l': '52%',
+      '--bg': '#0d0616',
+      '--surface': '#150b26',
+      '--surface-2': '#1d1033',
+      '--text': '#f5edff',
+      '--muted': '#d0b6ff',
+      '--border': '#2f1b4c',
+      '--focus-ring': 'hsl(290 88% 68%)',
+      '--layer-card-bg': 'linear-gradient(150deg, rgba(28, 10, 42, 0.94), rgba(12, 4, 26, 0.94))',
+      '--layer-card-overlay': 'radial-gradient(120% 120% at 26% 18%, rgba(255, 132, 30, .4), transparent 70%)',
+      '--promo-texture': 'radial-gradient(circle at 82% 24%, rgba(255, 136, 34, .28), transparent 65%)'
+    },
+    setup: () => {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return () => {};
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let audioCtx = null;
+
+      const ensureContext = () => {
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx?.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      };
+
+      const playHoverSound = () => {
+        const ctx = ensureContext();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = 520 + Math.random() * 140;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.05, ctx.currentTime + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.28);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.32);
+      };
+
+      const targets = Array.from(document.querySelectorAll('.card, .btn, .icon-btn'));
+      const handler = () => {
+        if (reduce) return;
+        try {
+          playHoverSound();
+        } catch (err) {
+          /* ignore */
+        }
+      };
+
+      targets.forEach((el) => el.addEventListener('mouseenter', handler));
+      return () => {
+        targets.forEach((el) => el.removeEventListener('mouseenter', handler));
+        if (audioCtx) {
+          try { audioCtx.close(); } catch (err) { /* ignore */ }
+          audioCtx = null;
+        }
+      };
+    }
+  },
+  {
+    slug: 'labour-weekend',
+    label: 'Labour Weekend',
+    priority: 80,
+    getRanges: ({ year }) => {
+      const monday = getLastWeekdayOfMonth(year, 9, 1);
+      if (!monday) return [];
+      const mondayValue = getDateValue(monday.year, monday.month, monday.day);
+      return [
+        { start: mondayValue - 3 * MS_IN_DAY, end: mondayValue }
+      ];
+    },
+    vars: {
+      '--brand-h': '182',
+      '--brand-s': '88%',
+      '--brand-l': '60%',
+      '--bg': '#082026',
+      '--surface': '#10303a',
+      '--surface-2': '#17404b',
+      '--text': '#f4fbfd',
+      '--muted': '#b8e8f0',
+      '--border': '#22525d',
+      '--focus-ring': 'hsl(182 78% 62%)',
+      '--layer-card-bg': 'linear-gradient(150deg, rgba(20, 52, 60, 0.9), rgba(10, 32, 38, 0.92))',
+      '--layer-card-overlay': 'radial-gradient(120% 120% at 28% 16%, rgba(255, 186, 150, .34), transparent 70%)',
+      '--promo-texture': 'radial-gradient(circle at 18% 78%, rgba(140, 226, 232, .24), transparent 68%)'
+    }
+  },
+  {
+    slug: 'christmas',
+    label: 'Christmas Period',
+    priority: 100,
+    getRanges: ({ year }) => [
+      { start: getDateValue(year, 12, 10), end: getDateValue(year, 12, 26) }
+    ],
+    vars: {
+      '--brand-h': '350',
+      '--brand-s': '82%',
+      '--brand-l': '58%',
+      '--bg': '#06141b',
+      '--surface': '#10242c',
+      '--surface-2': '#18323c',
+      '--text': '#f8fbff',
+      '--muted': '#c7dae6',
+      '--border': '#20414a',
+      '--focus-ring': 'hsl(350 88% 62%)',
+      '--layer-card-bg': 'linear-gradient(150deg, rgba(22, 46, 54, 0.94), rgba(10, 24, 30, 0.9))',
+      '--layer-card-overlay': 'radial-gradient(120% 120% at 26% 18%, rgba(255, 184, 148, .42), transparent 70%)',
+      '--promo-texture': 'radial-gradient(circle at 72% 18%, rgba(255, 214, 150, .3), transparent 66%)'
+    }
+  },
+  {
+    slug: 'boxing-bridge',
+    label: 'Boxing Day → New Year Bridge',
+    priority: 110,
+    getRanges: ({ year }) => [
+      { start: getDateValue(year - 1, 12, 26), end: getDateValue(year, 1, 1) },
+      { start: getDateValue(year, 12, 26), end: getDateValue(year + 1, 1, 1) }
+    ],
+    vars: {
+      '--brand-h': '315',
+      '--brand-s': '78%',
+      '--brand-l': '58%',
+      '--bg': '#081022',
+      '--surface': '#111b30',
+      '--surface-2': '#18253c',
+      '--text': '#f7faff',
+      '--muted': '#c0cbe6',
+      '--border': '#23324a',
+      '--focus-ring': 'hsl(315 78% 64%)',
+      '--layer-card-bg': 'linear-gradient(150deg, rgba(20, 32, 52, 0.94), rgba(10, 18, 36, 0.92))',
+      '--layer-card-overlay': 'radial-gradient(120% 120% at 28% 16%, rgba(255, 176, 156, .38), transparent 68%)',
+      '--promo-texture': 'radial-gradient(circle at 24% 22%, rgba(120, 210, 255, .24), transparent 68%)'
+    }
+  }
+];
+
+const applySeasonalTheme = (() => {
+  const root = document.documentElement;
+  const body = document.body;
+  const layer = document.getElementById('seasonalLayer');
+  const countdownEl = document.getElementById('seasonalCountdown');
+  const taglineEl = document.getElementById('seasonalTagline');
+
+  let appliedVars = [];
+  let appliedClasses = [];
+  let cleanup = null;
+
+  return (themeState) => {
+    if (cleanup) {
+      try { cleanup(); } catch (err) { console.warn('Unable to dispose seasonal theme', err); }
+      cleanup = null;
+    }
+
+    appliedClasses.forEach((cls) => body.classList.remove(cls));
+    appliedClasses = [];
+
+    appliedVars.forEach((prop) => root.style.removeProperty(prop));
+    appliedVars = [];
+
+    if (layer) {
+      layer.innerHTML = '';
+      delete layer.dataset.theme;
+    }
+
+    body.removeAttribute('data-seasonal-theme');
+
+    if (countdownEl) {
+      countdownEl.hidden = true;
+      countdownEl.textContent = '';
+    }
+
+    if (taglineEl) {
+      taglineEl.hidden = true;
+      taglineEl.textContent = '';
+    }
+
+    if (!themeState) return;
+
+    body.dataset.seasonalTheme = themeState.slug;
+    if (layer) layer.dataset.theme = themeState.slug;
+
+    if (Array.isArray(themeState.classes)) {
+      for (const cls of themeState.classes) {
+        if (!cls) continue;
+        body.classList.add(cls);
+        appliedClasses.push(cls);
+      }
+    }
+
+    if (themeState.vars && typeof themeState.vars === 'object') {
+      for (const [prop, value] of Object.entries(themeState.vars)) {
+        if (value == null) continue;
+        root.style.setProperty(prop, value);
+        appliedVars.push(prop);
+      }
+    }
+
+    if (themeState.tagline && taglineEl) {
+      taglineEl.textContent = themeState.tagline;
+      taglineEl.hidden = false;
+    }
+
+    if (typeof themeState.setup === 'function') {
+      try {
+        const result = themeState.setup({
+          layer,
+          countdownEl,
+          taglineEl,
+          tz: STATION_TZ,
+          theme: themeState,
+          makeZonedDate,
+          getLocalDateParts
+        });
+        if (typeof result === 'function') {
+          cleanup = result;
+        } else if (result && typeof result.destroy === 'function') {
+          cleanup = () => result.destroy();
+        }
+      } catch (err) {
+        console.warn('Unable to initialise seasonal theme', themeState.slug, err);
+      }
+    }
+  };
+})();
+
+const resolveSeasonalTheme = (date, tz) => {
+  const value = getLocalDateValue(date, tz);
+  const parts = getLocalDateParts(date, tz);
+  let active = null;
+
+  for (const theme of SEASONAL_THEMES) {
+    let ranges = [];
+    try {
+      ranges = typeof theme.getRanges === 'function'
+        ? theme.getRanges({ date, tz, year: parts.year, parts })
+        : [];
+    } catch (err) {
+      console.warn('Unable to evaluate seasonal theme range', theme.slug, err);
+      continue;
+    }
+
+    if (!Array.isArray(ranges)) continue;
+    for (const range of ranges) {
+      if (!range) continue;
+      const start = range.start;
+      const end = range.end;
+      if (!Number.isFinite(start) || !Number.isFinite(end)) continue;
+      if (value >= start && value <= end) {
+        if (!active || (theme.priority ?? 0) > (active.priority ?? 0)) {
+          active = {
+            ...theme,
+            range: { start, end },
+            data: range.data || {},
+            year: parts.year
+          };
+        }
+      }
+    }
+  }
+
+  return active;
+};
+
+const seasonalThemeController = (() => {
+  let active = null;
+  let midnightTimer = null;
+
+  const scheduleNext = (reference = new Date()) => {
+    if (midnightTimer) clearTimeout(midnightTimer);
+    const delay = msUntilNextMidnight(reference, STATION_TZ) + 2000;
+    midnightTimer = setTimeout(() => {
+      evaluate();
+    }, Math.max(60 * 1000, delay));
+  };
+
+  const evaluate = () => {
+    const now = new Date();
+    const next = resolveSeasonalTheme(now, STATION_TZ);
+    const nextSlug = next?.slug || '';
+    const currentSlug = active?.slug || '';
+
+    if (nextSlug !== currentSlug) {
+      applySeasonalTheme(next || null);
+      active = next || null;
+    } else if (!nextSlug && currentSlug) {
+      applySeasonalTheme(null);
+      active = null;
+    }
+
+    scheduleNext(now);
+  };
+
+  return {
+    start() {
+      evaluate();
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          evaluate();
+        }
+      });
+    },
+    reapplyActiveTheme() {
+      if (active) {
+        applySeasonalTheme(active);
+      }
+    },
+    getActiveTheme() {
+      return active;
+    }
+  };
+})();
+
 const SHOW_LOADING_FALLBACK = 'Live: Amped AI (fetching details…)';
 const SHOW_TIME_LOADING_FALLBACK = 'Fetching schedule…';
 
@@ -2070,7 +3244,6 @@ const HOST_THEME_STORAGE_KEY = 'amped-active-host';
 const DEFAULT_HOST_SLUG = 'autodj';
 let lastScheduleSlug = DEFAULT_HOST_SLUG;
 
-const STATION_TZ = CONFIG.timeZone || 'Pacific/Auckland';
 const UP_NEXT_LIMIT = 4;
 const MINUTE_MS = 60 * 1000;
 const DAY_MS = 24 * 60 * MINUTE_MS;
@@ -2189,6 +3362,8 @@ const applyHostSkin = (() => {
       accentSvg: theme?.accentSvg ?? HOST_THEMES[DEFAULT_HOST_SLUG]?.accentSvg,
       texture: theme?.texture ?? HOST_THEMES[DEFAULT_HOST_SLUG]?.texture
     });
+
+    seasonalThemeController.reapplyActiveTheme();
 
     lastSlug = slug;
 
@@ -3647,6 +4822,7 @@ function initNowPlaying() {
 /* ------------------------------ INIT ----------------------------------- */
 function init() {
   initHeaderUI();
+  seasonalThemeController.start();
   initCarModeToggle();
   renderShows();
   renderScheduleShell();
