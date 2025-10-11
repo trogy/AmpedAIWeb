@@ -1290,6 +1290,38 @@
                 flex-wrap: wrap;
           }
 
+          .footer-easter-trigger {
+                display: inline-flex;
+                align-items: center;
+                background: none;
+                border: none;
+                color: inherit;
+                font: inherit;
+                padding: 0;
+                margin: 0;
+                cursor: pointer;
+                text-decoration: underline dotted transparent;
+                transition: color .2s ease, text-decoration-color .2s ease;
+          }
+
+          .footer-easter-trigger:hover,
+          .footer-easter-trigger:focus-visible {
+                color: var(--brand-300);
+                text-decoration-color: currentColor;
+                outline: none;
+          }
+
+          .footer-easter-trigger[aria-expanded="true"] {
+                color: var(--brand-300);
+          }
+
+          .footer-easter-note {
+                flex-basis: 100%;
+                margin: 4px 0 0;
+                font-size: .85rem;
+                color: var(--brand-300);
+          }
+
           .footer-logo {
                 height: 42px;
                 width: auto;
@@ -1370,6 +1402,10 @@
 
                 .footer-brand {
                   justify-content: center;
+                }
+
+                .footer-easter-note {
+                  text-align: center;
                 }
 
                 .socials {
@@ -2425,7 +2461,8 @@
     <div class="container footer-grid">
       <div class="footer-brand">
         <img src="AmpedMediaLogo.png" alt="Amped Media logo" class="footer-logo" width="220" height="80" loading="lazy">
-        <span>© <span id="year"></span> Amped Media a TGNZ Networks Project • V0.4</span>
+        <span>© <span id="year"></span> Amped Media a TGNZ Networks Project • <button id="footerVersionToggle" class="footer-easter-trigger" type="button" aria-expanded="false" aria-controls="footerSecretNote">V0.4</button></span>
+        <p id="footerSecretNote" class="footer-easter-note" hidden aria-hidden="true">🎛️ Midnight maintenance tip: queue up <code>ampedWave()</code> in the console to light up the virtual soundboard.</p>
       </div>
       <div class="socials" aria-label="Social links">
         <a class="icon-btn" href="#" aria-label="X / Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h3l6.5 8.2L18.5 3H21l-7.4 9.5L21 21h-3l-6.8-8.6L6 21H3l8-10.3L3 3Z"/></svg></a>
@@ -4932,6 +4969,95 @@ function initNowPlaying() {
   fetchNowPlaying();
 }
 
+/* ------------------------------ EASTER EGGS ------------------------------ */
+function initConsoleEasterEgg() {
+  if (typeof window === 'undefined' || !window.console || typeof window.console.log !== 'function') {
+    return;
+  }
+
+  const bannerStyle = [
+    'background: linear-gradient(90deg, #ff4db8, #7b5dff)',
+    'color: #08090d',
+    'font-size: 16px',
+    'font-weight: 700',
+    'padding: 6px 12px',
+    'border-radius: 8px'
+  ].join('; ');
+
+  const bodyStyle = 'color: #aab4c8; font-size: 13px; line-height: 1.45;';
+  const accentStyle = 'color: #ff4db8; font-weight: 700;';
+
+  window.console.log('%cAmped AI // Secret Console Booth', bannerStyle);
+  window.console.log(
+    '%cWelcome to the late-night engineering deck.\nType %campedWave()%c to send a neon cheer and watch the meters dance.\nHint: tap the version label in the footer for another surprise.',
+    bodyStyle,
+    accentStyle,
+    bodyStyle
+  );
+
+  if (typeof window.ampedWave !== 'function') {
+    window.ampedWave = () => {
+      const wave = [
+        '📡 Amped Wave Transmission',
+        '┌────────────────────────────┐',
+        '│  ~~~   ~~~~    ~~~   ~~~~  │',
+        '│ ~~~~  ~~~~ ~~  ~~~~  ~~~~  │',
+        '│  ~~~~   ~~~~    ~~~~   ~~  │',
+        '└────────────────────────────┘'
+      ].join('\n');
+
+      window.console.log('%c' + wave, 'color: #ff4db8; font-family: "Fira Code", monospace; line-height: 1.3;');
+      return 'Signal boosted — keep the beat going!';
+    };
+  }
+}
+
+function initFooterEasterEgg() {
+  const trigger = document.getElementById('footerVersionToggle');
+  const note = document.getElementById('footerSecretNote');
+  if (!trigger || !note) return;
+
+  const hideNote = () => {
+    if (!note.hasAttribute('hidden')) {
+      note.setAttribute('hidden', '');
+      note.setAttribute('aria-hidden', 'true');
+      trigger.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('keydown', handleEscape, true);
+    }
+  };
+
+  const handleEscape = (event) => {
+    if (event.key === 'Escape') {
+      hideNote();
+      trigger.focus();
+    }
+  };
+
+  const toggle = () => {
+    const isHidden = note.hasAttribute('hidden');
+    if (isHidden) {
+      note.removeAttribute('hidden');
+      note.setAttribute('aria-hidden', 'false');
+      trigger.setAttribute('aria-expanded', 'true');
+      document.addEventListener('keydown', handleEscape, true);
+    } else {
+      hideNote();
+    }
+  };
+
+  trigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    toggle();
+  });
+
+  trigger.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggle();
+    }
+  });
+}
+
 /* ------------------------------ INIT ----------------------------------- */
 function init() {
   initHeaderUI();
@@ -4950,7 +5076,10 @@ function init() {
     .catch(() => renderUpNextFallback(tz));
   initPlayer();
   initNowPlaying();
+  initFooterEasterEgg();
 }
+
+initConsoleEasterEgg();
 
 document.readyState !== 'loading'
   ? init()
