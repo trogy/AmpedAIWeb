@@ -964,6 +964,17 @@
                 opacity: 0;
           }
 
+          [data-car-mode="true"] .current-show {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-areas:
+                  "badge"
+                  "text";
+          }
+
+          [data-car-mode="true"] .current-show-host {
+                display: none;
+          }
+
           .promo-card {
                 position: relative;
                 overflow: hidden;
@@ -1057,7 +1068,11 @@
                 position: relative;
                 display: grid;
                 grid-template-columns: minmax(0, 1fr);
-                grid-template-rows: auto auto;
+                grid-template-rows: auto auto auto;
+                grid-template-areas:
+                  "badge"
+                  "text"
+                  "host";
                 gap: clamp(18px, 4vw, 24px);
                 padding: clamp(22px, 5vw, 30px);
                 border-radius: calc(var(--r-lg) - 2px);
@@ -1085,6 +1100,7 @@
           }
 
           .current-show-badge {
+                grid-area: badge;
                 justify-self: start;
                 padding: .45rem 1.05rem;
                 border-radius: 999px;
@@ -1100,6 +1116,7 @@
           }
 
           .current-show-text {
+                grid-area: text;
                 display: grid;
                 gap: clamp(8px, 2vw, 12px);
                 max-width: 48ch;
@@ -1120,6 +1137,94 @@
                 font-weight: 600;
                 line-height: 1.35;
                 text-wrap: balance;
+          }
+
+          .current-show-host {
+                grid-area: host;
+                margin: 0;
+                align-self: stretch;
+                justify-self: center;
+                display: grid;
+                place-items: center;
+                min-width: 0;
+                width: min(240px, 45vw);
+                aspect-ratio: 3 / 4;
+                padding: clamp(6px, 1.6vw, 10px);
+                border-radius: calc(var(--r-lg) - 4px);
+                background: color-mix(in oklab, var(--layer-glass) 80%, transparent);
+                border: 1px solid color-mix(in oklab, var(--layer-border) 70%, transparent);
+                box-shadow:
+                  inset 0 0 0 1px color-mix(in oklab, #fff 10%, transparent),
+                  0 18px 36px color-mix(in srgb, #000 24%, transparent);
+                backdrop-filter: blur(22px) saturate(1.2);
+                overflow: hidden;
+          }
+
+          .current-show-host-stack {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                display: grid;
+                place-items: center;
+                border-radius: calc(var(--r-lg) - 8px);
+          }
+
+          .current-show-host-portrait {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: calc(var(--r-lg) - 8px);
+                box-shadow: 0 12px 24px color-mix(in srgb, #000 32%, transparent);
+                transition: transform .35s ease, box-shadow .35s ease;
+          }
+
+          .current-show-host-stack[data-host-count="2"] .current-show-host-portrait {
+                position: absolute;
+                width: 88%;
+                height: 88%;
+                top: 50%;
+                transform: translateY(-50%);
+          }
+
+          .current-show-host-stack[data-host-count="2"] .current-show-host-portrait:first-child {
+                left: 6%;
+                z-index: 2;
+                transform: translate(-6%, -50%) rotate(-2deg);
+          }
+
+          .current-show-host-stack[data-host-count="2"] .current-show-host-portrait:last-child {
+                right: 6%;
+                transform: translate(6%, -50%) rotate(2deg);
+          }
+
+          .current-show-host-fallback {
+                display: grid;
+                place-items: center;
+                width: 100%;
+                height: 100%;
+                border-radius: calc(var(--r-lg) - 8px);
+                background: radial-gradient(circle at 30% 20%, color-mix(in oklab, var(--brand) 42%, transparent), transparent 68%),
+                  color-mix(in oklab, var(--surface) 84%, transparent);
+                color: color-mix(in oklab, var(--text) 78%, var(--muted) 22%);
+                font-weight: 700;
+                font-size: clamp(1.2rem, 3vw, 1.6rem);
+                letter-spacing: .16em;
+          }
+
+          @media (min-width: 780px) {
+                .current-show {
+                  grid-template-columns: minmax(0, 1fr) minmax(180px, clamp(220px, 24vw, 280px));
+                  grid-template-rows: auto 1fr;
+                  grid-template-areas:
+                    "badge host"
+                    "text host";
+                  align-items: center;
+                }
+
+                .current-show-host {
+                  justify-self: end;
+                  width: min(260px, 28vw);
+                }
           }
 
           .up-next-head {
@@ -2465,6 +2570,10 @@
                   <h3 class="current-show-title" id="currentShowTitle" data-fallback="show-loading"></h3>
                   <span class="current-show-time" id="currentShowTime" data-fallback="show-time"></span>
                 </div>
+                <figure class="current-show-host" aria-labelledby="currentShowTitle">
+                  <div class="current-show-host-stack" id="currentShowHostStack" hidden></div>
+                  <div class="current-show-host-fallback" id="currentShowImageFallback">AMP</div>
+                </figure>
               </div>
               <div class="up-next-head">
                 <span class="chip">Up Next</span>
@@ -3529,6 +3638,35 @@ const HOST_THEMES = {
   }
 };
 
+const HOST_PORTRAIT_LIBRARY = {
+  jax:  { src: 'JAXHS.png',  alt: 'Portrait of Jaxon “Jax” Carter' },
+  miki: { src: 'MIKIHS.png', alt: 'Portrait of Mikayla “Miki” James' },
+  sam:  { src: 'SAMHS.png',  alt: 'Portrait of Sam Carter' }
+};
+
+const CURRENT_SHOW_HOST_MAP = [
+  {
+    hosts: ['jax', 'miki'],
+    matchers: [
+      'amped-ai-with-jax-miki',
+      'amped-ai-with-jax-and-miki',
+      'amped-ai-with-jaxon-jax-carter-mikayla-miki-james'
+    ]
+  },
+  {
+    hosts: ['miki'],
+    matchers: ['amped-mornings-with-miki']
+  },
+  {
+    hosts: ['jax'],
+    matchers: ['the-amped-drive-home-with-jax']
+  },
+  {
+    hosts: ['sam'],
+    matchers: ['midnight-flow-with-sam-carter']
+  }
+];
+
 const HOST_THEME_STORAGE_KEY = 'amped-active-host';
 const DEFAULT_HOST_SLUG = 'autodj';
 let lastScheduleSlug = DEFAULT_HOST_SLUG;
@@ -3557,6 +3695,89 @@ const debounce = (fn, wait = 120) => {
     timer = setTimeout(() => fn.apply(undefined, args), wait);
   };
 };
+
+const updateCurrentShowPortraits = (() => {
+  const stackEl = $('#currentShowHostStack');
+  const fallbackEl = $('#currentShowImageFallback');
+
+  const toSlug = (value = '') => String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  const getInitials = (label = '') => {
+    const trimmed = String(label || '').trim();
+    if (!trimmed) return 'AMP';
+    const parts = trimmed.split(/\s+/).filter(Boolean);
+    const initials = parts
+      .map(part => part.replace(/[^a-z0-9]/gi, ''))
+      .filter(Boolean)
+      .map(part => part[0])
+      .join('')
+      .toUpperCase();
+    if (initials.length >= 2) return initials.slice(0, 3);
+    const fallback = trimmed.replace(/[^a-z0-9]/gi, '').toUpperCase();
+    return fallback.slice(0, 3) || 'AMP';
+  };
+
+  const resolveHostsFromTitle = (title = '') => {
+    if (!title) return [];
+    const slug = toSlug(title);
+    for (const entry of CURRENT_SHOW_HOST_MAP) {
+      if (entry.matchers.some((matcher) => slug.includes(matcher))) {
+        return entry.hosts.slice();
+      }
+    }
+    return [];
+  };
+
+  return ({ title } = {}, slug = DEFAULT_HOST_SLUG) => {
+    if (!stackEl || !fallbackEl) return;
+
+    const themeLabel = HOST_THEMES[slug]?.label || HOST_THEMES[DEFAULT_HOST_SLUG]?.label || 'Amped AI';
+    const initials = getInitials(title || (slug === DEFAULT_HOST_SLUG ? 'Amped AI' : themeLabel));
+    fallbackEl.textContent = initials;
+
+    const matchedHosts = resolveHostsFromTitle(title);
+    const uniqueHosts = Array.from(new Set(matchedHosts.length ? matchedHosts : (HOST_PORTRAIT_LIBRARY[slug] ? [slug] : [])));
+    const portraits = uniqueHosts
+      .map((hostKey) => {
+        const data = HOST_PORTRAIT_LIBRARY[hostKey];
+        if (!data?.src) return null;
+        return { ...data, hostKey };
+      })
+      .filter(Boolean);
+
+    stackEl.innerHTML = '';
+
+    if (portraits.length) {
+      const frag = document.createDocumentFragment();
+      portraits.forEach(({ src, alt, hostKey }) => {
+        const img = document.createElement('img');
+        img.className = 'current-show-host-portrait';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.src = src;
+        img.alt = alt || `Portrait of ${HOST_THEMES[hostKey]?.label || hostKey}`;
+        img.setAttribute('data-host', hostKey);
+        frag.appendChild(img);
+      });
+
+      stackEl.appendChild(frag);
+      if (portraits.length) {
+        stackEl.dataset.hostCount = String(portraits.length);
+      } else {
+        delete stackEl.dataset.hostCount;
+      }
+      stackEl.removeAttribute('hidden');
+      fallbackEl.setAttribute('hidden', '');
+    } else {
+      delete stackEl.dataset.hostCount;
+      stackEl.setAttribute('hidden', '');
+      fallbackEl.removeAttribute('hidden');
+    }
+  };
+})();
 
 /* --------------------------- HOST TAKEOVERS --------------------------- */
 const slugifyHost = (value = '') => {
@@ -3878,10 +4099,13 @@ const getCurrentShellSlot = (tz) => {
   return null;
 };
 
-const updateCurrentShowUI = (event, tz) => {
+const updateCurrentShowUI = (event, tz, slug = DEFAULT_HOST_SLUG) => {
   const titleEl = $('#currentShowTitle');
   const timeEl = $('#currentShowTime');
   if (!titleEl || !timeEl) return false;
+
+  const resolvedSlug = slug || DEFAULT_HOST_SLUG;
+  updateCurrentShowPortraits({ title: event?.title }, resolvedSlug);
 
   if (!event) {
     setText(titleEl, SHOW_LOADING_FALLBACK);
@@ -3906,7 +4130,7 @@ const updateCurrentShowFromEvents = (events, tz) => {
     const slug = resolveHostThemeSlug(current.title);
     lastScheduleSlug = slug;
     applyHostSkin(slug, { asSlug: true, force: true });
-    updateCurrentShowUI(current, tz);
+    updateCurrentShowUI(current, tz, slug);
     return current;
   }
 
@@ -3915,8 +4139,11 @@ const updateCurrentShowFromEvents = (events, tz) => {
     const slug = resolveHostThemeSlug(shellSlot.title);
     lastScheduleSlug = slug;
     applyHostSkin(slug, { asSlug: true, force: true });
+    updateCurrentShowUI(shellSlot, tz, slug);
+    return shellSlot;
   }
-  updateCurrentShowUI(shellSlot, tz);
+
+  updateCurrentShowUI(shellSlot, tz, lastScheduleSlug || DEFAULT_HOST_SLUG);
   return shellSlot;
 };
 
