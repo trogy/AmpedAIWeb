@@ -1147,7 +1147,7 @@
                 display: grid;
                 place-items: end center;
                 min-width: 0;
-                width: min(240px, 45vw);
+                width: min(196px, 38vw);
                 aspect-ratio: 3 / 4;
                 padding: 0;
                 border-radius: calc(var(--r-lg) - 4px);
@@ -1180,20 +1180,20 @@
           .current-show-host-stack[data-host-count="2"] .current-show-host-portrait {
                 position: absolute;
                 bottom: 0;
-                width: 92%;
-                height: 96%;
+                width: 72%;
+                height: 92%;
                 transform: translateY(0);
           }
 
           .current-show-host-stack[data-host-count="2"] .current-show-host-portrait:first-child {
-                left: 6%;
+                left: 0;
                 z-index: 2;
-                transform: translateX(-8%) rotate(-2deg);
+                transform: translateX(-30%) rotate(-4deg);
           }
 
           .current-show-host-stack[data-host-count="2"] .current-show-host-portrait:last-child {
-                right: 6%;
-                transform: translateX(8%) rotate(2deg);
+                right: 0;
+                transform: translateX(30%) rotate(4deg);
           }
 
           .current-show-host-stack:not([hidden]) + .current-show-host-fallback {
@@ -1226,7 +1226,7 @@
 
                 .current-show-host {
                   justify-self: end;
-                  width: min(260px, 28vw);
+                  width: min(240px, 26vw);
                 }
           }
 
