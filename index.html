@@ -4686,6 +4686,13 @@ function initPlayer() {
 
   if (miniPlayerEl) {
     const heroSection = document.querySelector('#listen');
+    const computeHeroInView = () => {
+      if (!heroSection) {
+        return window.scrollY <= 4;
+      }
+      const rect = heroSection.getBoundingClientRect();
+      return rect.bottom > 0 && rect.top < window.innerHeight;
+    };
     window.addEventListener('resize', () => {
       if (miniVisible) updateMiniSafeArea();
     });
@@ -4703,15 +4710,15 @@ function initPlayer() {
         observer.observe(heroSection);
       } else {
         const checkHeroInView = () => {
-          const rect = heroSection.getBoundingClientRect();
-          const inView = rect.bottom > 0 && rect.top < window.innerHeight;
-          applyHeroVisibility(inView);
+          applyHeroVisibility(computeHeroInView());
         };
         window.addEventListener('scroll', checkHeroInView, { passive: true });
         window.addEventListener('resize', checkHeroInView);
         checkHeroInView();
       }
     }
+    heroInView = computeHeroInView();
+    updateMiniVisibility();
     miniPlayerEl.setAttribute('aria-hidden', 'true');
     setMiniVisibility(false);
   }
