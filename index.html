@@ -4640,6 +4640,14 @@ function initPlayer() {
   let heroInView = true;
   let miniVisible = false;
   let miniHideTimer = null;
+  const MIN_SCROLL_FOR_MINI = 48;
+
+  const getScrollPosition = () => {
+    if (typeof window.scrollY === 'number') return window.scrollY;
+    if (typeof window.pageYOffset === 'number') return window.pageYOffset;
+    const doc = document.documentElement;
+    return doc && typeof doc.scrollTop === 'number' ? doc.scrollTop : 0;
+  };
 
   const updateMiniSafeArea = () => {
     if (!miniPlayerEl || !miniVisible) {
@@ -4680,7 +4688,8 @@ function initPlayer() {
 
   const updateMiniVisibility = () => {
     if (!miniPlayerEl) return;
-    const shouldShow = !heroInView && !isCarModeActive();
+    const scrolledPastTop = getScrollPosition() > MIN_SCROLL_FOR_MINI;
+    const shouldShow = !heroInView && scrolledPastTop && !isCarModeActive();
     setMiniVisibility(shouldShow);
   };
 
@@ -4721,6 +4730,11 @@ function initPlayer() {
     updateMiniVisibility();
     miniPlayerEl.setAttribute('aria-hidden', 'true');
     setMiniVisibility(false);
+
+    const handleScrollVisibilityCheck = () => {
+      updateMiniVisibility();
+    };
+    window.addEventListener('scroll', handleScrollVisibilityCheck, { passive: true });
   }
 
   const applyVolumeUI = () => {
