@@ -1438,6 +1438,52 @@
 		box-shadow: 0 0 12px hsl(var(--brand-h) 100% 60% / .5) inset;
 	  }
 
+          .shutdown-banner {
+                display: block;
+                text-align: center;
+                padding: 12px 18px;
+                background: linear-gradient(120deg, color-mix(in oklab, var(--brand) 65%, #120917), color-mix(in oklab, var(--brand-700) 55%, #0c0a12));
+                color: var(--text);
+                text-decoration: none;
+                font-weight: 600;
+                border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+                letter-spacing: .01em;
+          }
+
+          .shutdown-banner strong {
+                color: var(--brand-300);
+          }
+
+          .shutdown-banner:hover,
+          .shutdown-banner:focus-visible {
+                background: linear-gradient(120deg, color-mix(in oklab, var(--brand) 75%, #1a0b23), color-mix(in oklab, var(--brand-700) 65%, #140c1f));
+          }
+
+          .shutdown-note {
+                padding-top: 10px;
+          }
+
+          .shutdown-note .container {
+                background: var(--layer-card-bg);
+                border-radius: var(--r-lg);
+                border: 1px solid var(--layer-border);
+                box-shadow: var(--shadow);
+                padding: clamp(20px, 3vw, 32px);
+          }
+
+          .shutdown-note h2 {
+                margin-bottom: .75rem;
+          }
+
+          .shutdown-note p {
+                margin: 0 0 1rem;
+                color: var(--text);
+          }
+
+          .shutdown-note p:last-child {
+                margin-bottom: 0;
+          }
+
 	  section {
 		padding: 34px 0;
 	  }
@@ -2474,6 +2520,10 @@
     </div>
   </header>
 
+  <a class="shutdown-banner" href="#shutdown-note">
+    Amped AI will shut down on <strong>28 February 2026</strong>. Read the full message below.
+  </a>
+
   <main id="main">
     <section class="hero" id="listen">
       <div id="seasonalLayer" class="seasonal-layer" aria-hidden="true"></div>
@@ -2588,6 +2638,28 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="shutdown-note" id="shutdown-note">
+      <div class="container">
+        <h2>Amped AI will be shutting down on 28 February 2026.</h2>
+        <p>
+          This project started as an experiment, a way to explore what fully AI-generated radio could look like,
+          how far the technology could be pushed, and where it clearly still falls short. Along the way, it proved
+          something important: AI can create atmosphere, consistency, and even moments of genuine connection, but it
+          also highlighted the value of intent, context, and human judgment.
+        </p>
+        <p>
+          Amped AI was never meant to replace people. It was meant to test ideas, question assumptions, and see what
+          happens when you let a system run end-to-end. In that sense, it did exactly what it was supposed to do.
+        </p>
+        <p>
+          Thank you to everyone who tuned in, listened, experimented alongside it, or simply let it play in the
+          background.
+        </p>
+        <p>The signal goes quiet on 28/02/2026.</p>
+        <p>- Marc</p>
       </div>
     </section>
 
