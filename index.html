@@ -579,6 +579,26 @@
                 transform: translateY(20px);
           }
 
+          .hero-final-line {
+                margin: .9rem 0 0;
+                font-size: clamp(1rem, .92rem + .8vw, 1.22rem);
+                font-weight: 700;
+                line-height: 1.35;
+                letter-spacing: .01em;
+                color: color-mix(in oklab, var(--text) 88%, var(--brand-300) 12%);
+                text-wrap: balance;
+                max-width: 34ch;
+                opacity: 0;
+                transform: translateY(20px);
+                animation: heroFadeUp .8s ease forwards;
+                animation-delay: .34s;
+          }
+
+          .hero-final-line span {
+                color: var(--brand-300);
+                text-shadow: 0 0 18px hsl(var(--brand-h) 100% 68% / .25);
+          }
+
           .hero .eyebrow,
           .hero h1,
           .hero p {
@@ -2555,6 +2575,8 @@
             <p>
               Jax and Miki return one last time to reflect on their journey, the moments that shaped the station, and the road that led to this final sign-off.
             </p>
+
+            <p class="hero-final-line"><span>One last show.</span> One last conversation. <span>One final broadcast.</span></p>
 
             <img class="hero-announcement-image" src="TheFinalBroadcast.png" alt="The Final Broadcast featuring Jax and Miki" width="1536" height="1024" loading="eager" decoding="async">
 
