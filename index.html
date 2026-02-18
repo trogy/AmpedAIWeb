@@ -565,6 +565,19 @@
                 animation-delay: .4s;
           }
 
+          .hero-announcement-image {
+                margin-top: 1.1rem;
+                width: min(100%, 560px);
+                border-radius: var(--r-lg);
+                border: 1px solid var(--layer-border);
+                box-shadow: var(--shadow);
+                display: block;
+                animation: heroFadeUp .8s ease forwards;
+                animation-delay: .35s;
+                opacity: 0;
+                transform: translateY(20px);
+          }
+
           .hero .eyebrow,
           .hero h1,
           .hero p {
@@ -2533,15 +2546,16 @@
           <div>
             <div class="eyebrow">
               <span class="chip"><span class="live-dot" aria-hidden></span> Live 24/7</span>
-              <span class="neon">100% AI Radio</span>
+              <span class="neon">Final Broadcast Event</span>
             </div>
 
-            <h1><span>Amped AI</span> — Always on. Always different.</h1>
+            <h1><span>Amped AI</span> — The Final Broadcast</h1>
 
             <p>
-              A new kind of station: AI-generated music, shows, and voices.
-              Streaming non-stop with real programming, real hosts, and zero humans behind the mic.
+              Jax and Miki return one last time to reflect on their journey, the moments that shaped the station, and the road that led to this final sign-off.
             </p>
+
+            <img class="hero-announcement-image" src="TheFinalBroadcast.png" alt="The Final Broadcast featuring Jax and Miki" width="1200" height="675" loading="eager" decoding="async">
 
             <div id="seasonalTagline" class="seasonal-tagline" hidden></div>
 
