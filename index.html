@@ -6,7 +6,7 @@
     <title>Amped AI Station Closed</title>
     <style>
       :root {
-        color-scheme: light;
+        color-scheme: dark;
       }
 
       body {
@@ -14,37 +14,77 @@
         min-height: 100vh;
         display: grid;
         place-items: center;
-        background: #ffffff;
-        color: #111111;
+        background: #090909;
+        color: #f2f2f2;
         font-family: Arial, Helvetica, sans-serif;
       }
 
       main {
-        max-width: 720px;
-        padding: 2rem;
+        max-width: 820px;
+        padding: 2.5rem 2rem;
         text-align: center;
       }
 
-      img {
-        width: min(220px, 60vw);
+      .station-logo {
+        width: min(240px, 62vw);
         height: auto;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.75rem;
+      }
+
+      h1 {
+        margin: 0 0 1.25rem;
+        font-size: clamp(2rem, 4vw, 2.75rem);
+        line-height: 1.2;
       }
 
       p {
-        margin: 0;
-        font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-        line-height: 1.5;
+        margin: 0 0 1.1rem;
+        font-size: clamp(1rem, 2.2vw, 1.2rem);
+        line-height: 1.65;
+        color: #d7d7d7;
+      }
+
+      p:last-of-type {
+        margin-bottom: 2rem;
+      }
+
+      .amped-media-logo {
+        width: min(130px, 35vw);
+        height: auto;
+        opacity: 0.92;
       }
     </style>
   </head>
   <body>
     <main>
-      <img src="logo.png" alt="Amped AI logo" />
+      <img class="station-logo" src="logo.png" alt="Amped AI logo" />
+      <h1>Amped AI Has Closed</h1>
       <p>
-        The Amped AI Experiment has concluded and the station has been shut
-        down. Thank you all for listening!
+        The Amped AI experiment has concluded, and the station is now offline.
       </p>
+      <p>
+        It began as a way to test what fully AI-generated radio could become,
+        how far it could go, where it would succeed, and where it would fall
+        short. Along the way, it proved that AI can create atmosphere and
+        consistency, but it also reaffirmed the value of human intent and
+        judgment.
+      </p>
+      <p>
+        Amped AI was never meant to replace people. It was built to explore
+        ideas and push boundaries. In that sense, it did exactly what it was
+        meant to do.
+      </p>
+      <p>Thank you to everyone who tuned in.</p>
+      <img
+        class="amped-media-logo"
+        src="AmpedMediaLogo.png"
+        alt="Amped Media logo"
+      />
     </main>
+    <script>
+      setTimeout(function () {
+        window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+      }, 30000);
+    </script>
   </body>
 </html>
